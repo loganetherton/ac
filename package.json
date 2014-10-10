@@ -4,22 +4,28 @@
   "version": "0.4.0",
   "private": false,
   "author": "Linnovate <mean@linnovate.net>",
-  "contributors": [{
-    "name": "Lior Kesos",
-    "mail": "lior@linnovate.net"
-  }, {
-    "name": "Yonatan Ellman",
-    "mail": "yonatan@linnovate.net"
-  }, {
-    "name": "Drew Fyock",
-    "mail": "drew@steelbisondev.com"
-  }, {
-    "name": "Ehud Shahak",
-    "mail": "ehud@linnovate.net"
-  }, {
-    "name": "Amos Haviv",
-    "mail": "mail@amoshaviv.com"
-  }],
+  "contributors": [
+    {
+      "name": "Lior Kesos",
+      "mail": "lior@linnovate.net"
+    },
+    {
+      "name": "Yonatan Ellman",
+      "mail": "yonatan@linnovate.net"
+    },
+    {
+      "name": "Drew Fyock",
+      "mail": "drew@steelbisondev.com"
+    },
+    {
+      "name": "Ehud Shahak",
+      "mail": "ehud@linnovate.net"
+    },
+    {
+      "name": "Amos Haviv",
+      "mail": "mail@amoshaviv.com"
+    }
+  ],
   "mean": "0.4.0",
   "repository": {
     "type": "git",
@@ -32,7 +38,7 @@
   "scripts": {
     "start": "node node_modules/grunt-cli/bin/grunt",
     "test": "node node_modules/grunt-cli/bin/grunt test",
-    "postinstall": "node node_modules/meanio/bin/mean-postinstall"
+    "postinstall": "node node_modules/meanio/bin/mean-postinstall",
   },
   "dependencies": {
     "assetmanager": "^1.1.1",
@@ -83,6 +89,7 @@
   "devDependencies": {
     "grunt-karma": "^0.8.2",
     "grunt-mocha-test": "^0.10.2",
+    "grunt-protractor-runner": "^1.1.4",
     "karma": "^0.12.10",
     "karma-chrome-launcher": "^0.1.3",
     "karma-coffee-preprocessor": "^0.2.1",
@@ -96,6 +103,7 @@
     "karma-requirejs": "^0.2.1",
     "karma-script-launcher": "^0.1.0",
     "ms": "^0.6.2",
+    "protractor": "^1.3.1",
     "requirejs": "^2.1.11",
     "should": "3.3.1",
     "supertest": "0.11.0"

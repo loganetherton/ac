@@ -1,75 +1,96 @@
 'use strict';
 
-angular.module('mean.articles').controller('ArticlesController', ['$scope', '$stateParams', '$location', 'Global', 'Articles',
-  function($scope, $stateParams, $location, Global, Articles) {
-    $scope.global = Global;
+angular.module('mean.articles').controller('ArticlesController',
+['$scope', '$stateParams', '$location', 'Global', 'Articles',
+ function ($scope, $stateParams, $location, Global, Articles) {
+     $scope.global = Global;
+     /**
+      * Check if the user has authorization
+      *
+      * @param article
+      * @returns {*}
+      */
+     $scope.hasAuthorization = function (article) {
+         if (!article || !article.user) {
+             return false;
+         }
+         return $scope.global.isAdmin || article.user._id === $scope.global.user._id;
+     };
+     /**
+      * Create a new article
+      * @param isValid
+      */
+     $scope.create = function (isValid) {
+         if (isValid) {
+             var article = new Articles({
+                 title: this.title,
+                 content: this.content
+             });
+             article.$save(function (response) {
+                 $location.path('articles/' + response._id);
+             });
 
-    $scope.hasAuthorization = function(article) {
-      if (!article || !article.user) return false;
-      return $scope.global.isAdmin || article.user._id === $scope.global.user._id;
-    };
+             this.title = '';
+             this.content = '';
+         } else {
+             $scope.submitted = true;
+         }
+     };
 
-    $scope.create = function(isValid) {
-      if (isValid) {
-        var article = new Articles({
-          title: this.title,
-          content: this.content
-        });
-        article.$save(function(response) {
-          $location.path('articles/' + response._id);
-        });
+     $scope.remove = function (article) {
+         if (article) {
+             article.$remove();
 
-        this.title = '';
-        this.content = '';
-      } else {
-        $scope.submitted = true;
-      }
-    };
+             for (var i in $scope.articles) {
+                 if ($scope.articles[i] === article) {
+                     $scope.articles.splice(i, 1);
+                 }
+             }
+         } else {
+             $scope.article.$remove(function (response) {
+                 $location.path('articles');
+             });
+         }
+     };
 
-    $scope.remove = function(article) {
-      if (article) {
-        article.$remove();
+     $scope.update = function (isValid) {
+         if (isValid) {
+             var article = $scope.article;
+             if (!article.updated) {
+                 article.updated = [];
+             }
+             article.updated.push(new Date().getTime());
 
-        for (var i in $scope.articles) {
-          if ($scope.articles[i] === article) {
-            $scope.articles.splice(i, 1);
-          }
-        }
-      } else {
-        $scope.article.$remove(function(response) {
-          $location.path('articles');
-        });
-      }
-    };
+             article.$update(function () {
+                 $location.path('articles/' + article._id);
+             });
+         } else {
+             $scope.submitted = true;
+         }
+     };
 
-    $scope.update = function(isValid) {
-      if (isValid) {
-        var article = $scope.article;
-        if (!article.updated) {
-          article.updated = [];
-        }
-        article.updated.push(new Date().getTime());
+     /**
+      * Find a single item
+      */
+     $scope.find = function () {
+         Articles.query(function (articles) {
+             $scope.articles = articles;
+         });
+     };
 
-        article.$update(function() {
-          $location.path('articles/' + article._id);
-        });
-      } else {
-        $scope.submitted = true;
-      }
-    };
+     $scope.findOne = function () {
+         Articles.get({
+             articleId: $stateParams.articleId
+         }, function (article) {
+             $scope.article = article;
+         });
+     };
 
-    $scope.find = function() {
-      Articles.query(function(articles) {
-        $scope.articles = articles;
-      });
-    };
+     $scope.ctrlFlavor = {
+         data : 'blackberry'
+     };
 
-    $scope.findOne = function() {
-      Articles.get({
-        articleId: $stateParams.articleId
-      }, function(article) {
-        $scope.article = article;
-      });
-    };
-  }
-]);
+     $scope.updateFoo = function (newFoo) {
+         $scope.ctrlFlavor.data = newFoo;
+     };
+ }]);

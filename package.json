@@ -38,7 +38,7 @@
   "scripts": {
     "start": "node node_modules/grunt-cli/bin/grunt",
     "test": "node node_modules/grunt-cli/bin/grunt test",
-    "postinstall": "node node_modules/meanio/bin/mean-postinstall",
+    "postinstall": "node node_modules/meanio/bin/mean-postinstall"
   },
   "dependencies": {
     "assetmanager": "^1.1.1",

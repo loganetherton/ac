@@ -1,21 +1,50 @@
 <section data-ng-controller="ArticlesController" data-ng-init="find()">
-  <ul class="articles unstyled">
-    <li data-ng-repeat="article in articles">
-      <span>{{article.created | date:'medium'}}</span> /
-      <span>{{article.user.name}}</span>
-      <h2>
-        <a data-ng-href="#!/articles/{{article._id}}">{{article.title}}</a>
+    <ul class="articles unstyled">
+        <li data-ng-repeat="article in articles">
+            <div display-list-item></div>
+            <h2>
+                <a data-ng-href="#!/articles/{{article._id}}">{{article.title}}</a>
         <span data-ng-if="hasAuthorization(article)">
           <a class="btn" href="/#!/articles/{{article._id}}/edit">
-            <i class="glyphicon glyphicon-edit"></i>
+              <i class="glyphicon glyphicon-edit"></i>
           </a>
           <a class="btn" data-ng-click="remove(article);">
-            <i class="glyphicon glyphicon-trash"></i>
+              <i class="glyphicon glyphicon-trash"></i>
           </a>
         </span>
-      </h2>
-      <div>{{article.content}}</div>
-    </li>
-  </ul>
-  <h1 data-ng-hide="!articles || articles.length">No articles yet. <br> Why don't you <a href="/#!/articles/create">Create One</a>?</h1>
+            </h2>
+
+            <div>{{article.content}}</div>
+        </li>
+    </ul>
+
+    <p>Add an item</p>
+    <div data-ng-hide="!articles || articles.length">
+        <div class="row" blank-item="replaceWithInput()"></div>
+        <button ng-click="showMenu = true">Show Menu</button>
+        <button ng-click="showMenu = false">Hide Menu</button>
+        <button remove-bar="">Remove bar</button>
+        <div ng-show="showMenu">
+            <input type="text" focus-if="showMenu">
+        </div>
+    </div>
+
+
+    This is showing a direct link to the model value on the controller: <b>{{ctrlFlavor.data}}</b><br>
+    <input type="text" ng-model="ctrlFlavor.data">
+    <div cool-drink isolated-binding-foo="ctrlFlavor.data" isolated-attribute-foo="{{ctrlFlavor.data}}" isolated-expression-foo="updateFoo(newFoo)"></div>
+
+    <h1>Notebook test</h1>
+    <div class="form-actions">
+        <div class="input-append">
+            <form ng-submit="addNote(noteTitle);resetForm();">
+                <input class="span3" ng-model="noteTitle" size="16" type="text" placeholder="Add a note">
+                <button class="btn btn-success" type="button"
+                        ng-disabled="!noteTitle" ng-click="addNote(noteTitle);resetForm();">Add Note
+                </button>
+            </form>
+        </div>
+    </div>
+    <my-notebook notes="getNotes()" ondelete="deleteNote(id)"></my-notebook>
+
 </section>

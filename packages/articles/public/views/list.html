@@ -18,33 +18,15 @@
         </li>
     </ul>
 
-    <p>Add an item</p>
-    <div data-ng-hide="!articles || articles.length">
-        <div class="row" blank-item="replaceWithInput()"></div>
-        <button ng-click="showMenu = true">Show Menu</button>
-        <button ng-click="showMenu = false">Hide Menu</button>
-        <button remove-bar="">Remove bar</button>
-        <div ng-show="showMenu">
-            <input type="text" focus-if="showMenu">
-        </div>
-    </div>
+</section>
 
+<section data-ng-controller="TestController">
+    <p>In test controller</p>
+    <input type="text" ng-model="data.message">
+    <h1>{{data.message}}</h1>
+</section>
 
-    This is showing a direct link to the model value on the controller: <b>{{ctrlFlavor.data}}</b><br>
-    <input type="text" ng-model="ctrlFlavor.data">
-    <div cool-drink isolated-binding-foo="ctrlFlavor.data" isolated-attribute-foo="{{ctrlFlavor.data}}" isolated-expression-foo="updateFoo(newFoo)"></div>
-
-    <h1>Notebook test</h1>
-    <div class="form-actions">
-        <div class="input-append">
-            <form ng-submit="addNote(noteTitle);resetForm();">
-                <input class="span3" ng-model="noteTitle" size="16" type="text" placeholder="Add a note">
-                <button class="btn btn-success" type="button"
-                        ng-disabled="!noteTitle" ng-click="addNote(noteTitle);resetForm();">Add Note
-                </button>
-            </form>
-        </div>
-    </div>
-    <my-notebook notes="getNotes()" ondelete="deleteNote(id)"></my-notebook>
-
+<section data-ng-controller="TestController2">
+    <input type="text" ng-model="data.message">
+    <h1>{{data.message|reverse}}</h1>
 </section>

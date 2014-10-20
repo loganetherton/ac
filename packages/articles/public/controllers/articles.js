@@ -1,6 +1,8 @@
 'use strict';
 
-angular.module('mean.articles').controller('ArticlesController',
+var app = angular.module('mean.articles');
+
+app.controller('ArticlesController',
 ['$scope', '$stateParams', '$location', 'Global', 'Articles',
  function ($scope, $stateParams, $location, Global, Articles) {
      $scope.global = Global;
@@ -93,4 +95,16 @@ angular.module('mean.articles').controller('ArticlesController',
      $scope.updateFoo = function (newFoo) {
          $scope.ctrlFlavor.data = newFoo;
      };
+
+     $scope.logChore = function(chore){
+         console.log(chore + ' is done');
+     };
  }]);
+
+app.controller('TestController', ['$scope', 'Data', function ($scope, Data) {
+    $scope.data = Data;
+}]);
+
+app.controller('TestController2', ['$scope', 'Data', function ($scope, Data) {
+    $scope.data = Data;
+}]);

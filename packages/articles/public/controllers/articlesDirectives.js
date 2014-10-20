@@ -1,6 +1,8 @@
 /*global $:false */
 'use strict';
 
+var app = angular.module('mean.articles');
+
 angular.module('mean.articles').directive('displayListItem', function () {
     return {
         templateUrl: 'articles/views/titleListing.html'
@@ -90,40 +92,6 @@ angular.module('mean.articles').directive('clickAnywhereButHere', function($docu
             $document.bind('click', function() {
                 // magic here.
                 scope.$apply(attr.clickAnywhereButHere);
-            });
-        }
-    };
-});
-
-angular.module('mean.articles').directive('myNotebook', function () {
-    return {
-        restrict:'E',
-        scope:{
-            notes:'=',
-            ondelete:'&'
-        },
-        templateUrl:'articles/views/partials/notebook-directive.html',
-        controller:function ($scope, $attrs) {
-            $scope.deleteNote = function (id) {
-                $scope.ondelete({id:id});
-            };
-        }
-    };
-})
-.directive('myNote', function () {
-    return {
-        restrict:'E',
-        scope:{
-            delete:'&',
-            note:'='
-        },
-        link:function (scope, element, attrs) {
-            var $el = $(element);
-
-            $el.hide().fadeIn('slow');
-
-            $('.thumbnails').sortable({
-                placeholder:'ui-state-highlight', forcePlaceholderSize:true
             });
         }
     };

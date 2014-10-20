@@ -49,6 +49,7 @@ Articles.register(function(app, auth, database) {
     });
     */
   Articles.aggregateAsset('css', 'articles.css');
+    Articles.aggregateAsset('css', 'vendor/foundation/css/articles.css');
 
   return Articles;
 });

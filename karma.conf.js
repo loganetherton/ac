@@ -17,7 +17,16 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: _.flatten(_.values(assets.core.js)).concat([
       'packages/*/public/*.js',
-      'packages/*/public/*/*.js'
+      'packages/*/public/*/*.js',
+
+
+      'bower_components/angular/angular.js',
+      'bower_components/angular-bootstrap/ui-bootstrap.js',
+      'bower_components/angular-cookies/angular-cookies.js',
+      'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/angular-resource/angular-resource.js',
+      'bower_components/angular-route/angular-route.js',
+      'bower_components/angular-ui-router/release/angular-ui-router.js'
     ]),
 
     // list of files to exclude

@@ -101,8 +101,11 @@ app.controller('ArticlesController',
      };
  }]);
 
-app.controller('TestController', ['$scope', 'Data', function ($scope, Data) {
+app.controller('TestController', ['$scope', 'Data', 'userService', function ($scope, Data, userService) {
     $scope.data = Data;
+    userService.getSubredditsSubmittedToBy('yoitsnate').then(function(subreddits) {
+        $scope.subreddits = subreddits;
+    });
 }]);
 
 app.controller('TestController2', ['$scope', 'Data', function ($scope, Data) {

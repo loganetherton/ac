@@ -18,12 +18,63 @@ app.factory('Articles', ['$resource',
 // Testing
 app.factory('Data', [function () {
     return {
-        message: "I'm data from a service"
-    }
+        info: function(){
+            console.log('Logging from data');
+        },
+        message: 'I\'m data from a service'
+    };
 }]);
 
-app.filter('reverse', [function () {
-    return function (text) {
-        return text.split("").reverse().join("");
-    }
+app.factory('logger', [function () {
+
+    var types = {
+        'log': 'info',
+        'debug': 'warning',
+        'error': 'error'
+    };
+
+    var log = function(message, type, toast) {
+        if (typeof type === 'boolean') {
+            toast = type;
+        }
+
+        if (!types.hasOwnProperty(type)) {
+            type = 'log';
+        }
+
+        console[type](message);
+
+        //if (toast) {
+        //    toastr[types[type]](message);
+        //}
+    };
+
+    return {
+        log: log
+    };
+
+}]);
+
+app.factory("userService", ['$http', function ($http) {
+    return {
+        getSubredditsSubmittedToBy: function (user) {
+            return $http.get("http://api.reddit.com/user/" + user + "/submitted.json").then(function (response) {
+                var posts, subreddits;
+
+                posts = response.data.data.children;
+
+                // transform data to be only subreddit strings
+                subreddits = posts.map(function (post) {
+                    return post.data.subreddit;
+                });
+
+                // de-dupe
+                subreddits = subreddits.filter(function (element, position) {
+                    return subreddits.indexOf(element) === position;
+                });
+
+                return subreddits;
+            });
+        }
+    };
 }]);

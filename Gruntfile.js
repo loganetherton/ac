@@ -2,9 +2,10 @@
 
 var paths = {
     js: ['*.js', 'test/**/*.js', '!test/coverage/**', '!bower_components/**', 'packages/**/*.js',
-         '!packages/**/node_modules/**', '!packages/contrib/**/*.js', '!packages/contrib/**/node_modules/**'],
+         '!packages/**/node_modules/**', '!packages/contrib/**/*.js', '!packages/contrib/**/node_modules/**', '!packages/articles/public/assets/vendor/**'],
+    coffee: ['**/*.coffee', 'packages/articles/public/services/test.coffee'],
     html: ['packages/**/public/**/views/**', 'packages/**/server/views/**'],
-    css: ['!bower_components/**', 'packages/**/public/**/css/*.css', '!packages/contrib/**/public/**/css/*.css']
+    css: ['!bower_components/**', 'packages/**/public/**/css/*.css', '!packages/contrib/**/public/**/css/*.css', '!packages/articles/public/assets/vendor/**']
 };
 
 module.exports = function (grunt) {
@@ -40,7 +41,22 @@ module.exports = function (grunt) {
                     livereload: true
                 }
             }
+            //coffee: {
+            //    files: paths.coffee,
+            //    tasks: ['coffee:compile']
+            //}
         },
+        //coffee: {
+        //    compile: {
+        //        expand: true,
+        //        bare: true,
+        //        flatten: false,
+        //        force: true,
+        //        // Need to change this to whatever makes sense
+        //        cwd: __dirname + '/packages',
+        //        src: paths.coffee
+        //    }
+        //},
         jshint: {
             all: {
                 src: paths.js,
@@ -139,7 +155,8 @@ module.exports = function (grunt) {
     }
 
     //Test task.
-    grunt.registerTask('test', ['env:test', 'mochaTest', 'karma:unit', 'protractor']);
+    grunt.registerTask('test', ['env:test', 'mochaTest', 'karma:unit']);
+    grunt.registerTask('e2e', ['env:test', 'mochaTest', 'protractor']);
 
     // For Heroku users only.
     // Docs: https://github.com/linnovate/mean/wiki/Deploying-on-Heroku

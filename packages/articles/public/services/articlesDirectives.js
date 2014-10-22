@@ -1,4 +1,3 @@
-/*global $:false */
 'use strict';
 
 var app = angular.module('mean.articles');
@@ -81,7 +80,7 @@ angular.module('mean.articles').directive('focusIf', [function () {
 }]);
 
 // If you click other than on the input element, replace it with the blank area
-angular.module('mean.articles').directive('clickAnywhereButHere', function($document){
+app.directive('clickAnywhereButHere', function($document){
     return {
         restrict: 'A',
         link: function(scope, elem, attr, ctrl) {

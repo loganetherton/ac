@@ -27,7 +27,15 @@
     <h1>{{subreddits}}</h1>
 </section>
 
-<!--<section data-ng-controller="TestController2">-->
-    <!--<input type="text" ng-model="data.message">-->
-    <!--<h1>{{data.message|reverse}}</h1>-->
-<!--</section>-->
+<hr>
+
+<section data-ng-controller="fakeJsonCtrl">
+    $ allows us to search any item in the dataset<br>
+    <input type="text" data-ng-model="searchText.$">
+    <table>
+        <tr data-ng-repeat="dataItem in fakeJson.data | filter:searchText | orderBy: '-name' | limitTo: 3">
+            <td>{{dataItem.name}}</td>
+            <td>{{dataItem.gender | uppercase}}</td>
+        </tr>
+    </table>
+</section>

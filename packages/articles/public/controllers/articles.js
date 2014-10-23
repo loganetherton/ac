@@ -111,3 +111,19 @@ app.controller('TestController', ['$scope', 'Data', 'userService', function ($sc
 app.controller('TestController2', ['$scope', 'Data', function ($scope, Data) {
     $scope.data = Data;
 }]);
+
+app.controller('ListLibrariesCtrl', ['$scope', '$location', 'restService', function ($scope, $location, restService) {
+    restService.getAll().then(function(items){
+        $scope.libraries = items;
+    });
+
+    $scope.create = function(){
+        restService.create($scope.newItemName).then(function(item){
+            $scope.libraries.push(item);
+        });
+    };
+}]);
+
+app.controller('fakeJsonCtrl', ['$scope', 'fakeJson', function ($scope, fakeJson) {
+    $scope.fakeJson = fakeJson;
+}]);

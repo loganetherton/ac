@@ -248,49 +248,202 @@
             });
         });
 
-        ////Data factory test
-        //describe('factory:logger', function () {
-        //    var logger, data;
-        //    beforeEach(function ($provide) {
-        //        module('mean');
-        //        module('mean.system');
-        //        module('mean.articles');
-        //
-        //        data = {};
-        //
-        //        data.info = jasmine.createSpy();
-        //        data.warning = jasmine.createSpy();
-        //        data.error = jasmine.createSpy();
-        //
-        //        $provide.value('data', data);
-        //    });
-        //
-        //    //beforeEach(function ($provide) {
-        //    //    //// The idea here is that I'm making the logged function depend on data, but rather than
-        //    //    //// calling the actual data function, I'm just mocking it here, since it should be tested
-        //    //    //// separately and we don't really care what it does here
-        //    //    //data = {};
-        //    //    //// Create a spy on the info function. createSpy is for a dummy function that doesn't exist
-        //    //    //// whereas spyOn is for an existing function
-        //    //    //data.info = jasmine.createSpy();
-        //    //    //// Create the mock data
-        //    //    //data.message = 'I\'m data from a message';
-        //    //    //// Provide
-        //    //    //$provide.value('data', data);
-        //    //
-        //    //});
-        //
-        //    beforeEach(inject(function (_logger_) {
-        //        logger = _logger_;
-        //        spyOn(console, 'log');
-        //        spyOn(console, 'debug');
-        //        spyOn(console, 'error');
-        //    }));
-        //
-        //    it('should log using the log function', function () {
-        //        logger.log('Hello');
-        //        expect(console.log).toHaveBeenCalledWith('Hello');
-        //    });
-        //});
+        describe('Service:logger', function () {
+            var logger;
+            beforeEach(function () {
+                module('mean');
+                module('mean.system');
+                module('mean.articles');
+            });
+
+            beforeEach(inject(function (_logger_) {
+                logger = _logger_;
+
+                spyOn(console, 'log');
+            }));
+
+            it('should call console.log', function () {
+                logger.log('hello');
+                expect(console.log).toHaveBeenCalledWith('hello');
+            });
+        });
+
+
+
+        describe('Controller:ListLibrariesController', function () {
+            var scope, restService, $location;
+
+            beforeEach(function() {
+                var mockRestService = {};
+
+                module('mean');
+                module('mean.system');
+                module('mean.articles', function($provide) {
+                    $provide.value('restService', mockRestService);
+                });
+
+                inject(function($q) {
+                    mockRestService.data = [
+                        {
+                            id: 0,
+                            name: 'Angular'
+                        },
+                        {
+                            id: 1,
+                            name: 'Ember'
+                        },
+                        {
+                            id: 2,
+                            name: 'Backbone'
+                        },
+                        {
+                            id: 3,
+                            name: 'React'
+                        }
+                    ];
+                    // Just overwriting the actual service calls so we can test the controller, not the service
+                    mockRestService.getAll = function() {
+                        var defer = $q.defer();
+
+                        defer.resolve(this.data);
+
+                        return defer.promise;
+                    };
+
+                    mockRestService.create = function(name) {
+                        var defer = $q.defer();
+
+                        var id = this.data.length;
+
+                        var item = {
+                            id: id,
+                            name: name
+                        };
+
+                        this.data.push(item);
+                        defer.resolve(item);
+
+                        return defer.promise;
+                    };
+                });
+            });
+
+            beforeEach(inject(function($controller, $rootScope, _$location_, _restService_) {
+                scope = $rootScope.$new();
+                $location = _$location_;
+                restService = _restService_;
+
+                $controller('ListLibrariesCtrl', {$scope: scope, $location: $location, restService: restService });
+
+                scope.$digest();
+            }));
+
+            it('should contain all the libraries at startup', function () {
+                expect(scope.libraries).toEqual([
+                    {
+                        id: 0,
+                        name: 'Angular'
+                    },
+                    {
+                        id: 1,
+                        name: 'Ember'
+                    },
+                    {
+                        id: 2,
+                        name: 'Backbone'
+                    },
+                    {
+                        id: 3,
+                        name: 'React'
+                    }
+                ]);
+            });
+
+            it('should create new libraries and append them to the list', function () {
+                // Simulate a new library name
+                scope.newItemName = 'bleh';
+                // And then a button is clicked or something
+                scope.create();
+
+                var lastLibrary = scope.libraries[scope.libraries.length - 1];
+
+                expect(lastLibrary).toEqual({
+                    id: 4,
+                    name: 'bleh'
+                });
+            });
+        });
+
+        describe('directive: svg-circle', function () {
+            var element, scope;
+
+            beforeEach(function () {
+                module('mean');
+                module('mean.system');
+                module('mean.articles');
+            });
+            // We need to compile the directive before testing it
+            beforeEach(inject(function ($rootScope, $compile) {
+                scope = $rootScope.$new();
+
+                element = '<svg-circle size="{{size}}" stroke="black" fill="blue"></svg-circle>';
+
+                scope.size = 100;
+
+                element = $compile(element)(scope);
+                scope.$digest();
+            }));
+
+            describe('with the first given value', function() {
+                it('should compute the size to create other values', function() {
+                    var isolated = element.isolateScope();
+                    expect(isolated.values.canvas).toBe(250);
+                    expect(isolated.values.center).toBe(125);
+                    expect(isolated.values.radius).toBe(100);
+                });
+
+                it('should contain a svg tag with proper size', function() {
+                    expect(element.attr('height')).toBe('250');
+                    expect(element.attr('width')).toBe('250');
+                });
+
+                it('should contain a circle with proper attributes', function() {
+                    expect(element.find('circle').attr('cx')).toBe('125');
+                    expect(element.find('circle').attr('cy')).toBe('125');
+                    expect(element.find('circle').attr('r')).toBe('100');
+                    expect(element.find('circle').attr('stroke')).toBe('black');
+                    expect(element.find('circle').attr('fill')).toBe('blue');
+                });
+            });
+
+            describe('when changing the initial value to a different one', function() {
+
+                beforeEach(function() {
+                    scope.size = 160;
+                    // Process changes
+                    scope.$digest();
+                });
+
+                it('should compute the size to create other values', function() {
+                    var isolated = element.isolateScope();
+                    expect(isolated.values.canvas).toBe(400);
+                    expect(isolated.values.center).toBe(200);
+                    expect(isolated.values.radius).toBe(160);
+                });
+
+                it('should contain a svg tag with proper size', function() {
+                    expect(element.attr('height')).toBe('400');
+                    expect(element.attr('width')).toBe('400');
+                });
+
+                it('should contain a circle with proper attributes', function() {
+                    expect(element.find('circle').attr('cx')).toBe('200');
+                    expect(element.find('circle').attr('cy')).toBe('200');
+                    expect(element.find('circle').attr('r')).toBe('160');
+                    expect(element.find('circle').attr('stroke')).toBe('black');
+                    expect(element.find('circle').attr('fill')).toBe('blue');
+                });
+            });
+        });
     });
 }());

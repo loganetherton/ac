@@ -55,10 +55,10 @@ app.factory('logger', [function () {
 
 }]);
 
-app.factory("userService", ['$http', function ($http) {
+app.factory('userService', ['$http', function ($http) {
     return {
         getSubredditsSubmittedToBy: function (user) {
-            return $http.get("http://api.reddit.com/user/" + user + "/submitted.json").then(function (response) {
+            return $http.get('http://api.reddit.com/user/' + user + '/submitted.json').then(function (response) {
                 var posts, subreddits;
 
                 posts = response.data.data.children;
@@ -77,4 +77,32 @@ app.factory("userService", ['$http', function ($http) {
             });
         }
     };
+}]);
+
+app.factory('logger', [function () {
+    return {
+        log: function(message){
+            console.log(message);
+        }
+    };
+}]);
+
+app.factory('fakeJson', [function () {
+    var fakeJson = {};
+
+    fakeJson.data = [{
+                         'name': 'Earlene Crane', 'gender': 'female'
+                     }, {
+                         'name': 'Ross Gamble', 'gender': 'male'
+                     }, {
+                         'name': 'Elinor Bender', 'gender': 'female'
+                     }, {
+                         'name': 'Romero Zamora', 'gender': 'male'
+                     }, {
+                         'name': 'Clemons Holcomb', 'gender': 'male'
+                     }, {
+                         'name': 'Harriett Beck', 'gender': 'female'
+                     }];
+
+    return fakeJson;
 }]);

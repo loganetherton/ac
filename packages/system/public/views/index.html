@@ -2,10 +2,24 @@
   <!--<h1 mean-token="'home-default'">This is the home view</h1>-->
 <!--</section>-->
 
-<span my-draggable>Drag ME</span>
+<!--<span my-draggable>Drag ME</span>-->
 
+<div class="container">
+    <div enter="panel" leave class="row">
+        <superman></superman>
 
+        <div class="col-md-8">Enter here!</div>
+        <div class="col-md-4">Bitch</div>
+    </div>
+</div>
 
-<superman></superman>
+<section data-ng-controller="SystemTestCtrl">
+    <div class="container">
+        <p enter="panel">Load tweets</p>
+        <p addTweet="loadMoreTweets()">Load tweets</p>
 
-<div enter>Enter here!</div>
+        <button superhero class="button" strength speed flight>Superman</button>
+        <button superhero speed>Flash</button>
+        <tabset></tabset>
+    </div>
+</section>

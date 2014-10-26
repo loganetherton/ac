@@ -18,8 +18,36 @@
         <p enter="panel">Load tweets</p>
         <p addTweet="loadMoreTweets()">Load tweets</p>
 
-        <button superhero class="button" strength speed flight>Superman</button>
-        <button superhero speed>Flash</button>
-        <tabset></tabset>
+        <p>
+            <button superhero class="button" strength speed flight>Superman</button>
+            <button superhero speed>Flash</button>
+        </p>
+    </div>
+</section>
+
+<section data-ng-controller="KidController">
+    <kid done="logChore(task)"></kid>
+</section>
+
+<div class="row">
+    <div class="col-md-4">Drink using @ scope: </div>
+    <div class="col-md-4" drink flavor="strawberry"></div>
+</div>
+
+<section data-ng-controller="DrinkController">
+    <div class="row">
+        <div class="col-md-4">Drink using = scope for two way binding: </div>
+        <div class="col-md-4" drinktwowaybinding flavor="ctrlFlavor"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">Drink using = scope for two way binding: </div>
+        <div class="col-md-4" drinktwowaybinding flavor="ctrlFlavor"></div>
+    </div>
+</section>
+
+<section data-ng-controller="CallHomeController">
+    <div class="row">
+        <div class="col-md-4">Call parent scope with &</div>
+        <div class="col-md-4" phone dial="callHome(message)"></div>
     </div>
 </section>

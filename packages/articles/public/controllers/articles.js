@@ -88,10 +88,6 @@ app.controller('ArticlesController',
          });
      };
 
-     $scope.ctrlFlavor = {
-         data : 'blackberry'
-     };
-
      $scope.updateFoo = function (newFoo) {
          $scope.ctrlFlavor.data = newFoo;
      };

@@ -48,7 +48,8 @@ app.controller('KidController', ['$scope', function ($scope) {
 }]);
 
 app.controller('DrinkController', ['$scope', function ($scope) {
-    $scope.ctrlFlavor = 'blackberry';
+    $scope.data = {};
+    $scope.data.ctrlFlavor = 'blackberry';
 
     //$scope.$watch('ctrlFlavor', function(newVal, oldVal){
     //    console.log(newVal);
@@ -57,7 +58,6 @@ app.controller('DrinkController', ['$scope', function ($scope) {
 }]);
 
 app.controller('CallHomeController', ['$scope', function ($scope) {
-    alert();
     $scope.callHome = function (message) {
         console.log('called home with ' + message);
     };

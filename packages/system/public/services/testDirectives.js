@@ -127,8 +127,21 @@ app.directive('phone', [function () {
         scope: {
             dial: '&'
         },
-        template: '<input type="text" ng-model="value">' +
-                  '<button ng-click="dial({message:value})">Call home</button>'
+        template: '<input type="text" ng-model="data.message">' +
+                  '<button ng-click="dial({message:data.message})">Call home</button>',
+        link: function(scope){
+            // Need this or else the unit tests throw an exception when it can't find data
+            scope.data = {};
+        }
     };
 }]);
 
+// Transclude will no longer overwrite the elements that the directive is called on. Instead, it will
+// insert them where the ng-transclude directive is called
+app.directive('transclusiontest', [function () {
+    return {
+        transclude: true,
+        template: '<div class="col-md-4">Transclusion</div>' +
+                  '<div class="col-md-4" ng-transclude></div>'
+    };
+}]);

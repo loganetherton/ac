@@ -57,7 +57,7 @@ module.exports = function (grunt) {
                 cwd: __dirname + '/packages',
                 dest: __dirname + '/packages',
                 src: paths.coffee,
-                ext: ".js"
+                ext: '.js'
             }
         },
         jshint: {

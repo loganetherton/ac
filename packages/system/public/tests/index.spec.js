@@ -195,21 +195,21 @@
     });
 
     describe('directive:drinktwowaybinding', function () {
-        var scope, element, compile, controllerScope, elementScope, controller, DrinkController;
+        var scope, element, compile;
 
         beforeEach(function () {
             module('mean');
             module('mean.system');
         });
 
-        beforeEach(inject(function ($controller, $rootScope, $compile) {
+        beforeEach(inject(function ($rootScope, $compile) {
             scope = $rootScope.$new();
             compile = $compile;
-            controller = $controller;
             // Note that we don't need the controller here, just the scope item
-            scope.ctrlFlavor = 'blackberry';
+            scope.data = {};
+            scope.data.ctrlFlavor = 'blackberry';
             // Compile element
-            element = compile('<div drinktwowaybinding flavor="ctrlFlavor"></div>')(scope);
+            element = compile('<div drinktwowaybinding flavor="data.ctrlFlavor"></div>')(scope);
             // scope is the same thing as elementScope here
             //elementScope = element.find('div').scope();
             scope.$digest();
@@ -217,6 +217,55 @@
 
         it('should show the default value of ctrlFlavor', function () {
             expect(element.find('input').val()).toEqual('blackberry');
+        });
+    });
+
+    describe('directive:phone', function () {
+        var scope, element;
+
+        beforeEach(function () {
+            module('mean');
+            module('mean.system');
+        });
+
+        beforeEach(inject(function ($rootScope, $compile) {
+            scope = $rootScope.$new();
+            // This is the mock of the controller function
+            scope.callHome = function (message) {
+                console.log('called home with ' + message);
+            };
+            element = $compile('<div phone dial="callHome(message)"></div>')(scope);
+
+            spyOn(console, 'log');
+            // Digest
+            scope.$digest();
+        }));
+
+        it('should call the callHome() function', function () {
+            element.isolateScope().data.message = 'dont shake the baby';
+            // Note that we don't want to actually write in unit tests, just change the scope
+            //element.find('input').val('dont shake the baby');
+            element.find('button').click();
+            expect(console.log).toHaveBeenCalledWith('called home with dont shake the baby');
+        });
+    });
+
+    describe('directive:transclusionTest', function () {
+        var scope, element;
+        beforeEach(function () {
+            module('mean');
+            module('mean.system');
+        });
+        beforeEach(inject(function ($rootScope, $compile) {
+            scope = $rootScope.$new();
+            // Note that we have to wrap the transclusion directive in another element to not lose access to everything
+            // outside the transclusion
+            element = $compile('<div><div class="row" transclusionTest><button>Button</button></div></div>')(scope);
+            scope.$digest();
+        }));
+        it('should include the original element as well as the directive template', function () {
+            dump(element.html());
+            expect(element.html()).toMatch(/class.*?row.*?transclusiontest.*?transclusion.*?button/i);
         });
     });
 })();

@@ -37,17 +37,19 @@
 <section data-ng-controller="DrinkController">
     <div class="row">
         <div class="col-md-4">Drink using = scope for two way binding: </div>
-        <div class="col-md-4" drinktwowaybinding flavor="ctrlFlavor"></div>
+        <div class="col-md-4" drinktwowaybinding flavor="data.ctrlFlavor"></div>
     </div>
     <div class="row">
         <div class="col-md-4">Drink using = scope for two way binding: </div>
-        <div class="col-md-4" drinktwowaybinding flavor="ctrlFlavor"></div>
+        <div class="col-md-4" drinktwowaybinding flavor="data.ctrlFlavor"></div>
     </div>
 </section>
 
 <section data-ng-controller="CallHomeController">
     <div class="row">
-        <div class="col-md-4">Call parent scope with &</div>
+        <div class="col-md-4 callHome">Call parent scope with &</div>
         <div class="col-md-4" phone dial="callHome(message)"></div>
     </div>
 </section>
+
+<div class="row" transclusionTest><button>Button</button></div>

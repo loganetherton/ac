@@ -51,14 +51,24 @@ app.controller('DrinkController', ['$scope', function ($scope) {
     $scope.data = {};
     $scope.data.ctrlFlavor = 'blackberry';
 
-    //$scope.$watch('ctrlFlavor', function(newVal, oldVal){
+    //$scope.$watch('data.ctrlFlavor', function(newVal, oldVal){
     //    console.log(newVal);
-    //    console.log(oldVal);
     //});
 }]);
 
 app.controller('CallHomeController', ['$scope', function ($scope) {
     $scope.callHome = function (message) {
-        console.log('called home with ' + message);
+        $scope.data.something = 'called home with ' + message;
     };
+
+    $scope.data = {};
+
+    //console.log('within controller');
+    //console.log($scope);
+
+    //$scope.data.something = 'something';
+    //
+    //$scope.$watch('data.something', function(newVal, oldVal){
+    //    console.log('controller');
+    //});
 }]);

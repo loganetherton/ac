@@ -48,8 +48,24 @@
 <section data-ng-controller="CallHomeController">
     <div class="row">
         <div class="col-md-4 callHome">Call parent scope with &</div>
-        <div class="col-md-4" phone dial="callHome(message)"></div>
+        <div class="col-md-4" phone dial="callHome(message)" something="data.message"></div>
+        <div class="col-md-4 callHomeOutput">{{data.something}}</div>
     </div>
 </section>
 
 <div class="row" transclusionTest><button>Button</button></div>
+
+<div class="row">
+    <div class="col-md-4">
+        Zippy
+    </div>
+    <div class="col-md-8">
+        <input type="text" ng-model="zippy.title">
+        <input type="text" ng-model="zippy.content">
+        <!--Title attribute is bound using scope: title:'@', so this is hooked up to the title item above-->
+        <zippy title="{{zippy.title}}">
+            <!--This has access to the scope because of transclusion-->
+            {{zippy.content}}
+        </zippy>
+    </div>
+</div>

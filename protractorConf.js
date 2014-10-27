@@ -64,7 +64,8 @@ exports.config = {
 
   // Spec patterns are relative to the location of this config.
   specs: [
-      'test/e2e/*.js'
+      'test/e2e/*.js',
+      'packages/**/tests/e2e/*.js'
   ],
 
   // Patterns to exclude.
@@ -92,7 +93,14 @@ exports.config = {
   //
   // In addition, you may specify count, shardTestFiles, and maxInstances.
   capabilities: {
-    browserName: 'chrome',
+    //browserName: 'firefox',
+      browserName: 'chrome',
+
+      // Gets rid of the annoying unsupported flag
+      // http://stackoverflow.com/questions/23771922/protractor-error-message-unsupported-command-line-flag-in-chrome
+      'chromeOptions': {
+          args: ['--test-type']
+      },
 
     // Number of times to run this set of capabilities (in parallel, unless
     // limited by maxSessions). Default is 1.

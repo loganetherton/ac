@@ -126,13 +126,21 @@ app.directive('phone', [function () {
     return {
         scope: {
             dial: '&'
+            //something: '='
         },
-        template: '<input type="text" ng-model="data.message">' +
-                  '<button ng-click="dial({message:data.message})">Call home</button>',
-        link: function(scope){
-            // Need this or else the unit tests throw an exception when it can't find data
-            scope.data = {};
-        }
+        //transclude: true,
+        template: '<input type="text" ng-model="$parent.data.something">' +
+                  '<button ng-click="dial({message:$parent.data.something})">Call home</button>'
+        //link: function(scope){
+        //    // Need this or else the unit tests throw an exception when it can't find data
+        //    //scope.data = {};
+        //    console.log('within directive');
+        //    console.log(scope.$parent);
+        //    //scope.data.something = 'directive';
+        //    scope.$watch('data.something', function(newVal, oldVal){
+        //        console.log('directive');
+        //    });
+        //}
     };
 }]);
 
@@ -143,5 +151,22 @@ app.directive('transclusiontest', [function () {
         transclude: true,
         template: '<div class="col-md-4">Transclusion</div>' +
                   '<div class="col-md-4" ng-transclude></div>'
+    };
+}]);
+
+app.directive('zippy', [function () {
+    return {
+        restrict: 'E',
+        scope: {
+            title: '@title'
+        },
+        transclude: true,
+        template: '<div ng-click="toggleContent()">{{title}}<div ng-show="isContentVisible" ng-transclude></div></div>',
+        link: function(scope){
+            scope.isContentVisible = false;
+            scope.toggleContent = function () {
+                scope.isContentVisible = !scope.isContentVisible;
+            };
+        }
     };
 }]);

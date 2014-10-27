@@ -268,4 +268,25 @@
             expect(element.html()).toMatch(/class.*?row.*?transclusiontest.*?transclusion.*?button/i);
         });
     });
+
+    describe('directive:zippy', function () {
+        var scope, element;
+        beforeEach(function () {
+            module('mean');
+            module('mean.system');
+        });
+
+        beforeEach(inject(function ($rootScope, $compile) {
+            scope = $rootScope.$new();
+            element = $compile('<zippy title="{{model.title}}">{{model.content}}</zippy>')(scope);
+            scope.$digest();
+        }));
+
+        it('should expose the toggleContent() function', function () {
+            expect(element.isolateScope().isContentVisible).toBeFalsy();
+            // Remember that I need to call element.isolateScope() to get a linking function on an isolate scope directive
+            element.isolateScope().toggleContent();
+            expect(element.isolateScope().isContentVisible).toBeTruthy();
+        });
+    });
 })();

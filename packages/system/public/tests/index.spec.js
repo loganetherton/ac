@@ -289,4 +289,31 @@
             expect(element.isolateScope().isContentVisible).toBeTruthy();
         });
     });
+
+    describe('directive:compileTest', function () {
+        var scope, element;
+        beforeEach(function () {
+            module('mean');
+            module('mean.system');
+        });
+
+        beforeEach(inject(function ($rootScope, $compile) {
+            scope = $rootScope.$new();
+            element = $compile('<compiletest></compiletest>')(scope);
+            scope.$digest();
+        }));
+
+        it('should add the glyphicon on match', function () {
+            // Get input and write match
+            var input = element.find('input');
+            input.val('match');
+            // Trigger browser event and run digest cycle
+            browserTrigger(input);
+            expect(element.html()).toMatch('glyphicon');
+            // Change to non-matching value and ensure glyphicon isn't shown anymore
+            input.val('nomatch');
+            browserTrigger(input);
+            expect(element.html()).not.toMatch('glyphicon');
+        });
+    });
 })();

@@ -45,7 +45,7 @@ describe('Egghead.io videos', function () {
         });
     });
 
-    ddescribe('directive:zippy', function () {
+    describe('directive:zippy', function () {
         var zippyTitle = element.all(by.css('zippy[title] div')).get(0);
         var zippyContent = $('zippy span');
         it('should display the title as it\'s written', function () {
@@ -64,6 +64,17 @@ describe('Egghead.io videos', function () {
         it('should display the content on toggle', function () {
             zippyTitle.click();
             expect(zippyContent.isDisplayed()).toBeTruthy();
+        });
+    });
+
+    ddescribe('directive:compileTest', function () {
+        var compileTestInput = element(by.model('compileTest.content'));
+        it('should show glyphicon on match', function () {
+            compileTestInput.sendKeys('match');
+            var spanOutput = element(by.binding('compileTest.content'));
+            // Note that things like getInnerHtml() return promise events, which are resolved naturally by expect()
+            // and can be resolved manually by then()
+            expect(spanOutput.getInnerHtml()).toMatch(/glyphicon/);
         });
     });
 });

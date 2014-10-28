@@ -170,3 +170,34 @@ app.directive('zippy', [function () {
         }
     };
 }]);
+
+app.directive('compiletest', [function () {
+    // Calling angular.element allows me to treat is as an angular element in the compile function
+    var angularElement = angular.element('<div>{{compileTest.content}}</div>');
+    var span;
+
+    return {
+        restrict: 'E',
+        template: '<div class="col-md-4">Compile test</div><div class="col-md-4"><input type="text" ng-model="compileTest.content"></div>',
+        // Compile accepts template element, template attributes, and transclude as arguments. It returns the
+        // linking function or object
+        compile: function (templateElement) {
+            // I have access to jqLite on all angular elements
+            templateElement.append(angularElement);
+            // Linking function
+            return function (scope, element) {
+                scope.model = {};
+                scope.$watch('compileTest.content', function(newVal){
+                    if (newVal === 'match') {
+                        angularElement.prepend('<span class="glyphicon glyphicon-plus"></span>');
+                    } else {
+                        span = angularElement.find('span');
+                        if (span) {
+                            span.remove();
+                        }
+                    }
+                });
+            };
+        }
+    };
+}]);

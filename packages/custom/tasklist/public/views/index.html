@@ -1,7 +1,13 @@
 <div class="" data-ng-controller="TasklistController">
     <h3><img src="/tasklist/assets/img/logo.png" /></h3>
 
-    <h2>Package: {{package.name}}</h2>
+    <h2>{{strings.name}}</h2>
+    <h2 class="alert alert-warning">{{strings.project}}</h2>
+    <div class="input-group">
+        <span class="input-group-addon">New</span>
+        <input type="text" class="form-control">
+    </div>
+    <hr>
     <ol>
         <li>
             <a href="tasklist/example/anyone">Server route that anyone can access</a>
@@ -16,10 +22,5 @@
             <a href="tasklist/example/render">Raw Html rendering example from using swig</a>
         </li>
     </ol>
-    </br>
-    <p class="alert alert-warning">MEAN versions prior to 0.3.2 will be in /node_modules/tasklist</p>
-    </br>
-    <h3><a href="http://www.mean.io/#!/docs">Documentation</a></h3>
-    </br>
 </div>
 

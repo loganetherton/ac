@@ -25,14 +25,15 @@ module.exports = function (grunt) {
                 files: paths.js,
                 tasks: ['jshint'],
                 options: {
-                    livereload: true
+                    livereload: true,
+                    interval: 1000
                 }
             },
             html: {
                 files: paths.html,
                 options: {
                     livereload: true,
-                    interval: 500
+                    interval: 1000
                 }
             },
             css: {

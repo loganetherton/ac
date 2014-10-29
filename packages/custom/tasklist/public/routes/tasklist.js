@@ -21,15 +21,19 @@ angular.module('mean.tasklist').config(['$stateProvider', function ($stateProvid
 
         return deferred.promise;
     };
-    $stateProvider.state('tasklist example page', {
+    $stateProvider.state('tasklist', {
         url: '/tasklist',
         templateUrl: 'tasklist/views/index.html'
     });
     $stateProvider.state('tasklist open', {
-        url: '/tasklist/example/anyone',
+        url: '/tasklist/anyone',
+        templateUrl: 'tasklist/views/index.html'
+    });
+    $stateProvider.state('tasklist auth', {
+        url: '/tasklist/auth',
         templateUrl: 'tasklist/views/index.html',
         resolve: {
-            //loggedin: checkLoggedin
+            loggedin: checkLoggedin
         }
     });
 }]);

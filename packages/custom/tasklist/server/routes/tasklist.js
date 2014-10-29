@@ -3,16 +3,20 @@
 // The Package is past automatically as first parameter
 module.exports = function (Tasklist, app, auth, database) {
 
-    app.get('/tasklist/example/anyone', function (req, res, next) {
-        res.send('Anyone can access this');
-    });
+    //app.get('/tasklist/example/anyone', function (req, res, next) {
+    //    res.send('Anyone can access this');
+    //});
+    //
+    //app.get('/tasklist/example/auth',
+    //    auth.requiresLogin,
+    //    function (req, res, next) {
+    //        res.send('Only authenticated users can access this');
+    //    }
+    //);
 
-    app.get('/tasklist/example/auth',
-        auth.requiresLogin,
-        function (req, res, next) {
-            res.send('Only authenticated users can access this');
-        }
-    );
+    //app.route('/tasklist').
+    //    get(articles.all).
+    //    post(auth.requiresLogin, articles.create);
 
     app.get('/tasklist/example/admin',
         auth.requiresAdmin,

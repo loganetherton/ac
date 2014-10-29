@@ -18,8 +18,8 @@ Tasklist.register(function(app, auth, database) {
 
   //We are adding a link to the main menu for all authenticated users
   Tasklist.menus.add({
-    title: 'tasklist example page',
-    link: 'tasklist example page',
+    title: 'Tasklist',
+    link: 'tasklist',
     roles: ['authenticated'],
     menu: 'main'
   });

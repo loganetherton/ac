@@ -17,7 +17,7 @@ System.register(function (app, auth, database) {
     System.routes(app, auth, database);
 
     System.aggregateAsset('css', 'common.css');
-    System.aggregateAsset('css', 'bootstrap-flatly.min.css');
+    System.aggregateAsset('css', 'bootstrap.css');
 
     // The middleware in config/express will run before this code
 

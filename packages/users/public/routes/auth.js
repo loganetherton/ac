@@ -14,7 +14,6 @@ angular.module('mean.users').config(['$stateProvider', function ($stateProvider)
                 $timeout(deferred.reject);
                 $location.url('/login');
             }
-
             // Not Authenticated
             else {
                 $timeout(deferred.resolve);

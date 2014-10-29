@@ -1,4 +1,5 @@
 .admin-menu {
+    z-index:1;
     position: fixed;
     background-color: #176583;
     height: 100%;

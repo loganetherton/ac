@@ -43,7 +43,9 @@ angular.module('mean.articles').config(['$stateProvider', function ($stateProvid
             loggedin: checkLoggedin
         }
     }).state('article by id', {
-        url: '/articles/:articleId', templateUrl: 'articles/views/view.html', resolve: {
+        url: '/articles/:articleId',
+        templateUrl: 'articles/views/view.html',
+        resolve: {
             loggedin: checkLoggedin
         }
     });

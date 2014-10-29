@@ -3,9 +3,10 @@
 /*
  * Defining the Package
  */
-var Module = require('meanio').Module, favicon = require('serve-favicon'), express = require('express');
-
-var System = new Module('system');
+var Module = require('meanio').Module,
+    favicon = require('serve-favicon'),
+    express = require('express'),
+    System = new Module('system');
 
 /*
  * All MEAN packages require registration

@@ -3,7 +3,7 @@
 var paths = {
     js: ['*.js', 'test/**/*.js', '!test/coverage/**', '!bower_components/**', 'packages/**/*.js',
          '!packages/**/node_modules/**', '!packages/contrib/**/*.js', '!packages/contrib/**/node_modules/**',
-         '!packages/articles/public/assets/vendor/**', '!packages/**/tests/**', '!test/**'],
+         '!packages/**/vendor/**', '!packages/**/tests/**', '!test/**'],
     coffee: ['**/*.coffee'],
     html: ['packages/**/public/**/views/**', 'packages/**/server/views/**'],
     css: ['!bower_components/**', 'packages/**/public/**/css/*.css', '!packages/contrib/**/public/**/css/*.css', '!packages/articles/public/assets/vendor/**']

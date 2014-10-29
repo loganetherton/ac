@@ -1,5 +1,15 @@
 'use strict';
 
+var taskList = require('../controllers/tasklist');
+
+// Article authorization helpers
+var hasAuthorization = function (req, res, next) {
+    if (!req.user.isAdmin && req.article.user.id !== req.user.id) {
+        return res.send(401, 'User is not authorized');
+    }
+    next();
+};
+
 // The Package is past automatically as first parameter
 module.exports = function (Tasklist, app, auth, database) {
 
@@ -14,9 +24,9 @@ module.exports = function (Tasklist, app, auth, database) {
     //    }
     //);
 
-    //app.route('/tasklist').
-    //    get(articles.all).
-    //    post(auth.requiresLogin, articles.create);
+    app.route('/tasklist').
+        get(taskList.all).
+        post(auth.requiresLogin, taskList.create);
 
     app.get('/tasklist/example/admin',
         auth.requiresAdmin,

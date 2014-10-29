@@ -3,11 +3,20 @@
 
     <h2>{{strings.name}}</h2>
     <h2 class="alert alert-warning">{{strings.project}}</h2>
-    <div class="input-group">
-        <span class="input-group-addon">New</span>
-        <input type="text" class="form-control">
+    <div class="row">
+        <form name="articleForm" class="form-horizontal col-md-6" role="form" data-ng-submit="create(articleForm.$valid)" novalidate>
+            <div class="input-group">
+                <span class="input-group-addon">New</span>
+                <input type="text" class="form-control">
+            </div>
+            <br>
+            <div class="form-group">
+                <div class="col-md-9">
+                    <button type="submit" class="btn btn-info">Submit</button>
+                </div>
+            </div>
+        </form>
     </div>
-    <hr>
     <ol>
         <li>
             <a href="tasklist/example/anyone">Server route that anyone can access</a>

@@ -3,17 +3,15 @@
 var app = angular.module('mean.articles');
 
 //Articles service used for articles REST endpoint
-app.factory('Articles', ['$resource',
-  function($resource) {
+app.factory('Articles', ['$resource', function ($resource) {
     return $resource('articles/:articleId', {
-      articleId: '@_id'
+        articleId: '@_id'
     }, {
-      update: {
-        method: 'PUT'
-      }
+        update: {
+            method: 'PUT'
+        }
     });
-  }
-]);
+}]);
 
 // Testing
 app.factory('Data', [function () {

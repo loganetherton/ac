@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('mean.tasklist').controller('TasklistController',
+var app = angular.module('mean.tasklist');
+
+app.controller('TasklistController',
+// Tasklist here is referring to the Mongo model
 ['$scope', '$stateParams', '$location', 'Global', 'Tasklist', function ($scope, $stateParams, $location, Global, Tasklist) {
     $scope.global = Global;
     $scope.strings = {
@@ -8,7 +11,19 @@ angular.module('mean.tasklist').controller('TasklistController',
         project: 'Setting up'
     };
     /**
-     * Create a new article
+     * Check if the user has authorization
+     *
+     * @param task
+     * @returns {*}
+     */
+    $scope.hasAuthorization = function (task) {
+        if (!task || !task.user) {
+            return false;
+        }
+        return $scope.global.isAdmin || task.user._id === $scope.global.user._id;
+    };
+    /**
+     * Create a new task
      * @param isValid
      */
     $scope.create = function (isValid) {

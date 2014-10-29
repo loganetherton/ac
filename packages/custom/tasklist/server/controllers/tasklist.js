@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-Task = mongoose.model('Task'),
+Tasklist = mongoose.model('Tasklist'),
 _ = require('lodash');
 
 
@@ -12,7 +12,7 @@ _ = require('lodash');
  * Find article by id
  */
 exports.article = function(req, res, next, id) {
-    Task.load(id, function(err, article) {
+    Tasklist.load(id, function(err, article) {
         if (err) return next(err);
         if (!article) return next(new Error('Failed to load article ' + id));
         req.article = article;
@@ -24,7 +24,7 @@ exports.article = function(req, res, next, id) {
  * Create an article
  */
 exports.create = function(req, res) {
-    var article = new Task(req.body);
+    var article = new Tasklist(req.body);
     article.user = req.user;
 
     article.save(function(err) {
@@ -85,7 +85,7 @@ exports.show = function(req, res) {
  * List of Articles
  */
 exports.all = function(req, res) {
-    Task.find().sort('-created').populate('user', 'name username').exec(function(err, articles) {
+    Tasklist.find().sort('-created').populate('user', 'name username').exec(function(err, articles) {
         if (err) {
             return res.json(500, {
                 error: 'Cannot list the articles'

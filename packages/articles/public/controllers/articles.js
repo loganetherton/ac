@@ -92,7 +92,7 @@ app.controller('ArticlesController',
          $scope.ctrlFlavor.data = newFoo;
      };
 
-     $scope.logChore = function(chore){
+     $scope.logChore = function (chore) {
          console.log(chore + ' is done');
      };
  }]);

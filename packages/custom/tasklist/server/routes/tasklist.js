@@ -3,12 +3,12 @@
 var taskList = require('../controllers/tasklist');
 
 // Article authorization helpers
-var hasAuthorization = function (req, res, next) {
-    if (!req.user.isAdmin && req.article.user.id !== req.user.id) {
-        return res.send(401, 'User is not authorized');
-    }
-    next();
-};
+//var hasAuthorization = function (req, res, next) {
+//    if (!req.user.isAdmin && req.article.user.id !== req.user.id) {
+//        return res.send(401, 'User is not authorized');
+//    }
+//    next();
+//};
 
 // The Package is past automatically as first parameter
 module.exports = function (Tasklist, app, auth, database) {

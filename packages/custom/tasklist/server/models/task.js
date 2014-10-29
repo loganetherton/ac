@@ -46,4 +46,4 @@ TaskSchema.statics.load = function (id, cb) {
     }).populate('user', 'name username').exec(cb);
 };
 
-mongoose.model('Task', TaskSchema);
+mongoose.model('Tasklist', TaskSchema);

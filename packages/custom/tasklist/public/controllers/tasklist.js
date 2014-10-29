@@ -42,4 +42,17 @@ app.controller('TasklistController',
             $scope.submitted = true;
         }
     };
+    /**
+     * Query tasks from DB and make available to scope
+     */
+    $scope.find = function () {
+        Tasklist.query(function (task) {
+            console.log(task);
+            $scope.tasks = task;
+        });
+    };
+
+    $scope.$watch('tasks', function(newVal, oldVal) {
+        console.log($scope.tasks);
+    });
 }]);

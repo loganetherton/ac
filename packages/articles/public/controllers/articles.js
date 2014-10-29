@@ -87,14 +87,6 @@ app.controller('ArticlesController',
              $scope.article = article;
          });
      };
-
-     $scope.updateFoo = function (newFoo) {
-         $scope.ctrlFlavor.data = newFoo;
-     };
-
-     $scope.logChore = function (chore) {
-         console.log(chore + ' is done');
-     };
  }]);
 
 app.controller('TestController', ['$scope', 'Data', 'userService', function ($scope, Data, userService) {

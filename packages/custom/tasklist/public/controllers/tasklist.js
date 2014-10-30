@@ -47,12 +47,7 @@ app.controller('TasklistController',
      */
     $scope.find = function () {
         Tasklist.query(function (task) {
-            console.log(task);
             $scope.tasks = task;
         });
     };
-
-    $scope.$watch('tasks', function(newVal, oldVal) {
-        console.log($scope.tasks);
-    });
 }]);

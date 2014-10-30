@@ -21,21 +21,6 @@
             </div>
         </form>
     </div>
-        <div data-ng-repeat="task in tasks" class="row">
-
-                <a data-ng-href="#!/task/{{task._id}}">{{task.title}}</a>
-                <span data-ng-if="hasAuthorization(task)">
-                    <a class="btn" href="/#!/task/{{task._id}}/edit">
-                        <i class="glyphicon glyphicon-edit"></i>
-                    </a>
-                    <a class="btn" data-ng-click="remove(task);">
-                        <i class="glyphicon glyphicon-trash"></i>
-                    </a>
-                </span>
-
-
-            <div>{{task.content}}</div>
-        </div>
     <ol>
         <li>
             <a href="tasklist/example/anyone">Server route that anyone can access</a>

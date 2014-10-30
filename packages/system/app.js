@@ -6,19 +6,19 @@
 var Module = require('meanio').Module,
     favicon = require('serve-favicon'),
     express = require('express'),
-    System = new Module('system');
+    system = new Module('system');
 
 /*
  * All MEAN packages require registration
  * Dependency injection is used to define required modules
  */
-System.register(function (app, auth, database) {
+system.register(function (app, auth, database) {
 
     //We enable routing. By default the Package Object is passed to the routes
-    System.routes(app, auth, database);
+    system.routes(app, auth, database);
 
-    System.aggregateAsset('css', 'common.css');
-    System.aggregateAsset('css', 'bootstrap.css');
+    system.aggregateAsset('css', 'common.css');
+    system.aggregateAsset('css', 'bootstrap.css');
 
     // The middleware in config/express will run before this code
 
@@ -31,5 +31,5 @@ System.register(function (app, auth, database) {
     // Adding robots and humans txt
     app.use(express.static(__dirname + '/public/assets/static'));
 
-    return System;
+    return system;
 });

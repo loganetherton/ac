@@ -1,3 +1,74 @@
 .tasklist-example h1 {
   background-color: purple
 }
+.tasklist-details {
+    z-index:1;
+    position: fixed;
+    background-color: #E9F1F4;
+    height: 100%;
+    top: 51px;
+    width: 20%;
+    right: 0px;
+}
+.tasklist-details #stable .showbox {
+    position: absolute;
+    top: 0;
+    width: 0;
+    right: 60px;
+    line-height: 44px;
+    -webkit-transition-duration: 0.5s;
+    -moz-transition-duration: 0.5s;
+    -o-transition-duration: 0.5s;
+    -ms-transition-duration: 0.5s;
+    transition-property: width, font-size;
+    font-size: 0;
+    color: #A9B2B5;
+    cursor: pointer;
+    background-color: #176583;
+    border-bottom: solid 1px #217D99;
+}
+
+.tasklist-details #stable:hover .showbox, .tasklist-details #stable .showbox.wide {
+    width: 190px;
+    font-size: inherit;
+    background-color: #A9B2B5;
+    padding-left: 10px;
+}
+.tasklist-details #stable:hover, .tasklist-details #stable:hover .showbox.wide{
+    background-color: #A9B2B5;
+}
+.tasklist-details #stable .showbox.wide {
+    background-color: #A9B2B5;
+}
+.tasklist-details #stable a {
+    border-bottom: solid 1px #A9B2B5;
+}
+.tasklist-details #stable a:hover {
+    background-color: #A9B2B5;
+}
+.tasklist-details .hover-ninja {
+    width: 60px;
+    height: 100%;
+    background-color: #A9B2B5;
+    -webkit-transition-duration: 0.5s;
+    -moz-transition-duration: 0.5s;
+    -o-transition-duration: 0.5s;
+    -ms-transition-duration: 0.5s;
+}
+.tasklist-details .hover-ninja.wide {
+    width: 250px;
+}
+.tasklist-details .hover-ninja.wide+.ninja {
+    position:absolute;
+    width: 287px;
+}
+.tasklist-modules .panel-default > .panel-heading {
+    cursor: pointer;
+}
+tr.disabled {
+    pointer-events: none;
+    opacity: 0.4;
+}
+span.editable-wrapper input {
+    width: 80%;
+}

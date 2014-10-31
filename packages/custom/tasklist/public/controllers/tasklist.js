@@ -4,7 +4,7 @@ var app = angular.module('mean.tasklist');
 
 app.controller('TasklistController',
 // Tasklist here is referring to the Mongo model
-['$scope', '$stateParams', '$location', 'Global', 'Tasklist', function ($scope, $stateParams, $location, Global, Tasklist) {
+['$scope', '$stateParams', '$location', 'Global', 'Tasklist', '$interval', function ($scope, $stateParams, $location, Global, Tasklist, $interval) {
     $scope.global = Global;
     $scope.strings = {
         name: 'Task list',

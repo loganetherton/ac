@@ -3,7 +3,7 @@
 module.exports = {
   db: 'mongodb://localhost/mean-dev1',
   mongoose: {
-    debug: true
+    //debug: true
   },
   app: {
     name: 'MEAN - FullStack JS - Development'

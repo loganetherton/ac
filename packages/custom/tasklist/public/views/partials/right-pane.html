@@ -1,5 +1,5 @@
 <div class="tasklist-details" data-ng-controller="TasklistController" data-ng-init="find()">
-    <div data-ng-repeat="task in tasks" class="row">
+    <div data-ng-repeat="task in tasks">
 
         <a data-ng-href="#!/task/{{task._id}}">{{task.title}}</a>
             <span data-ng-if="hasAuthorization(task)">

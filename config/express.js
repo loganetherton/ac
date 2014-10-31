@@ -3,7 +3,20 @@
 /**
  * Module dependencies.
  */
-var mean = require('meanio'), compression = require('compression'), morgan = require('morgan'), consolidate = require('consolidate'), cookieParser = require('cookie-parser'), expressValidator = require('express-validator'), bodyParser = require('body-parser'), methodOverride = require('method-override'), assetmanager = require('assetmanager'), session = require('express-session'), mongoStore = require('connect-mongo')(session), helpers = require('view-helpers'), flash = require('connect-flash'), config = mean.loadConfig();
+var mean = require('meanio'),
+    compression = require('compression'),
+    morgan = require('morgan'),
+    consolidate = require('consolidate'),
+    cookieParser = require('cookie-parser'),
+    expressValidator = require('express-validator'),
+    bodyParser = require('body-parser'),
+    methodOverride = require('method-override'),
+    assetmanager = require('assetmanager'),
+    session = require('express-session'),
+    mongoStore = require('connect-mongo')(session),
+    helpers = require('view-helpers'),
+    flash = require('connect-flash'),
+    config = mean.loadConfig();
 
 module.exports = function (app, passport, db) {
 

@@ -1,17 +1,12 @@
 <div data-ng-controller="MeanSocketController">
-	<tabset>
-		<tab heading="Overview">
-			<h1>Mean socket package guidelines</h1>
-			<h2>Overview</h2>
-			Docs coming soon (PRS welcome)
-		</tab>
+	<!--<tabset>-->
 
-		<tab heading="Example">
+		<!--<tab heading="Example">-->
 			<div class="col-md-4 col-lg-8 example-block alt">
 
 				<use-socket after-join="socketAfterJoin(channel, messages)" socket-after-get="socketAfterGet(message)" socket-after-get-all-channels="socketAfterGetChannels(channels)" join-to-channel="activeChannel"/>
 
-				<input type="text" data-ng-model="$parent.newChannel" placeholder="type here new channel"/> 
+				<input type="text" data-ng-model="$parent.newChannel" placeholder="type here new channel"/>
 				<div class="btn btn-info" data-ng-click="createNewChannel(newChannel)">save</div>
 
 				<!-- <div class="btn" data-ng-repeat="channel in channels" data-ng-click="createNewChannel(channel)"><a>{{channel}}</a></div> -->
@@ -26,7 +21,7 @@
 			</div>
 
   			<div class="greyside col-md-8 col-lg-4 example-block">
-				<a ui-sref="Mean socket help page" target="_blank">Open a new window</a>
+                <a ui-sref="Mean socket help page" target="_blank">Open a new window</a>
 
 				<h2>{{activeChannel}}</h2>
 				<div data-ng-repeat="message in messages track by $index">
@@ -40,7 +35,7 @@
 			</div>
 
 
-		</tab>
+		<!--</tab>-->
 
-	</tabset>
+	<!--</tabset>-->
 </div>

@@ -86,6 +86,19 @@ module.exports = function(MeanSocket) {
             });
         });
 
+        socket.on('test', function(testData) {
+            console.log(testData);
+            //var message = user.name + ' joined the room';
+            io.emit('test', {
+                data: testData.data
+            }, console.log('after emit'));
+            //io.emit('user:joined', {
+            //    message: message,
+            //    time: moment(),
+            //    expires: moment().add(10)
+            //});
+        });
+
         socket.on('message:send', function(message) {
             console.log('message: ' + message);
             console.log(JSON.stringify(message));

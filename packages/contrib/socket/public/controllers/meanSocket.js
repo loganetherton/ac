@@ -1,11 +1,16 @@
 'use strict';
 
-angular.module('mean.socket').controller('MeanSocketController', ['$scope', '$state', 'Global', 'MeanSocket',
-	function($scope, $state, Global, MeanSocket) {
+var app = angular.module('mean.socket');
+
+app.controller('MeanSocketController', ['$scope', '$state', 'Global', 'MeanSocket', '$interval',
+	function($scope, $state, Global, MeanSocket, $interval) {
+        console.log('mean socket controller');
 		$scope.global = Global;
 		$scope.package = {
 			name: 'socket'
 		};
+
+        $scope.messages = [];
 	
 		$scope.socketAfterSend = function(message) {
 			$scope.message = {};
@@ -24,10 +29,52 @@ angular.module('mean.socket').controller('MeanSocketController', ['$scope', '$st
 			$scope.channels = channels;
 		};
 
+
+        MeanSocket.on('test:test', function(data) {
+            console.log('test');
+            console.log(data);
+        });
+
+
+
 		$scope.createNewChannel = function(channel) {
 			$scope.activeChannel = channel;
 			$scope.newChannel = '';
 		};
+
+        MeanSocket.on('room:new', function messageReceived(message) {
+            console.log('calling on room:new');
+            $scope.messages.push(message);
+        });
+
+        MeanSocket.emit('test', {
+            data: 'hi'
+        });
+
+        MeanSocket.on('test', function(data) {
+            console.log('test emit listener data: ' + data.data);
+            //$scope.messages.push(user);
+        });
+
+        MeanSocket.emit('user:joined', {
+            name: 'logan'
+        });
+
+        MeanSocket.on('user:joined', function(user) {
+            console.log('user:joined');
+            //$scope.messages.push(user);
+        });
+
+        //$interval(function(){
+        //    $scope.messages.push('logan')
+        //}, 1000);
+
+        $scope.$watchCollection('messages', function(newVal, oldVal){
+            //console.log('here');
+            angular.forEach(newVal, function(value) {
+                console.log(value);
+            });
+        });
 		// $scope.channel = {
 		// 	name: ''
 		// };
@@ -55,15 +102,6 @@ angular.module('mean.socket').controller('MeanSocketController', ['$scope', '$st
 
 		// // // MeanSocket.on('message:received', function messageReceived(message) {
 		// // // 	$scope.messages.push(message);
-		// // // });
-
-		// // // MeanSocket.emit('user:joined', {
-		// // // 	name: $scope.global.user._id
-		// // // });
-
-		// // // MeanSocket.on('user:joined', function(user) {
-		// // // 	console.log('user:joined');
-		// // // 	$scope.messages.push(user);
 		// // // });
 
 		// $scope.listenChannel = function listenChannel(channel) {

@@ -1,6 +1,8 @@
 //'use strict'; //fix for safari
 
-angular.module('mean.socket').directive('meanSocket', function(Global, MeanSocket) {
+var app = angular.module('mean.socket');
+
+app.directive('meansocket', function(Global, MeanSocket) {
 	return {
 		restrict: 'A',
 		scope: {
@@ -38,7 +40,7 @@ angular.module('mean.socket').directive('meanSocket', function(Global, MeanSocke
 });
 
 
-angular.module('mean.socket').directive('useMeanSocket', function(Global, MeanSocket) {
+app.directive('usemeansocket', function(Global, MeanSocket) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -142,8 +144,12 @@ angular.module('mean.socket').directive('useMeanSocket', function(Global, MeanSo
 				if (scope.joinToChannel)
 					scope.joinChannel(scope.joinToChannel);
 			});
-
-
 		}
 	};
 });
+
+app.directive('emittest', [function () {
+    return {
+        
+    };
+}]);

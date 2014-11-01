@@ -4,8 +4,8 @@ var app = angular.module('mean.tasklist');
 
 app.controller('TasklistController',
 // Tasklist here is referring to the Mongo model
-['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket', 'Stacktrace',
- function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket, Stacktrace) {
+['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket',
+ function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket) {
     $scope.global = Global;
     $scope.strings = {
         name: 'Task list',
@@ -28,7 +28,6 @@ app.controller('TasklistController',
      * @param isValid
      */
     $scope.create = function (isValid) {
-        Stacktrace.trace();
         MeanSocket.emit('testSignal', {
             data: 'tasklist'
         });

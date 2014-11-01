@@ -11,75 +11,63 @@ var taskList = require('../controllers/tasklist');
 //};
 
 // The Package is passed automatically as first parameter
-module.exports = function (Tasklist, app, auth, database) {
+module.exports = function (Tasklist, app, auth, database, MeanSocket) {
 
-    //var Q = require('q');
-    //var bodyParser = require('body-parser');
-    //var server = require('http').createServer(app);
-    //var io = require('socket.io').listen(server);
-    ////var moment = require('moment');
-    //var PORT = 8282;
-    //
-    //Tasklist.io = io;
-    //Tasklist.port = PORT;
-    //
-    //var channelWatchList = [];
-    //
-    ////parse application/x-www-form-urlencoded
-    //app.use(bodyParser.urlencoded());
-    //
-    //// parse application/json
-    //app.use(bodyParser.json());
-    //
-    //// parse application/vnd.api+json as json
-    //app.use(bodyParser.json({
-    //    type: 'application/vnd.api+json'
-    //}));
-    //
-    //server.listen(PORT, function() {
-    //    console.log('Chat now listening on port: ' + PORT + '\n');
-    //});
-    //
-    //var allowCrossDomain = function(req, res, next) {
-    //    res.header('Access-Control-Allow-Origin', '*');
-    //    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    //    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    //
-    //    // intercept OPTIONS method
-    //    if ('OPTIONS' === req.method) {
-    //        res.send(200);
-    //    } else {
-    //        next();
-    //    }
-    //};
-    //app.use(allowCrossDomain);
-    //
-    //function getMessages(channel) {
-    //    var deferred = Q.defer();
-    //
-    //    MeanSocket.settings(function(err, settings) {
-    //        require(settings.settings.funcPage)[settings.settings.getAllMessagesFunc](channel, function(cb) {
-    //            deferred.resolve(cb);
-    //        });
-    //    });
-    //
-    //    return deferred.promise;
-    //}
-    //
-    //io.on('connection', function(socket) {
-    //    console.log('Chat - user connected');
-    //
-    //    socket.on('disconnect', function() {
-    //        console.log('Chat - user disconnected');
-    //    });
-    //    socket.on('testSignal', function(testData) {
-    //        console.log(testData);
-    //        //var message = user.name + ' joined the room';
-    //        io.emit('testResponse', {
-    //            data: testData.data
-    //        }, console.log('after emit'));
-    //    });
-    //});
+    var Q = require('q');
+    var bodyParser = require('body-parser');
+    var server = require('http').createServer(app);
+    var io = require('socket.io').listen(server);
+    //var moment = require('moment');
+    var PORT = 8282;
+
+    Tasklist.io = io;
+    Tasklist.port = PORT;
+
+    var channelWatchList = [];
+
+    //parse application/x-www-form-urlencoded
+    app.use(bodyParser.urlencoded());
+
+    // parse application/json
+    app.use(bodyParser.json());
+
+    // parse application/vnd.api+json as json
+    app.use(bodyParser.json({
+        type: 'application/vnd.api+json'
+    }));
+
+    server.listen(PORT, function() {
+        console.log('Chat now listening on port: ' + PORT + '\n');
+    });
+
+    var allowCrossDomain = function(req, res, next) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+        // intercept OPTIONS method
+        if ('OPTIONS' === req.method) {
+            res.send(200);
+        } else {
+            next();
+        }
+    };
+    app.use(allowCrossDomain);
+
+    io.on('connection', function(socket) {
+        console.log('Chat - user connected');
+
+        socket.on('disconnect', function() {
+            console.log('Chat - user disconnected');
+        });
+        socket.on('testSignal', function(testData) {
+            console.log(testData);
+            //var message = user.name + ' joined the room';
+            io.emit('testResponse', {
+                data: testData.data
+            }, console.log('after emit'));
+        });
+    });
 
 
 

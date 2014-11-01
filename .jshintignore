@@ -1,2 +1,3 @@
 test/coverage/**
 packages/**/tests/*.js
+packages/custom/tasklist/public/services/socket.io.js

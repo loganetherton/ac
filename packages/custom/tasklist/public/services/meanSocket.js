@@ -1,3 +1,4 @@
+/*global io:false */
 'use strict';
 
 var baseUrl = 'http://localhost:8282/';
@@ -5,6 +6,9 @@ var baseUrl = 'http://localhost:8282/';
 angular.module('mean.tasklist').factory('MeanSocket', function($rootScope) {
     var socket = io.connect(baseUrl);
     return {
+        init: function () {
+            socket.removeAllListeners();
+        },
         on: function(eventName, callback) {
             socket.on(eventName, function() {
                 var args = arguments;

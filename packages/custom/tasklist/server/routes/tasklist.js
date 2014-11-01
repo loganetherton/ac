@@ -13,7 +13,6 @@ var taskList = require('../controllers/tasklist');
 // The Package is passed automatically as first parameter
 module.exports = function (Tasklist, app, auth, database, MeanSocket) {
 
-    var Q = require('q');
     var bodyParser = require('body-parser');
     var server = require('http').createServer(app);
     var io = require('socket.io').listen(server);
@@ -22,8 +21,6 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
 
     Tasklist.io = io;
     Tasklist.port = PORT;
-
-    var channelWatchList = [];
 
     //parse application/x-www-form-urlencoded
     app.use(bodyParser.urlencoded());

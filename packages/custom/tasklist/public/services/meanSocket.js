@@ -1,9 +1,11 @@
 /*global io:false */
 'use strict';
 
+var app = angular.module('mean.tasklist');
+
 var baseUrl = 'http://localhost:8282/';
 
-angular.module('mean.tasklist').factory('MeanSocket', function($rootScope) {
+app.factory('MeanSocket', ['$rootScope', '$resource', function ($rootScope, $resource) {
     var socket = io.connect(baseUrl);
     return {
         init: function () {
@@ -29,4 +31,4 @@ angular.module('mean.tasklist').factory('MeanSocket', function($rootScope) {
             });
         }
     };
-});
+}]);

@@ -66,8 +66,6 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
         });
     });
 
-
-
     //app.get('/tasklist/example/anyone', function (req, res, next) {
     //    res.send('Anyone can access this');
     //});

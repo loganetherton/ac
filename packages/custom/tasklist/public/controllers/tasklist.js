@@ -26,32 +26,6 @@ app.controller('TasklistController',
          return $scope.global.isAdmin || task.user._id === $scope.global.user._id;
      };
      /**
-      * Create a new task
-      * @param isValid
-      */
-     $scope.create = function (isValid) {
-         MeanSocket.emit('testSignal', {
-             data: 'tasklist'
-         });
-         if (isValid) {
-             var task = new Tasklist({
-                 title: this.title, content: this.content
-             });
-             task.$save(function (response) {
-                 $location.path('tasklist/' + response._id);
-             });
-
-             $scope.tasks.push({
-                 title: task.title, content: task.content
-             });
-
-             this.title = '';
-             this.content = '';
-         } else {
-             $scope.submitted = true;
-         }
-     };
-     /**
       * Query tasks from DB and make available to scope
       */
      $scope.find = function () {
@@ -63,4 +37,7 @@ app.controller('TasklistController',
      MeanSocket.on('testResponse', function (data) {
          console.log('from tasklist: ' + data.data);
      });
+
+     // Duh, this is an instance of $resource, which is being used to query the backend.
+     console.log(Tasklist.get);
 }]);

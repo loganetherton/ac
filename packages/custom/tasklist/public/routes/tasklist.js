@@ -25,6 +25,10 @@ angular.module('mean.tasklist').config(['$stateProvider', function ($stateProvid
         url: '/tasklist',
         templateUrl: 'tasklist/views/index.html'
     });
+    $stateProvider.state('tasklist query test', {
+        url: '/tasklist/querySomeBullshit',
+        templateUrl: 'tasklist/views/index.html'
+    });
     $stateProvider.state('tasklist open', {
         url: '/tasklist/anyone',
         templateUrl: 'tasklist/views/index.html'

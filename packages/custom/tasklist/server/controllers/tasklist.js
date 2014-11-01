@@ -24,74 +24,85 @@ exports.article = function(req, res, next, id) {
  * Create an article
  */
 exports.create = function(req, res) {
-    var article = new Tasklist(req.body);
-    article.user = req.user;
+    var task = new Tasklist(req.body);
+    task.user = req.user;
 
-    article.save(function(err) {
+    task.save(function(err) {
         if (err) {
             return res.json(500, {
-                error: 'Cannot save the article'
+                error: 'Cannot save the task'
             });
         }
-        res.json(article);
+        res.json(task);
 
     });
 };
 
 /**
- * Update an article
+ * Update an task
  */
 exports.update = function(req, res) {
-    var article = req.article;
+    var task = req.task;
 
-    article = _.extend(article, req.body);
+    task = _.extend(task, req.body);
 
-    article.save(function(err) {
+    task.save(function(err) {
         if (err) {
             return res.json(500, {
-                error: 'Cannot update the article'
+                error: 'Cannot update the task'
             });
         }
-        res.json(article);
+        res.json(task);
 
     });
 };
 
 /**
- * Delete an article
+ * Delete an task
  */
 exports.destroy = function(req, res) {
-    var article = req.article;
+    var task = req.task;
 
-    article.remove(function(err) {
+    task.remove(function(err) {
         if (err) {
             return res.json(500, {
-                error: 'Cannot delete the article'
+                error: 'Cannot delete the task'
             });
         }
-        res.json(article);
+        res.json(task);
 
     });
 };
 
 /**
- * Show an article
+ * Show an task
  */
 exports.show = function(req, res) {
-    res.json(req.article);
+    res.json(req.task);
 };
 
 /**
- * List of Articles
+ * List of tasks
  */
 exports.all = function(req, res) {
-    Tasklist.find().sort('-created').populate('user', 'name username').exec(function(err, articles) {
+    Tasklist.find().sort('-created').populate('user', 'name username').exec(function(err, tasks) {
         if (err) {
             return res.json(500, {
-                error: 'Cannot list the articles'
+                error: 'Cannot list the tasks'
             });
         }
-        res.json(articles);
+        res.json(tasks);
+    });
+};
 
+exports.findOne = function (req, res) {
+    Tasklist.find().sort('-created').limit(1).populate('user', 'name username').exec(function(err, tasks) {
+        if (err) {
+            return res.json(500, {
+                error: 'Cannot list the tasks'
+            });
+        }
+        console.log(tasks);
+        res.json(tasks);
     });
 };

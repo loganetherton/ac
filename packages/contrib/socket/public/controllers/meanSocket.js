@@ -4,14 +4,13 @@ var app = angular.module('mean.socket');
 
 app.controller('MeanSocketController', ['$scope', '$state', 'Global', 'MeanSocket', '$interval',
 	function($scope, $state, Global, MeanSocket, $interval) {
-        console.log('mean socket controller');
 		$scope.global = Global;
 		$scope.package = {
 			name: 'socket'
 		};
 
         $scope.messages = [];
-	
+
 		$scope.socketAfterSend = function(message) {
 			$scope.message = {};
 		};
@@ -38,22 +37,21 @@ app.controller('MeanSocketController', ['$scope', '$state', 'Global', 'MeanSocke
 
 
 		$scope.createNewChannel = function(channel) {
+            MeanSocket.emit('testSignal', {
+                data: 'hi'
+            });
 			$scope.activeChannel = channel;
 			$scope.newChannel = '';
 		};
+
+        MeanSocket.on('testResponse', function(data) {
+            console.log('from socket: ' + data.data);
+        });
 
         MeanSocket.on('room:new', function messageReceived(message) {
             console.log('calling on room:new');
             $scope.messages.push(message);
         });
-
-        //MeanSocket.emit('test', {
-        //    data: 'hi'
-        //});
-        //
-        //MeanSocket.on('test', function(data) {
-        //    console.log('test emit listener data: ' + data.data);
-        //});
 
         MeanSocket.emit('user:joined', {
             name: 'logan'

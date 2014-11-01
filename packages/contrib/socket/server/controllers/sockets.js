@@ -30,7 +30,7 @@ exports.getAllForSocket = function(channel, cb) {
 
 exports.getListOfChannels = function(cb) {
   Article.distinct('title', {}, function(err, articles) {
-    console.log(articles)
+    console.log(articles);
     return cb(articles);
   });
 };

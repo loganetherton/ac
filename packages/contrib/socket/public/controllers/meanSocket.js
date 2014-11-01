@@ -47,14 +47,13 @@ app.controller('MeanSocketController', ['$scope', '$state', 'Global', 'MeanSocke
             $scope.messages.push(message);
         });
 
-        MeanSocket.emit('test', {
-            data: 'hi'
-        });
-
-        MeanSocket.on('test', function(data) {
-            console.log('test emit listener data: ' + data.data);
-            //$scope.messages.push(user);
-        });
+        //MeanSocket.emit('test', {
+        //    data: 'hi'
+        //});
+        //
+        //MeanSocket.on('test', function(data) {
+        //    console.log('test emit listener data: ' + data.data);
+        //});
 
         MeanSocket.emit('user:joined', {
             name: 'logan'

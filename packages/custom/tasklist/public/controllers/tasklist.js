@@ -4,8 +4,8 @@ var app = angular.module('mean.tasklist');
 
 app.controller('TasklistController',
 // Tasklist here is referring to the Mongo model
-['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket',
- function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket) {
+['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket', '$http',
+ function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket, $http) {
     $scope.global = Global;
      $scope.strings = {
          name: 'Task list', project: 'Setting up'
@@ -34,10 +34,25 @@ app.controller('TasklistController',
          });
      };
 
-     MeanSocket.on('testResponse', function (data) {
-         console.log('from tasklist: ' + data.data);
+     MeanSocket.on('newTask', function (data) {
+         $scope.tasks.unshift(data.data);
+         //Tasklist.query(function (task) {
+         //    $scope.tasks = task;
+         //});
+         //$http.get('/task').success(function (data, status, headers, config) {
+         //    angular.forEach(data, function(value, key) {
+         //        $scope.tasks.unshift(value);
+         //    });
+         //});
      });
 
-     // Duh, this is an instance of $resource, which is being used to query the backend.
-     console.log(Tasklist.get);
+     $scope.$watchCollection('tasks', function (newVal, oldVal) {
+         console.log(newVal);
+     });
+
+     // Trying with $http
+     //$http.get('/tasklist').success(function (data, status, headers, config) {
+     //    console.log(data);
+     //    console.log($scope.tasks);
+     //});
 }]);

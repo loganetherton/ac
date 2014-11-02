@@ -4,8 +4,8 @@ var app = angular.module('mean.tasklist');
 
 app.controller('TasklistInsertController',
 // Tasklist here is referring to the Mongo model
-['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket',
- function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket) {
+['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket', '$http',
+ function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket, $http) {
      $scope.global = Global;
      $scope.strings = {
          name: 'Task list', project: 'Setting up'
@@ -27,23 +27,21 @@ app.controller('TasklistInsertController',
       * @param isValid
       */
      $scope.create = function (isValid) {
-         MeanSocket.emit('testSignal', {
-             data: 'tasklist'
-         });
          if (isValid) {
-             var task = new Tasklist({
-                 title: this.title, content: this.content
-             });
-             task.$save(function (response) {
-                 $location.path('tasklist/' + response._id);
+             var task = {
+                 title: this.title,
+                 content: this.content,
+                 user: Global.user
+             };
+             $http.post('/task', task).success(function (data, status, headers, config) {
+                 console.log('success');
+             }).error(function (data, status, headers, config) {
+                 console.log('error');
              });
 
-             $scope.tasks.push({
-                 title: task.title, content: task.content
+             MeanSocket.emit('newTask', {
+                 data: task
              });
-
-             this.title = '';
-             this.content = '';
          } else {
              $scope.submitted = true;
          }

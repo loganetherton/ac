@@ -57,10 +57,10 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
         socket.on('disconnect', function() {
             console.log('Chat - user disconnected');
         });
-        socket.on('testSignal', function(testData) {
+        socket.on('newTask', function(testData) {
             console.log(testData);
             //var message = user.name + ' joined the room';
-            io.emit('testResponse', {
+            io.emit('newTask', {
                 data: testData.data
             }, console.log('after emit'));
         });
@@ -79,6 +79,10 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
 
     app.route('/tasklist').
         get(taskList.all).
+        post(auth.requiresLogin, taskList.create);
+
+    app.route('/task').
+        get(taskList.findOne).
         post(auth.requiresLogin, taskList.create);
 
     app.get('/tasklist/example/admin',

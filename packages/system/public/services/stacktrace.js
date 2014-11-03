@@ -2,6 +2,10 @@
 
 'use strict';
 
+/**
+ * Log Angular exceptions to DB
+ */
+
 var app = angular.module('mean.tasklist');
 
 /**
@@ -21,8 +25,6 @@ app.factory('TraceService', function () {
  */
 app.factory('exceptionLoggingService', ['$log', '$window', 'TraceService', 'Global', function ($log, $window, TraceService, Global) {
     function error(exception, cause) {
-
-        console.log('in error');
 
         // preserve the default behaviour which will log the error
         // to the console, and allow the application to continue running.
@@ -55,7 +57,6 @@ app.factory('exceptionLoggingService', ['$log', '$window', 'TraceService', 'Glob
             $log.log(loggingError);
         }
     }
-    console.log('about to call error');
 
     return (error);
 }]);

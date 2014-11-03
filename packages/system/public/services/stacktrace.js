@@ -6,7 +6,7 @@
  * Log Angular exceptions to DB
  */
 
-var app = angular.module('mean.tasklist');
+var app = angular.module('mean.system');
 
 /**
  * Service that gives us a nice Angular-esque wrapper around the

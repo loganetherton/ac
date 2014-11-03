@@ -8,7 +8,8 @@ app.controller('TasklistController',
  function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket, $http) {
     $scope.global = Global;
      $scope.strings = {
-         name: 'Task list', project: 'Setting up'
+         name: 'Task list',
+         project: 'Setting up'
      };
 
      // Remove event listeners
@@ -44,10 +45,6 @@ app.controller('TasklistController',
          //        $scope.tasks.unshift(value);
          //    });
          //});
-     });
-
-     $scope.$watchCollection('tasks', function (newVal, oldVal) {
-         console.log(newVal);
      });
 
      // Trying with $http

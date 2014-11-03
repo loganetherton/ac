@@ -24,6 +24,7 @@ app.factory('TraceService', function () {
  * also posts the error server side after generating a stacktrace.
  */
 app.factory('exceptionLoggingService', ['$log', '$window', 'TraceService', 'Global', function ($log, $window, TraceService, Global) {
+    // Actual error implementation. Extends original error to also log to database
     function error(exception, cause) {
 
         // preserve the default behaviour which will log the error
@@ -59,6 +60,58 @@ app.factory('exceptionLoggingService', ['$log', '$window', 'TraceService', 'Glob
     }
 
     return (error);
+}]);
+
+/**
+ * Application Logging Service to give us a way of logging
+ * error / debug statements from the client to the server.
+ */
+app.factory('ApplicationLoggingService', ['$log', '$window', 'TraceService', function ($log, $window, TraceService) {
+    return ({
+        // Manual call to error logging
+        error: function (message) {
+            // preserve default behaviour
+            $log.error.apply($log, arguments);
+
+            var dataObj = {
+                url: $window.location.href,
+                message: message,
+                type: 'error'
+            };
+            // If called with stackTrace, use one
+            if (typeof params.stackTrace !== 'undefined' && params.stackTrace) {
+                // use our TraceService to generate a stack trace
+                dataObj.stackTrace = TraceService.print().join('\n');
+            }
+            // send server side
+            $.ajax({
+                type: 'POST',
+                url: '/logger',
+                contentType: 'application/json',
+                data: angular.toJson(dataObj)
+            });
+            // Debug function. Called with ApplicationLoggingService.debug({message: '....', stackTrace: bool})
+        }, debug: function (params) {
+            $log.log.apply($log, arguments);
+            var dataObj = {
+                url: $window.location.href,
+                message: params.message,
+                type: 'debug'
+            };
+            // If called with stackTrace, use one
+            if (typeof params.stackTrace !== 'undefined' && params.stackTrace) {
+                // use our TraceService to generate a stack trace
+                dataObj.stackTrace = TraceService.print().join('\n');
+            }
+            //
+            $.ajax({
+                type: 'POST',
+                url: '/logger',
+                contentType: 'application/json',
+                data: angular.toJson(dataObj)
+            });
+        }
+    });
 }]);
 
 

@@ -34,6 +34,7 @@ app.factory('Tasklist', ['$http', 'MeanSocket', 'Global', function ($http, MeanS
                 });
             } else {
                 //$scope.submitted = true;
+                console.log('set scope.submitted to true');
             }
         }
     };

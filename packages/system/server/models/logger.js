@@ -13,12 +13,10 @@ var LoggerSchema = new Schema({
     },
     url: {
         type: String,
-        required: true,
         trim: true
     },
     message: {
         type: String,
-        required: true,
         trim: true
     },
     type: {
@@ -28,12 +26,10 @@ var LoggerSchema = new Schema({
     },
     stackTrace: {
         type: String,
-        required: true,
         trim: true
     },
     cause: {
         type: String,
-        required: true,
         trim: true
     },
     user: {

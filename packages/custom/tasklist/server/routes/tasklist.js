@@ -52,13 +52,13 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
     app.use(allowCrossDomain);
 
     io.on('connection', function(socket) {
-        console.log('Chat - user connected');
+        console.log('Tasklist - user connected');
 
         socket.on('disconnect', function() {
-            console.log('Chat - user disconnected');
+            console.log('Tasklist - user disconnected');
         });
         socket.on('newTask', function(testData) {
-            console.log(testData);
+            console.log('emitting new task: ' + testData);
             //var message = user.name + ' joined the room';
             io.emit('newTask', {
                 data: testData.data

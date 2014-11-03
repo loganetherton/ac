@@ -4,8 +4,8 @@ var app = angular.module('mean.tasklist');
 
 app.controller('TasklistInsertController',
 // Tasklist here is referring to the Mongo model
-['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket', '$http',
- function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket, $http) {
+['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket', '$http', 'traceService',
+ function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket, $http, traceService) {
      $scope.global = Global;
      $scope.strings = {
          name: 'Task list', project: 'Setting up'
@@ -29,14 +29,14 @@ app.controller('TasklistInsertController',
      $scope.create = function (isValid) {
          if (isValid) {
              var task = {
+                 user: Global.user._id,
                  title: this.title,
-                 content: this.content,
-                 user: Global.user
+                 content: this.content
              };
              $http.post('/task', task).success(function (data, status, headers, config) {
                  console.log('success');
              }).error(function (data, status, headers, config) {
-                 console.log('error');
+                 console.log('error: '. data);
              });
 
              MeanSocket.emit('newTask', {

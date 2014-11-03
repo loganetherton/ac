@@ -29,6 +29,7 @@ exports.create = function(req, res) {
 
     task.save(function(err) {
         if (err) {
+            console.log('could not save task to database: ' + err);
             return res.json(500, {
                 error: 'Cannot save the task'
             });
@@ -102,7 +103,6 @@ exports.findOne = function (req, res) {
                 error: 'Cannot list the tasks'
             });
         }
-        console.log(tasks);
         res.json(tasks);
     });
 };

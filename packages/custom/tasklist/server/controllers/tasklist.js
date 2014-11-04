@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-Tasklist = mongoose.model('Tasklist'),
+Task = mongoose.model('Task'),
 _ = require('lodash');
 
 
@@ -12,7 +12,7 @@ _ = require('lodash');
  * Find article by id
  */
 exports.article = function(req, res, next, id) {
-    Tasklist.load(id, function(err, article) {
+    Task.load(id, function(err, article) {
         if (err) return next(err);
         if (!article) return next(new Error('Failed to load article ' + id));
         req.article = article;
@@ -24,7 +24,7 @@ exports.article = function(req, res, next, id) {
  * Create an article
  */
 exports.create = function(req, res) {
-    var task = new Tasklist(req.body);
+    var task = new Task(req.body);
     task.user = req.user;
 
     task.save(function(err) {
@@ -86,7 +86,7 @@ exports.show = function(req, res) {
  * List of tasks
  */
 exports.all = function(req, res) {
-    Tasklist.find().sort('-created').populate('user', 'name username').exec(function(err, tasks) {
+    Task.find().sort('-created').populate('user', 'name username').exec(function(err, tasks) {
         if (err) {
             return res.json(500, {
                 error: 'Cannot list the tasks'
@@ -97,7 +97,7 @@ exports.all = function(req, res) {
 };
 
 exports.findOne = function (req, res) {
-    Tasklist.find().sort('-created').limit(1).populate('user', 'name username').exec(function(err, tasks) {
+    Task.find().sort('-created').limit(1).populate('user', 'name username').exec(function(err, tasks) {
         if (err) {
             return res.json(500, {
                 error: 'Cannot list the tasks'

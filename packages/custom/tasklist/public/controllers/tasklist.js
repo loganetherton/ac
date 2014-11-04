@@ -14,16 +14,14 @@
 
              TasklistService.init().then(function (data) {
                  // Success
-                 $scope.tasks = data.data;
+                 $scope.tasks = data;
              }, function (error) {
                  // log error to DB
                  // TODO Make robust
-                 console.log(error);
                  LogService.error({
                      message: 'Unable to retrieve initial tasks. Error: ' + error.data.error,
                      stackTrace: true
                  });
-                 $scope.error = 'ERROR';
              });
 
              SocketService.on('newTask', function (data) {

@@ -4,13 +4,15 @@
     var app = angular.module('mean.tasklist');
 
     app.controller('TasklistController',
-        ['$scope', '$stateParams', '$location', 'Tasklist', 'SocketService',
-         function ($scope, $stateParams, $location, Tasklist, SocketService) {
+        ['$scope', '$stateParams', '$location', 'TasklistService', 'SocketService',
+         function ($scope, $stateParams, $location, TasklistService, SocketService) {
+
+             $scope.tasks = [];
 
              // Remove extraneous event listeners
              SocketService.init();
 
-             Tasklist.init().then(function (data) {
+             TasklistService.init().then(function (data) {
                  // Success
                  $scope.tasks = data.data;
              }, function (error) {

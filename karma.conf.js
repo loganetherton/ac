@@ -18,6 +18,8 @@ module.exports = function(config) {
     files: _.flatten(_.values(assets.core.js)).concat([
       'packages/*/public/*.js',
       'packages/*/public/*/*.js',
+      'packages/custom/*/public/*.js',
+      'packages/custom/*/public/*/*.js',
 
 
       'bower_components/angular/angular.js',

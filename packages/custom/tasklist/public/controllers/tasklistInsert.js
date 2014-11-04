@@ -4,8 +4,8 @@ var app = angular.module('mean.tasklist');
 
 app.controller('TasklistInsertController',
 // Tasklist here is referring to the Mongo model
-['$scope', '$stateParams', '$location', 'Global', 'Tasklist',
- function ($scope, $stateParams, $location, Global, Tasklist) {
+['$scope', '$stateParams', '$location', 'Global', 'TasklistService',
+ function ($scope, $stateParams, $location, Global, TasklistService) {
      $scope.global = Global;
      $scope.strings = Global.tasklist.strings;
 
@@ -13,5 +13,5 @@ app.controller('TasklistInsertController',
       * Create a new task
       * @param isValid
       */
-     $scope.create = Tasklist.create;
+     $scope.create = TasklistService.create;
  }]);

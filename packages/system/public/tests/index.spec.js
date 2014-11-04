@@ -241,7 +241,7 @@
             scope.$digest();
         }));
 
-        iit('should call the callHome() function', function () {
+        it('should call the callHome() function', function () {
             element.scope().data.message = 'dont shake the baby';
             // Note that we don't want to actually write in unit tests, just change the scope
             //element.find('input').val('dont shake the baby');
@@ -266,7 +266,6 @@
             scope.$digest();
         }));
         it('should include the original element as well as the directive template', function () {
-            dump(element.html());
             expect(element.html()).toMatch(/class.*?row.*?transclusiontest.*?transclusion.*?button/i);
         });
     });

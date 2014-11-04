@@ -3,7 +3,7 @@
 var app = angular.module('mean.tasklist');
 
 // Favorite service for retrieving and creating tasks
-app.factory('Tasklist', ['$http', 'SocketService', 'Global', 'LogService',
+app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService',
                          function ($http, SocketService, Global, LogService) {
 
     return {

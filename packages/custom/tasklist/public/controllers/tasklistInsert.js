@@ -7,9 +7,8 @@ app.controller('TasklistInsertController',
 ['$scope', '$stateParams', '$location', 'Global', 'Tasklist',
  function ($scope, $stateParams, $location, Global, Tasklist) {
      $scope.global = Global;
-     $scope.strings = {
-         name: 'Task list', project: 'Setting up'
-     };
+     $scope.strings = Global.tasklist.strings;
+
      /**
       * Create a new task
       * @param isValid

@@ -3,22 +3,20 @@
 var app = angular.module('mean.tasklist');
 
 app.controller('TasklistController',
-// Tasklist here is referring to the Mongo model
-['$scope', '$stateParams', '$location', 'Global', 'Tasklist', 'MeanSocket',
- function ($scope, $stateParams, $location, Global, Tasklist, MeanSocket) {
-    $scope.global = Global;
-     $scope.strings = {
-         name: 'Task list',
-         project: 'Setting up'
-     };
 
-     // Remove event listeners
+['$scope', '$stateParams', '$location', 'Tasklist', 'MeanSocket',
+ function ($scope, $stateParams, $location, Tasklist, MeanSocket) {
+
+     // Remove extraneous event listeners
      MeanSocket.init();
 
      Tasklist.init().then(function (data) {
+         // Success
          $scope.tasks = data.data;
      }, function (error) {
-         // Todo implement error handler
+         // log error to DB
+         // TODO Make robust
+         throw new Error(error);
      });
 
      MeanSocket.on('newTask', function (data) {

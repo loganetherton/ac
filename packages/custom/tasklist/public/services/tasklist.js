@@ -3,8 +3,8 @@
 var app = angular.module('mean.tasklist');
 
 // Favorite service for retrieving and creating tasks
-app.factory('Tasklist', ['$http', 'MeanSocket', 'Global', 'ApplicationLoggingService',
-                         function ($http, MeanSocket, Global, ApplicationLoggingService) {
+app.factory('Tasklist', ['$http', 'SocketService', 'Global', 'LogService',
+                         function ($http, SocketService, Global, LogService) {
 
     return {
         // Get an initial listing of tasks, return promise
@@ -22,12 +22,12 @@ app.factory('Tasklist', ['$http', 'MeanSocket', 'Global', 'ApplicationLoggingSer
                 $http.post('/task', task).
                 // On success, emit
                 success(function (data, status, headers, config) {
-                    MeanSocket.emit('newTask', {
+                    SocketService.emit('newTask', {
                         data: task
                     });
                 // Error out
                 }).error(function (data, status, headers, config) {
-                    ApplicationLoggingService.error({
+                    LogService.error({
                         message: 'Failed to save new task',
                         stackTrace: true
                     });

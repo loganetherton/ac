@@ -6,19 +6,19 @@
 var should = require('should'),
 mongoose = require('mongoose'),
 User = mongoose.model('User'),
-Article = mongoose.model('Article');
+Task = mongoose.model('Task');
 
 /**
  * Globals
  */
 var user;
-var article;
+var task;
 
 /**
  * Test Suites
  */
 describe('<Unit Test>', function() {
-    describe('Model Article:', function() {
+    describe('Model Task:', function() {
         beforeEach(function(done) {
             user = new User({
                 name: 'Full name',
@@ -28,9 +28,9 @@ describe('<Unit Test>', function() {
             });
 
             user.save(function() {
-                article = new Article({
-                    title: 'Article Title',
-                    content: 'Article Content',
+                task = new Task({
+                    title: 'Task Title',
+                    content: 'Task Content',
                     user: user
                 });
 
@@ -40,38 +40,38 @@ describe('<Unit Test>', function() {
 
         describe('Method Save', function() {
             it('should be able to save without problems', function(done) {
-                return article.save(function(err) {
+                return task.save(function(err) {
                     should.not.exist(err);
-                    article.title.should.equal('Article Title');
-                    article.content.should.equal('Article Content');
-                    article.user.should.not.have.length(0);
-                    article.created.should.not.have.length(0);
+                    task.title.should.equal('Task Title');
+                    task.content.should.equal('Task Content');
+                    task.user.should.not.have.length(0);
+                    task.created.should.not.have.length(0);
                     done();
                 });
             });
 
             it('should be able to show an error when try to save without title', function(done) {
-                article.title = '';
+                task.title = '';
 
-                return article.save(function(err) {
+                return task.save(function(err) {
                     should.exist(err);
                     done();
                 });
             });
 
             it('should be able to show an error when try to save without content', function(done) {
-                article.content = '';
+                task.content = '';
 
-                return article.save(function(err) {
+                return task.save(function(err) {
                     should.exist(err);
                     done();
                 });
             });
 
             it('should be able to show an error when try to save without user', function(done) {
-                article.user = {};
+                task.user = {};
 
-                return article.save(function(err) {
+                return task.save(function(err) {
                     should.exist(err);
                     done();
                 });
@@ -80,7 +80,7 @@ describe('<Unit Test>', function() {
         });
 
         afterEach(function(done) {
-            article.remove();
+            task.remove();
             user.remove();
             done();
         });

@@ -66,7 +66,7 @@ app.factory('exceptionLoggingService', ['$log', '$window', 'TraceService', 'Glob
  * Application Logging Service to give us a way of logging
  * error / debug statements from the client to the server.
  */
-app.factory('ApplicationLoggingService', ['$log', '$window', 'TraceService', function ($log, $window, TraceService) {
+app.factory('LogService', ['$log', '$window', 'TraceService', function ($log, $window, TraceService) {
     return ({
         // Manual call to error logging
         error: function (params) {
@@ -90,7 +90,7 @@ app.factory('ApplicationLoggingService', ['$log', '$window', 'TraceService', fun
                 contentType: 'application/json',
                 data: angular.toJson(dataObj)
             });
-            // Debug function. Called with ApplicationLoggingService.debug({message: '....', stackTrace: bool})
+            // Debug function. Called with LogService.debug({message: '....', stackTrace: bool})
         }, debug: function (params) {
             $log.log.apply($log, arguments);
             var dataObj = {

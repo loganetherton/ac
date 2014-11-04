@@ -2,7 +2,7 @@
 
 var mean = require('meanio'),
     mongoose = require('mongoose'),
-    Logger = mongoose.model('Logger');
+    Log = mongoose.model('Log');
 
 exports.render = function (req, res) {
 
@@ -41,12 +41,12 @@ exports.render = function (req, res) {
  * @param res
  */
 exports.log = function (req, res) {
-    var logger = new Logger(req.body);
+    var logger = new Log(req.body);
 
     logger.save(function(err, log) {
         if (err) {
             return res.json(500, {
-                error: 'Cannot save the logger'
+                error: 'Cannot save log'
             });
         }
         res.json(logger);

@@ -47,4 +47,4 @@ var LoggerSchema = new Schema({
 //    }).populate('user', 'name username').exec(cb);
 //};
 
-mongoose.model('Logger', LoggerSchema);
+mongoose.model('Log', LoggerSchema);

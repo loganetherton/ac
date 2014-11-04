@@ -160,7 +160,8 @@ module.exports = function (grunt) {
 
     //Test task.
     grunt.registerTask('test', ['env:test', 'mochaTest', 'karma:unit']);
-    grunt.registerTask('karmatest', ['env:test', 'karma:unit']);
+    grunt.registerTask('mocha', ['env:test', 'mochaTest']);
+    grunt.registerTask('karma', ['env:test', 'karma:unit']);
     grunt.registerTask('e2e', ['env:test', 'mochaTest', 'protractor']);
 
     // For Heroku users only.

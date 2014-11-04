@@ -1,3 +1,4 @@
 test/coverage/**
 packages/**/tests/*.js
 packages/system/public/services/socket.io.js
+browserTrigger.js

@@ -28,7 +28,7 @@ module.exports = function(config) {
       'bower_components/angular-route/angular-route.js',
       'bower_components/angular-ui-router/release/angular-ui-router.js',
 
-      'bower_components/angular/browserTrigger.js'
+      'browserTrigger.js'
     ]),
 
     // list of files to exclude

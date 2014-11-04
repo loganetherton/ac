@@ -109,9 +109,14 @@ module.exports = function (grunt) {
         }, // Testing framework
         mochaTest: {
             options: {
-                reporter: 'spec', require: ['server.js', function () {
-                    require('meanio/lib/util').preload(__dirname + '/packages/**/server', 'model');
-                }]
+                reporter: 'spec',
+                require: [
+                    'server.js',
+                    //'bower_components/angular-mocks/angular-mocks.js',
+                    function () {
+                        require('meanio/lib/util').preload(__dirname + '/packages/**/server', 'model');
+                    }
+                ]
             },
             src: ['packages/**/server/tests/**/*.js']
         },
@@ -159,9 +164,9 @@ module.exports = function (grunt) {
     }
 
     //Test task.
-    grunt.registerTask('test', ['env:test', 'mochaTest', 'karma:unit']);
+    grunt.registerTask('test', ['env:test', 'mochaTest', 'karma:unit', 'protractor']);
     grunt.registerTask('mocha', ['env:test', 'mochaTest']);
-    grunt.registerTask('karma', ['env:test', 'karma:unit']);
+    grunt.registerTask('karmatest', ['env:test', 'karma:unit']);
     grunt.registerTask('e2e', ['env:test', 'mochaTest', 'protractor']);
 
     // For Heroku users only.

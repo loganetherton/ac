@@ -130,17 +130,17 @@ app.directive('phone', [function () {
         },
         //transclude: true,
         template: '<input type="text" ng-model="$parent.data.something">' +
-                  '<button ng-click="dial({message:$parent.data.something})">Call home</button>'
-        //link: function(scope){
-        //    // Need this or else the unit tests throw an exception when it can't find data
-        //    //scope.data = {};
-        //    console.log('within directive');
-        //    console.log(scope.$parent);
-        //    //scope.data.something = 'directive';
-        //    scope.$watch('data.something', function(newVal, oldVal){
-        //        console.log('directive');
-        //    });
-        //}
+                  '<button ng-click="dial({message:$parent.data.something})">Call home</button>',
+        link: function(scope){
+            // Need this or else the unit tests throw an exception when it can't find data
+            //scope.data = {};
+            //console.log('within directive');
+            //console.log(scope.$parent);
+            ////scope.data.something = 'directive';
+            //scope.$watch('data.something', function(newVal, oldVal){
+            //    console.log('directive');
+            //});
+        }
     };
 }]);
 

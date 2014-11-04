@@ -220,35 +220,37 @@
         });
     });
 
-        //describe('directive:phone', function () {
-        //    var scope, element;
-        //
-        //    beforeEach(function () {
-        //        module('mean');
-        //        module('mean.system');
-        //    });
-        //
-        //    beforeEach(inject(function ($rootScope, $compile) {
-        //        scope = $rootScope.$new();
-        //        // This is the mock of the controller function
-        //        scope.callHome = function (message) {
-        //            console.log('called home with ' + message);
-        //        };
-        //        element = $compile('<div phone dial="callHome(message)"></div>')(scope);
-        //
-        //        spyOn(console, 'log');
-        //        // Digest
-        //        scope.$digest();
-        //    }));
-        //
-        //    it('should call the callHome() function', function () {
-        //        element.isolateScope().data.message = 'dont shake the baby';
-        //        // Note that we don't want to actually write in unit tests, just change the scope
-        //        //element.find('input').val('dont shake the baby');
-        //        element.find('button').click();
-        //        expect(console.log).toHaveBeenCalledWith('called home with dont shake the baby');
-        //    });
-        //});
+    describe('directive:phone', function () {
+        var scope, element;
+
+        beforeEach(function () {
+            module('mean');
+            module('mean.system');
+        });
+
+        beforeEach(inject(function ($rootScope, $compile) {
+            scope = $rootScope.$new();
+            // This is the mock of the controller function
+            scope.callHome = function (message) {
+                console.log('called home with ' + message);
+            };
+            element = $compile('<section data-ng-controller="CallHomeController"><div phone dial="callHome(message)"></div></section>')(scope);
+
+            spyOn(console, 'log');
+            // Digest
+            scope.$digest();
+        }));
+
+        iit('should call the callHome() function', function () {
+            element.scope().data.message = 'dont shake the baby';
+            // Note that we don't want to actually write in unit tests, just change the scope
+            //element.find('input').val('dont shake the baby');
+            scope.$digest();
+            var button = element.find('button');
+            browserTrigger(button);
+            expect(console.log).toHaveBeenCalled();
+        });
+    });
 
     describe('directive:transclusionTest', function () {
         var scope, element;

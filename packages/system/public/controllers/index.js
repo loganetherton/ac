@@ -59,6 +59,7 @@ app.controller('DrinkController', ['$scope', function ($scope) {
 app.controller('CallHomeController', ['$scope', function ($scope) {
     $scope.callHome = function (message) {
         $scope.data.something = 'called home with ' + message;
+        console.log($scope.data.something);
     };
 
     $scope.data = {};

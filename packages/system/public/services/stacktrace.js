@@ -69,13 +69,13 @@ app.factory('exceptionLoggingService', ['$log', '$window', 'TraceService', 'Glob
 app.factory('ApplicationLoggingService', ['$log', '$window', 'TraceService', function ($log, $window, TraceService) {
     return ({
         // Manual call to error logging
-        error: function (message) {
+        error: function (params) {
             // preserve default behaviour
             $log.error.apply($log, arguments);
 
             var dataObj = {
                 url: $window.location.href,
-                message: message,
+                message: params.message,
                 type: 'error'
             };
             // If called with stackTrace, use one

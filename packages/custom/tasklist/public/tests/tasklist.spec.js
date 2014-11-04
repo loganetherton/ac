@@ -78,9 +78,7 @@
         var that = this;
         this.init = function () {
             var defer = $q.defer();
-
             defer.resolve(that);
-
             return defer.promise;
         };
     };
@@ -89,7 +87,7 @@
      * @todo When I include both the mock socket and mock Tasklist service, it seems to lose access to the socket. Why?
      */
     describe('Controller: Tasklist', function () {
-        var scope, socketMock;
+        var scope, socketMock, TasklistService, LogService, $httpBackend, controller;
 
         beforeEach(function () {
             module('mean');
@@ -98,13 +96,17 @@
         });
 
         //mock the controller for the same reason and include $rootScope and $controller
-        beforeEach(inject(function($rootScope, $controller, $q){
+        beforeEach(inject(function($rootScope, $controller, $q, _LogService_, _$httpBackend_){
             //create an empty scope
             scope = $rootScope.$new();
-
             socketMock = new sockMock($rootScope);
+            LogService = _LogService_;
+            $httpBackend = _$httpBackend_;
+            controller = $controller;
 
-            var TasklistService = new mockTasklistServiceFunc($q);
+            spyOn(LogService, 'error');
+
+            TasklistService = new mockTasklistServiceFunc($q);
 
             // Declare controller, inject mock socket and mock tasklist service
             $controller('TasklistController', {$scope: scope, TasklistService: TasklistService, SocketService: socketMock});
@@ -112,9 +114,28 @@
             scope.$digest();
         }));
 
-        it('should get access to global tasklist strings object', function () {
-            expect(typeof scope.strings).toEqual();
-        });
+        /**
+         * TODO See how to get $httpBackend working here
+         */
+        //describe('should fail to load data', function() {
+        //    beforeEach(function() {
+        //        //console.log($httpBackend.expectGET('/tasklist').respond(500));
+        //        $httpBackend.expectGET('/tasklist').respond(500); // return 500 - Server Error
+        //        //controller('TasklistController', { $scope: scope });
+        //        $httpBackend.flush();
+        //    });
+        //
+        //    it('using loadData()', function() {
+        //        console.log(TasklistService.init);
+        //        scope.init();
+        //        expect(scope.error).toEqual('ERROR');
+        //    });
+        //
+        //    //it('using loadData2()', function () {
+        //    //    scope.loadData2();
+        //    //    expect(scope.error).toEqual('ERROR');
+        //    //});
+        //});
 
         it('should immediately call Tasklist.init() and add the return to $scope.tasks', function () {
             expect(scope.tasks).toEqual([

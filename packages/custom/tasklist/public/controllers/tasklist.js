@@ -4,8 +4,8 @@
     var app = angular.module('mean.tasklist');
 
     app.controller('TasklistController',
-        ['$scope', '$stateParams', '$location', 'TasklistService', 'SocketService',
-         function ($scope, $stateParams, $location, TasklistService, SocketService) {
+        ['$scope', '$stateParams', '$location', 'TasklistService', 'SocketService', 'LogService',
+         function ($scope, $stateParams, $location, TasklistService, SocketService, LogService) {
 
              $scope.tasks = [];
 
@@ -18,7 +18,12 @@
              }, function (error) {
                  // log error to DB
                  // TODO Make robust
-                 throw new Error(error);
+                 console.log(error);
+                 LogService.error({
+                     message: 'Unable to retrieve initial tasks. Error: ' + error.data.error,
+                     stackTrace: true
+                 });
+                 $scope.error = 'ERROR';
              });
 
              SocketService.on('newTask', function (data) {

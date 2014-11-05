@@ -44,7 +44,7 @@ var SocketMock = function($rootScope) {
  *
  * @param $q
  */
-var mockTasklistServiceFunc = function ($q) {
+var MockTasklistService = function ($q) {
     this.data = [
         {
             __v: 0,

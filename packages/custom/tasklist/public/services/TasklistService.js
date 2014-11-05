@@ -24,8 +24,8 @@ app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService'
         },
         // Create a new task
         create: function (isValid, title, content) {
+            var deferred = $q.defer();
             if (isValid) {
-                var deferred = $q.defer();
                 var task = {
                     user: Global.user._id,
                     title: title,
@@ -46,8 +46,8 @@ app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService'
                 });
                 return deferred.promise;
             } else {
-                //$scope.submitted = true;
-                console.log('set scope.submitted to true');
+                deferred.reject('Invalid task model');
+                return deferred.promise;
             }
         }
     };

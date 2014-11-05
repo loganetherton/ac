@@ -13,5 +13,17 @@ app.controller('TasklistInsertController',
       * Create a new task
       * @param isValid
       */
-     $scope.create = TasklistService.create;
+     $scope.create = function (valid) {
+         // Make sure something valid was passed
+         if (!valid) {
+             return;
+         }
+         TasklistService.create(valid, $scope.title, $scope.content).then(function (data) {
+             $scope.title = '';
+             $scope.content = '';
+         }, function (error) {
+             console.log('error: ' + error);
+             // TODO Display error to user
+         });
+     };
  }]);

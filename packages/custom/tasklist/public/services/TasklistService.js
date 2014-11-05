@@ -23,26 +23,28 @@ app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService'
             return deferred.promise;
         },
         // Create a new task
-        create: function (isValid) {
+        create: function (isValid, title, content) {
             if (isValid) {
+                var deferred = $q.defer();
                 var task = {
                     user: Global.user._id,
-                    title: this.title,
-                    content: this.content
+                    title: title,
+                    content: content
                 };
-                $http.post('/task', task).
-                // On success, emit
-                success(function (data, status, headers, config) {
+                $http.post('/task', task).then(function (data) {
+                    // Resolve and emit
+                    deferred.resolve(task);
                     SocketService.emit('newTask', {
                         data: task
                     });
-                // Error out
-                }).error(function (data, status, headers, config) {
+                }, function () {
+                    deferred.reject('Failed to save new task');
                     LogService.error({
                         message: 'Failed to save new task',
                         stackTrace: true
                     });
                 });
+                return deferred.promise;
             } else {
                 //$scope.submitted = true;
                 console.log('set scope.submitted to true');

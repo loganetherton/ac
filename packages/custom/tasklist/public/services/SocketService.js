@@ -5,7 +5,7 @@ var app = angular.module('mean.tasklist');
 
 var baseUrl = 'http://localhost:8282/';
 
-app.factory('SocketService', ['$rootScope', '$resource', function ($rootScope) {
+app.factory('SocketService', ['$rootScope', function ($rootScope) {
     var socket = io.connect(baseUrl);
     return {
         init: function () {

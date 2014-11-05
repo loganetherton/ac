@@ -27,6 +27,10 @@ exports.create = function(req, res) {
     var task = new Task(req.body);
     task.user = req.user;
 
+    task.validate(function (error) {
+        console.log(error);
+    });
+
     task.save(function(err) {
         if (err) {
             console.log('could not save task to database: ' + err);

@@ -9,9 +9,6 @@
 
              $scope.tasks = [];
 
-             // Remove extraneous event listeners
-             SocketService.init();
-
              TasklistService.init().then(function (data) {
                  // Success
                  $scope.tasks = data;

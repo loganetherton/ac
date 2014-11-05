@@ -28,7 +28,9 @@ exports.create = function(req, res) {
     task.user = req.user;
 
     task.validate(function (error) {
-        console.log(error);
+        if (typeof error !== 'undefined') {
+            console.log(error);
+        }
     });
 
     task.save(function(err) {

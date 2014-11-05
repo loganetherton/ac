@@ -3,14 +3,14 @@
 
     <h2>{{strings.name}}</h2>
     <h2 class="alert alert-warning">{{strings.project}}</h2>
-    <div class="row">
-        <form name="articleForm" class="form-horizontal col-md-6" role="form" data-ng-submit="create(articleForm.$valid)" novalidate>
-            <div class="input-group">
-                <span class="input-group-addon">New</span>
+    <div class="row no-border">
+        <form name="articleForm" class="form-horizontal" role="form" data-ng-submit="create(articleForm.$valid)" novalidate>
+            <div class="input-group col-md-9">
+                <span class="input-group-addon task-input-label">Title</span>
                 <input name="title" type="text" class="form-control" data-ng-model="title" id="title" placeholder="Title" required>
             </div>
-            <div class="input-group">
-                <span class="input-group-addon">New</span>
+            <div class="input-group col-md-9">
+                <span class="input-group-addon task-input-label">Content</span>
                 <input name="content" type="text" class="form-control" data-ng-model="content" id="content" placeholder="Content" required>
             </div>
             <br>

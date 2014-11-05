@@ -10,3 +10,10 @@
     width: 20%;
     right: 0;
 }
+.no-border {
+    border: 0
+}
+.task-input-label {
+    width: 10%;
+    text-align: right;
+}

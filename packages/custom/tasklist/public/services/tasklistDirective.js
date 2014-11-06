@@ -8,6 +8,7 @@ app.directive('tasklist', ['hasAuthorizationService', function (hasAuthorization
         restrict: 'E',
         templateUrl: 'tasklist/views/partials/tasklist-directive.html',
         scope: {},
+        controllerAs: 'tasklist',
         controller: 'TasklistController',
         link: function (scope, element) {
             scope.hasAuthorization = hasAuthorizationService;

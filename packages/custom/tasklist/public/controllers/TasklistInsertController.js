@@ -6,21 +6,21 @@ app.controller('TasklistInsertController',
 // Tasklist here is referring to the Mongo model
 ['$scope', '$stateParams', '$location', 'Global', 'TasklistService',
  function ($scope, $stateParams, $location, Global, TasklistService) {
-     $scope.global = Global;
-     $scope.strings = Global.tasklist.strings;
+     var vm = this;
+     this.strings = Global.tasklist.strings;
 
      /**
       * Create a new task
       * @param isValid
       */
-     $scope.create = function (valid) {
+     this.create = function (valid) {
          // Make sure something valid was passed
          if (!valid) {
              return;
          }
-         TasklistService.create(valid, $scope.title, $scope.content).then(function (data) {
-             $scope.title = '';
-             $scope.content = '';
+         TasklistService.create(valid, vm.title, vm.content).then(function (data) {
+             vm.title = '';
+             vm.content = '';
          }, function (error) {
              console.log('error: ' + error);
              // TODO Display error to user

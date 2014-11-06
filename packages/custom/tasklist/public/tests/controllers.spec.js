@@ -5,7 +5,7 @@
     /**
      * @todo When I include both the mock socket and mock Tasklist service, it seems to lose access to the socket. Why?
      */
-    describe('Controller: Tasklist, mocked TasklistService', function () {
+    describe('TasklistController, mocked TasklistService', function () {
         var scope, socketMock, TasklistService;
 
         beforeEach(function () {
@@ -20,7 +20,7 @@
             scope = $rootScope.$new();
             socketMock = new SocketMock($rootScope);
 
-            TasklistService = new mockTasklistServiceFunc($q);
+            TasklistService = new MockTasklistService($q);
 
             // Declare controller, inject mock socket and mock tasklist service
             $controller('TasklistController', {$scope: scope, TasklistService: TasklistService, SocketService: socketMock});
@@ -96,7 +96,7 @@
         });
     });
 
-    describe('Controller: Tasklist, TasklistService with httpBackend', function () {
+    describe('TasklistController, TasklistService with httpBackend', function () {
         var scope, httpBackend, TasklistService, q, LogService;
         beforeEach(function () {
             module('mean');
@@ -116,6 +116,12 @@
 
             $controller('TasklistController', {$scope: scope});
         }));
+
+        // Make sure no expectGET etc calls were missed
+        afterEach(function() {
+            httpBackend.verifyNoOutstandingExpectation();
+            httpBackend.verifyNoOutstandingRequest();
+        });
 
         it('should respond via httpBackend successfully', function () {
             var deferred = q.defer();
@@ -138,5 +144,9 @@
             scope.$digest();
             expect(LogService.error).toHaveBeenCalled()
         });
+    });
+
+    describe('TasklistInsertController', function () {
+
     });
 }());

@@ -3,15 +3,17 @@
 
     var app = angular.module('mean.tasklist');
 
+    // For controllerAs syntax, check out: http://toddmotto.com/digging-into-angulars-controller-as-syntax/
     app.controller('TasklistController',
         ['$scope', '$stateParams', '$location', 'TasklistService', 'SocketService', 'LogService',
          function ($scope, $stateParams, $location, TasklistService, SocketService, LogService) {
 
-             $scope.tasks = [];
+             var vm = this;
+             this.tasks = [];
 
              TasklistService.init().then(function (data) {
                  // Success
-                 $scope.tasks = data;
+                 vm.tasks = data;
              }, function (error) {
                  // log error to DB
                  // TODO Make robust
@@ -22,7 +24,16 @@
              });
 
              SocketService.on('newTask', function (data) {
-                 $scope.tasks.unshift(data.data);
+                 vm.tasks.unshift(data.data);
              });
+
+             /**
+              * And here's how we do the watch when in controllerAs syntax
+              */
+             //$scope.$watchCollection(function () {
+             //    return vm.tasks;
+             //}, function (newVal) {
+             //    console.log(newVal);
+             //});
          }]);
 })();

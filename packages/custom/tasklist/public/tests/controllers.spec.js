@@ -6,7 +6,7 @@
      * @todo When I include both the mock socket and mock Tasklist service, it seems to lose access to the socket. Why?
      */
     describe('TasklistController, mocked TasklistService', function () {
-        var scope, socketMock, TasklistService;
+        var scope, socketMock, TasklistService, TasklistController;
 
         beforeEach(function () {
             module('mean');
@@ -23,13 +23,13 @@
             TasklistService = new MockTasklistService($q);
 
             // Declare controller, inject mock socket and mock tasklist service
-            $controller('TasklistController', {$scope: scope, TasklistService: TasklistService, SocketService: socketMock});
+            TasklistController = $controller('TasklistController', {$scope: scope, TasklistService: TasklistService, SocketService: socketMock});
 
             scope.$digest();
         }));
 
         it('should immediately call Tasklist.init() and add the return to $scope.tasks', function () {
-            expect(scope.tasks).toEqual([{
+            expect(TasklistController.tasks).toEqual([{
                                              __v: 0,
                                              _id: '5458888a70b39cf36ca711e7',
                                              content: 'testContent',
@@ -64,7 +64,7 @@
                 }
             });
 
-            expect(scope.tasks).toEqual([{
+            expect(TasklistController.tasks).toEqual([{
                                              $$hashKey: 'object:42',
                                              user: '5434f0215d1bbcf87764b996',
                                              title: 'test title',
@@ -97,7 +97,7 @@
     });
 
     describe('TasklistController, TasklistService with httpBackend', function () {
-        var scope, httpBackend, TasklistService, q, LogService;
+        var scope, httpBackend, TasklistService, q, LogService, TasklistController;
         beforeEach(function () {
             module('mean');
             module('mean.system');
@@ -114,7 +114,7 @@
             // Make sure the log service was called
             spyOn(LogService, 'error');
 
-            $controller('TasklistController', {$scope: scope});
+            TasklistController = $controller('TasklistController', {$scope: scope});
         }));
 
         // Make sure no expectGET etc calls were missed
@@ -129,7 +129,7 @@
             httpBackend.whenGET('/tasklist').respond(deferred.promise);
             httpBackend.flush();
             scope.$digest();
-            expect(scope.tasks).toEqual({ data : 'data' });
+            expect(TasklistController.tasks).toEqual({ data : 'data' });
         });
 
         it('should handle errors from TasklistService', function () {

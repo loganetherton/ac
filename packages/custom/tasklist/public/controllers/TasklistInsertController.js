@@ -14,10 +14,6 @@ app.controller('TasklistInsertController',
       * @param isValid
       */
      this.create = function (valid) {
-         // Make sure something valid was passed
-         if (!valid) {
-             return;
-         }
          TasklistService.create(valid, vm.title, vm.content).then(function (data) {
              vm.title = '';
              vm.content = '';

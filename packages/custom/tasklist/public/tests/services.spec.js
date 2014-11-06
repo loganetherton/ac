@@ -19,7 +19,7 @@
         });
     });
 
-    ddescribe('Service: TasklistService', function () {
+    describe('Service: TasklistService', function () {
         var scope, tasklistService, httpBackend, socketService, logService, q, global;
         beforeEach(function () {
             module('mean');

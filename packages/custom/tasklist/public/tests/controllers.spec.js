@@ -6,53 +6,38 @@
      * @todo When I include both the mock socket and mock Tasklist service, it seems to lose access to the socket. Why?
      */
     describe('TasklistController, mocked TasklistService', function () {
-        var scope, socketMock, TasklistService, TasklistController;
+        var scope, socketMock, TasklistService, TasklistController, element;
 
         beforeEach(function () {
             module('mean');
             module('mean.system');
-            module('mean.tasklist');
+            // Inject ngRepeat template
+            module("mean.templates");
+            // Mock the tasklist service
+            module('mean.tasklist', function ($provide) {
+                $provide.value('TasklistService', MockTasklistService);
+            });
         });
 
         //mock the controller for the same reason and include $rootScope and $controller
-        beforeEach(inject(function($rootScope, $controller, $q){
+        beforeEach(inject(function($rootScope, $controller, $compile, $q){
             //create an empty scope
             scope = $rootScope.$new();
             socketMock = new SocketMock($rootScope);
 
-            TasklistService = new MockTasklistService($q);
+            element = '<tasklist></tasklist>';
+
+            //TasklistService = new MockTasklistService($q);
 
             // Declare controller, inject mock socket and mock tasklist service
-            TasklistController = $controller('TasklistController', {$scope: scope, TasklistService: TasklistService, SocketService: socketMock});
+            //TasklistController = $controller('TasklistController', {$scope: scope, SocketService: socketMock});
+
+            element = $compile(element)(scope);
+
+            console.log(element);
 
             scope.$digest();
         }));
-
-        it('should immediately call Tasklist.init() and add the return to $scope.tasks', function () {
-            expect(TasklistController.tasks).toEqual([{
-                                             __v: 0,
-                                             _id: '5458888a70b39cf36ca711e7',
-                                             content: 'testContent',
-                                             created: '2014-11-04T08:04:26.526Z',
-                                             title: 'testTitle',
-                                             user: {
-                                                 _id: '5434f0215d1bbcf87764b996',
-                                                 name: 'Logan Etherton',
-                                                 username: 'loganetherton'
-                                             }
-                                         }, {
-                                             __v: 0,
-                                             _id: '545882cc37f38bcf69f0b82d',
-                                             content: 'testContent2',
-                                             created: '2014-11-04T08:04:26.526Z',
-                                             title: 'testTitle2',
-                                             user: {
-                                                 _id: '5434f0215d1bbcf87764b996',
-                                                 name: 'Logan Etherton',
-                                                 username: 'loganetherton'
-                                             }
-                                         }]);
-        });
 
         it('should accept emitted tasks and add them to tasks array', function(){
             socketMock.receive('newTask', {
@@ -64,7 +49,11 @@
                 }
             });
 
-            expect(TasklistController.tasks).toEqual([{
+            scope.$digest();
+
+            console.log(element.isolateScope().tasklist.tasks);
+
+            expect(element.isolateScope().tasklist.tasks).toEqual([{
                                              $$hashKey: 'object:42',
                                              user: '5434f0215d1bbcf87764b996',
                                              title: 'test title',

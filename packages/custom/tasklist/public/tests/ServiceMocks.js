@@ -72,7 +72,7 @@ var MockTasklistService = function ($q) {
         }
     ];
     var that = this;
-    this.init = function () {
+    MockTasklistService.init = function () {
         var defer = $q.defer();
         defer.resolve(that.data);
         return defer.promise;

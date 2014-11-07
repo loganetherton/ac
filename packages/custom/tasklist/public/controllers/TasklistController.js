@@ -5,23 +5,10 @@
 
     // For controllerAs syntax, check out: http://toddmotto.com/digging-into-angulars-controller-as-syntax/
     app.controller('TasklistController',
-        ['$scope', '$stateParams', '$location', 'TasklistService', 'SocketService', 'LogService',
-         function ($scope, $stateParams, $location, TasklistService, SocketService, LogService) {
+        ['$scope', '$stateParams', '$location', 'SocketService',
+         function ($scope, $stateParams, $location, SocketService) {
 
              var vm = this;
-             this.tasks = [];
-
-             TasklistService.init().then(function (data) {
-                 // Success
-                 vm.tasks = data;
-             }, function (error) {
-                 // log error to DB
-                 // TODO Make robust
-                 LogService.error({
-                     message: 'Unable to retrieve initial tasks. Error: ' + error.data.error,
-                     stackTrace: true
-                 });
-             });
 
              SocketService.on('newTask', function (data) {
                  vm.tasks.unshift(data.data);

@@ -5,7 +5,7 @@
     /**
      * @todo When I include both the mock socket and mock Tasklist service, it seems to lose access to the socket. Why?
      */
-    describe('TasklistController, mocked TasklistService', function () {
+    ddescribe('TasklistController, mocked TasklistService', function () {
         var scope, socketMock, TasklistService, TasklistController, element;
 
         beforeEach(function () {
@@ -17,26 +17,27 @@
             module('mean.tasklist', function ($provide) {
                 $provide.value('TasklistService', MockTasklistService);
             });
+
+            //module('mean.tasklist', function ($provide) {
+            //    $provide.value('SocketService', socketMock);
+            //});
         });
 
         //mock the controller for the same reason and include $rootScope and $controller
         beforeEach(inject(function($rootScope, $controller, $compile, $q){
             //create an empty scope
             scope = $rootScope.$new();
-            socketMock = new SocketMock($rootScope);
-
             element = '<tasklist></tasklist>';
-
-            //TasklistService = new MockTasklistService($q);
+            // Service mocks
+            socketMock = new SocketMock($rootScope);
+            TasklistService = new MockTasklistService($q);
 
             // Declare controller, inject mock socket and mock tasklist service
             //TasklistController = $controller('TasklistController', {$scope: scope, SocketService: socketMock});
 
             element = $compile(element)(scope);
-
-            console.log(element);
-
             scope.$digest();
+            console.log(element);
         }));
 
         it('should accept emitted tasks and add them to tasks array', function(){

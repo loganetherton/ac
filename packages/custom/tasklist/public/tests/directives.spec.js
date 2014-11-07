@@ -1,19 +1,13 @@
 (function () {
-    ddescribe('directive: tasklist', function () {
+    describe('directive: tasklist', function () {
         var scope, element, hasAuthorizationService, TasklistService;
         beforeEach(function () {
             module('mean');
             module('mean.system');
-            //module('mean.tasklist');
-
             module("mean.templates");
             module('mean.tasklist', function ($provide) {
                 $provide.value('TasklistService', MockTasklistService);
             });
-
-            //inject(function (_hasAuthorizationService_) {
-            //    hasAuthorizationService = _hasAuthorizationService_;
-            //});
         });
 
         beforeEach(inject(function ($rootScope, $compile, $controller, $q) {
@@ -33,9 +27,6 @@
             // Compile element and digest
             element = $compile(element)(scope);
             scope.$digest();
-            //var e = $compile('<div><ul><li ng-repeat="item in [1,3,5,7,9]">{{item}}</li></ul></div>')(scope);
-            //scope.$digest();
-            //console.log(e.html());
         }));
 
         it('should have the hasAuthorizationService and it should be accessible from the directive scope', function () {

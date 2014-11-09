@@ -14,7 +14,10 @@
             // Inject ngRepeat template
             module("mean.templates");
             // Mock the tasklist service
-            module('mean.tasklist');
+            module('mean.tasklist', function ($provide) {
+                $provide.factory('TasklistService', MockTasklistService);
+                $provide.factory('SocketService', SocketMock);
+            });
         });
 
         //mock the controller for the same reason and include $rootScope and $controller
@@ -30,7 +33,6 @@
         }));
 
         it('should accept emitted tasks and add them to tasks array', function(){
-
             socketMock.receive('newTask', {
                 data: {
                     $$hashKey: 'object:42',
@@ -76,57 +78,39 @@
         });
     });
 
-    describe('TasklistController, TasklistService with httpBackend', function () {
-        var scope, httpBackend, TasklistService, q, LogService, TasklistController;
+    ddescribe('TasklistInsertController', function () {
+        var scope, controller, global, tasklistService;
+
         beforeEach(function () {
             module('mean');
             module('mean.system');
-            module('mean.tasklist');
+            module('mean.tasklist', function ($provide) {
+                $provide.factory('Global', GlobalMock);
+                $provide.factory('TasklistService', MockTasklistService);
+            });
         });
 
-        beforeEach(inject(function ($rootScope, $controller, $httpBackend, _TasklistService_, $q, _LogService_) {
+        beforeEach(inject(function ($rootScope, $controller, Global, TasklistService) {
             scope = $rootScope.$new();
-            httpBackend = $httpBackend;
-            TasklistService = _TasklistService_;
-            LogService = _LogService_;
-            q = $q;
+            tasklistService = TasklistService;
 
-            // Make sure the log service was called
-            spyOn(LogService, 'error');
+            spyOn(tasklistService, 'create').andCallThrough();
+            controller = $controller('TasklistInsertController', {$scope: scope});
 
-            TasklistController = $controller('TasklistController', {$scope: scope});
+            global = Global;
         }));
 
-        // Make sure no expectGET etc calls were missed
-        afterEach(function() {
-            httpBackend.verifyNoOutstandingExpectation();
-            httpBackend.verifyNoOutstandingRequest();
+        it('should provide access to global strings', function () {
+            expect(controller.strings.name).toBeDefined();
+            expect(controller.strings.project).toBeDefined();
         });
 
-        it('should respond via httpBackend successfully', function () {
-            var deferred = q.defer();
-            deferred.resolve({data: 'data'});
-            httpBackend.whenGET('/tasklist').respond(deferred.promise);
-            httpBackend.flush();
-            scope.$digest();
-            expect(TasklistController.tasks).toEqual({ data : 'data' });
+        it('should call TasklistService.create() when a new task is submitted', function () {
+            controller.title = 'fakeTitle';
+            controller.content = 'fakeContent';
+            controller.create(true);
+
+            expect(tasklistService.create).toHaveBeenCalledWith(true, 'fakeTitle', 'fakeContent');
         });
-
-        it('should handle errors from TasklistService', function () {
-            var deferred = q.defer();
-            deferred.reject({
-                data: {
-                    error: 'this is an error'
-                }
-            });
-            httpBackend.whenGET('/tasklist').respond(deferred.promise);
-            httpBackend.flush();
-            scope.$digest();
-            expect(LogService.error).toHaveBeenCalled()
-        });
-    });
-
-    describe('TasklistInsertController', function () {
-
     });
 }());

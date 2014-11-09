@@ -1,16 +1,19 @@
 (function () {
     describe('directive: tasklist', function () {
-        var scope, element, hasAuthorizationService, TasklistService;
+        var scope, element, hasAuthorizationService, TasklistService, SocketService;
         beforeEach(function () {
             module('mean');
             module('mean.system');
             module("mean.templates");
-            module('mean.tasklist');
+            module('mean.tasklist', function ($provide) {
+                $provide.factory('TasklistService', MockTasklistService);
+            });
         });
 
-        beforeEach(inject(function ($rootScope, $compile, $controller, $q) {
+        beforeEach(inject(function ($rootScope, $compile, $controller, $q, SocketService) {
             scope = $rootScope.$new();
             element = '<tasklist></tasklist>';
+
             // Compile element and digest
             element = $compile(element)(scope);
             scope.$digest();

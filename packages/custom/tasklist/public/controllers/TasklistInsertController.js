@@ -11,10 +11,12 @@ app.controller('TasklistInsertController',
 
      /**
       * Create a new task
-      * @param isValid
+      * @param valid
       */
      this.create = function (valid) {
-         TasklistService.create(valid, vm.title, vm.content).then(function (data) {
+         var defer = TasklistService.create(valid, vm.title, vm.content);
+
+         defer.then(function (data) {
              vm.title = '';
              vm.content = '';
          }, function (error) {

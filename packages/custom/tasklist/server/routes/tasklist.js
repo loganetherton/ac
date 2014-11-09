@@ -23,7 +23,7 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
     Tasklist.port = PORT;
 
     //parse application/x-www-form-urlencoded
-    app.use(bodyParser.urlencoded());
+    app.use(bodyParser.urlencoded({ extended: true }));
 
     // parse application/json
     app.use(bodyParser.json());

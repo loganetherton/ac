@@ -45,8 +45,8 @@ exports.config = {
 
   // The address of a running Selenium Server. If specified, Protractor will
   // connect to an already running instance of Selenium. This usually looks like
-  // seleniumAddress: 'http://localhost:4444/wd/hub'
-  seleniumAddress: null,
+  seleniumAddress: 'http://localhost:4444/wd/hub',
+  //seleniumAddress: null,
 
   // If sauceUser and sauceKey are specified, seleniumServerJar will be ignored.
   // The tests will be run remotely using Sauce Labs.
@@ -229,5 +229,6 @@ exports.config = {
     tags: '@dev',
     // How to format features (default: progress)
     format: 'summary'
-  }
+  },
+    keepAlive: true
 };

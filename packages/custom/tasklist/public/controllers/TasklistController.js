@@ -11,7 +11,9 @@
              var vm = this;
 
              SocketService.on('newTask', function (data) {
-                 vm.tasks.unshift(data.data);
+                 if (typeof vm.tasks !== 'undefined' && angular.isArray(vm.tasks)) {
+                     vm.tasks.unshift(data.data);
+                 }
              });
 
              /**
@@ -20,6 +22,7 @@
              //$scope.$watchCollection(function () {
              //    return vm.tasks;
              //}, function (newVal) {
+             //    console.log('updating vm.tasks');
              //    console.log(newVal);
              //});
          }]);

@@ -16,9 +16,7 @@ app.directive('tasklist', ['hasAuthorizationService', 'TasklistService', 'LogSer
             scope.hasAuthorization = hasAuthorizationService;
             // Get the initial tasklist
             TasklistService.init().then(function (data) {
-                console.log(controller);
                 controller.tasks = data;
-                //console.log(controller.tasks);
             }, function (error) {
                 // log error to DB
                 // TODO Make robust

@@ -5,25 +5,12 @@
             module('mean');
             module('mean.system');
             module("mean.templates");
-            module('mean.tasklist', function ($provide) {
-                $provide.value('TasklistService', MockTasklistService);
-            });
+            module('mean.tasklist');
         });
 
         beforeEach(inject(function ($rootScope, $compile, $controller, $q) {
             scope = $rootScope.$new();
             element = '<tasklist></tasklist>';
-
-            TasklistService = new MockTasklistService($q);
-
-            // Declare controller, inject mock socket and mock tasklist service
-            //TasklistController = $controller('TasklistController as tasklist', {$scope: scope, TasklistService: TasklistService});
-            //
-            //scope.$digest();
-
-            //console.log(TasklistController.tasks);
-
-            //console.log(scope.tasklist.tasks);
             // Compile element and digest
             element = $compile(element)(scope);
             scope.$digest();

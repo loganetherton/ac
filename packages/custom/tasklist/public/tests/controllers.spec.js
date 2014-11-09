@@ -5,7 +5,7 @@
     /**
      * @todo When I include both the mock socket and mock Tasklist service, it seems to lose access to the socket. Why?
      */
-    ddescribe('TasklistController, mocked TasklistService', function () {
+    describe('TasklistController, mocked TasklistService', function () {
         var scope, socketMock, TasklistService, TasklistController, element;
 
         beforeEach(function () {
@@ -14,51 +14,39 @@
             // Inject ngRepeat template
             module("mean.templates");
             // Mock the tasklist service
-            module('mean.tasklist', function ($provide) {
-                $provide.value('TasklistService', MockTasklistService);
-            });
-
-            //module('mean.tasklist', function ($provide) {
-            //    $provide.value('SocketService', socketMock);
-            //});
+            module('mean.tasklist');
         });
 
         //mock the controller for the same reason and include $rootScope and $controller
-        beforeEach(inject(function($rootScope, $controller, $compile, $q){
+        beforeEach(inject(function($rootScope, $controller, $compile, $q, SocketService){
             //create an empty scope
             scope = $rootScope.$new();
             element = '<tasklist></tasklist>';
-            // Service mocks
-            socketMock = new SocketMock($rootScope);
-            TasklistService = new MockTasklistService($q);
-
-            // Declare controller, inject mock socket and mock tasklist service
-            //TasklistController = $controller('TasklistController', {$scope: scope, SocketService: socketMock});
-
+            // Mocking the socket service
+            socketMock = SocketService;
+            // Controller is initialized by the directive
             element = $compile(element)(scope);
             scope.$digest();
-            console.log(element);
         }));
 
         it('should accept emitted tasks and add them to tasks array', function(){
+
             socketMock.receive('newTask', {
                 data: {
                     $$hashKey: 'object:42',
                     user: '5434f0215d1bbcf87764b996',
-                    title: 'test title',
-                    content: 'test content'
+                    title: 'test emit title',
+                    content: 'test emit content'
                 }
             });
 
             scope.$digest();
 
-            console.log(element.isolateScope().tasklist.tasks);
-
             expect(element.isolateScope().tasklist.tasks).toEqual([{
                                              $$hashKey: 'object:42',
                                              user: '5434f0215d1bbcf87764b996',
-                                             title: 'test title',
-                                             content: 'test content'
+                                             title: 'test emit title',
+                                             content: 'test emit content'
                                          }, {
                                              __v: 0,
                                              _id: '5458888a70b39cf36ca711e7',
@@ -69,7 +57,8 @@
                                                  _id: '5434f0215d1bbcf87764b996',
                                                  name: 'Logan Etherton',
                                                  username: 'loganetherton'
-                                             }
+                                             },
+                                             $$hashKey: 'object:12'
                                          }, {
                                              __v: 0,
                                              _id: '545882cc37f38bcf69f0b82d',
@@ -80,7 +69,8 @@
                                                  _id: '5434f0215d1bbcf87764b996',
                                                  name: 'Logan Etherton',
                                                  username: 'loganetherton'
-                                             }
+                                             },
+                                             $$hashKey: 'object:13'
                                          }]);
 
         });

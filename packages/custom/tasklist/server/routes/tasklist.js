@@ -55,7 +55,7 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
         //console.log('Tasklist - user connected');
 
         socket.on('disconnect', function() {
-            //console.log('Tasklist - user disconnected');
+            console.log('Tasklist - user disconnected');
         });
         socket.on('newTask', function(testData) {
             console.log(socket);

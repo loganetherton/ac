@@ -5,8 +5,8 @@
 
     // For controllerAs syntax, check out: http://toddmotto.com/digging-into-angulars-controller-as-syntax/
     app.controller('TasklistController',
-        ['$scope', '$stateParams', '$location', 'SocketService',
-         function ($scope, $stateParams, $location, SocketService) {
+        ['$scope', '$stateParams', '$location', 'SocketService', '$rootScope',
+         function ($scope, $stateParams, $location, SocketService, $rootScope) {
 
              var vm = this;
 
@@ -14,6 +14,14 @@
                  if (typeof vm.tasks !== 'undefined' && angular.isArray(vm.tasks)) {
                      vm.tasks.unshift(data.data);
                  }
+             });
+
+             $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                 console.log(event);
+                 console.log(toState);
+                 console.log(toParams);
+                 console.log(fromState);
+                 console.log(fromParams);
              });
 
              /**

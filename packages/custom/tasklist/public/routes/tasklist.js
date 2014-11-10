@@ -21,11 +21,12 @@ angular.module('mean.tasklist').config(['$stateProvider', function ($stateProvid
 
         return deferred.promise;
     };
+
     $stateProvider.state('tasklist', {
         url: '/tasklist',
         templateUrl: 'tasklist/views/index.html'
     });
-    $stateProvider.state('tasklist query test', {
+    $stateProvider.state('tasklist.query.test', {
         url: '/tasklist/querySomeBullshit',
         templateUrl: 'tasklist/views/index.html'
     });

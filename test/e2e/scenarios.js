@@ -23,29 +23,43 @@ describe('initial setup', function () {
             }
         });
     });
-    // Note that changing describe to ddescribe or it to itt will only run that describe or it instance, no others
-    describe('some setup bullshit', function () {
+    // Note that changing describe to describe or it to itt will only run that describe or it instance, no others
+    describe('setup:', function () {
         it('should correctly display the title', function () {
             expect(browser.getTitle()).toEqual('MEAN - A Modern Stack - Test');
         });
-    });
 
-    describe('user fixtures', function () {
-        it('should be able to clear the users collection', function () {
-            browser.executeScript(function() {
-                var service = angular.injector(['mean']).get('FixtureService');
-                var retVal = service.clearUsers();
-                console.log(retVal);
-            }).then(function () {
-                expect(true).toBeTruthy();
-            }, function () {
-                expect(false).toBeTruthy();
+        describe('user fixtures', function () {
+            it('should be able to clear the users collection', function () {
+                browser.executeScript(function() {
+                    var service = angular.injector(['mean']).get('FixtureService');
+                    service.clearUsers();
+                }).then(function () {
+                    expect(true).toBeTruthy();
+                }, function () {
+                    expect(false).toBeTruthy();
+                });
             });
         });
-    });
 
-    describe('task fixtures', function () {
-        it('should be able to clear the tasks collection', function () {
+        describe('task fixtures', function () {
+            it('should be able to clear the tasks collection', function () {
+                browser.executeScript(function() {
+                    var service = angular.injector(['mean']).get('FixtureService');
+                    service.clearTasks();
+                }).then(function () {
+                    expect(true).toBeTruthy();
+                }, function () {
+                    expect(false).toBeTruthy();
+                });
+            });
+        });
+
+        it('should not let the user access any page other than the login page when not logged in', function () {
+
+        });
+
+        it('should redirect immediately to the login page when not logged in', function () {
 
         });
     });

@@ -6,4 +6,5 @@ module.exports = function(System, app, auth, database) {
     var fixtures = require('../controllers/fixtures');
 
     app.route('/clearUsers').post(fixtures.clearUsers);
+    app.route('/clearTasks').post(fixtures.clearTasks);
 };

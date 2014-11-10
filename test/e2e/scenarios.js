@@ -2,10 +2,27 @@
 'use strict';
 
 /* https://docs.angularjs.org/guide/e2e-testing */
+/*
+ browser.pause();
+ browser.debugger();
+ */
 
-describe('Egghead.io videos', function () {
+describe('initial setup', function () {
 
-    browser.get('');
+
+    beforeEach(function() {
+        browser.get('');
+        //browser.executeScript(function() {console.error('error from test')});
+    });
+
+    afterEach(function() {
+        browser.manage().logs().get('browser').then(function(browserLog) {
+            //expect(browserLog.length).toEqual(0);
+            if (browserLog.length) {
+                console.log('log: ' + require('util').inspect(browserLog));
+            }
+        });
+    });
     // Note that changing describe to ddescribe or it to itt will only run that describe or it instance, no others
     describe('some setup bullshit', function () {
         it('should correctly display the title', function () {
@@ -13,8 +30,24 @@ describe('Egghead.io videos', function () {
         });
     });
 
-    describe('login should function', function () {
-        browser.pause();
+    describe('user fixtures', function () {
+        it('should be able to clear the users collection', function () {
+            browser.executeScript(function() {
+                var service = angular.injector(['mean']).get('FixtureService');
+                var retVal = service.clearUsers();
+                console.log(retVal);
+            }).then(function () {
+                expect(true).toBeTruthy();
+            }, function () {
+                expect(false).toBeTruthy();
+            });
+        });
+    });
+
+    describe('task fixtures', function () {
+        it('should be able to clear the tasks collection', function () {
+
+        });
     });
 
     //describe('directive:drinkTwoWayBinding', function () {

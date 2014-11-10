@@ -41,7 +41,7 @@ exports.config = {
 
   // If true, only ChromeDriver will be started, not a Selenium Server.
   // Tests for browsers other than Chrome will not run.
-  chromeOnly: false,
+  chromeOnly: true,
 
   // The address of a running Selenium Server. If specified, Protractor will
   // connect to an already running instance of Selenium. This usually looks like

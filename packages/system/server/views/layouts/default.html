@@ -9,7 +9,7 @@
         <div data-ng-include="'/mean-admin/views/index.html'"></div>
     </section>
     {% endif %}
-    <section class="tasklist-details">
+    <section class="tasklist-details" data-ng-show="global.authenticated">
         <div data-ng-include="'/tasklist/views/partials/right-pane.html'"></div>
     </section>
     <section class="content">

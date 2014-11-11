@@ -2,10 +2,10 @@
 
 var app = angular.module('mean.system');
 
-app.factory('AuthenticationService', [function () {
+app.factory('AuthenticationService', ['$q', '$timeout', '$http', function ($q, $timeout, $http) {
     return {
         // Check whether the user is authenticated
-        isAuthenticated: function ($q, $timeout, $http, $location) {
+        isAuthenticated: function () {
             // Initialize a new promise
             var deferred = $q.defer();
             // Make an AJAX call to check if the user is logged in
@@ -17,7 +17,6 @@ app.factory('AuthenticationService', [function () {
                 // Not Authenticated
                 else {
                     $timeout(deferred.reject);
-                    $location.url('/auth/login');
                 }
             });
             return deferred.promise;

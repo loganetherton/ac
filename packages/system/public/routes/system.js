@@ -1,28 +1,10 @@
+/*global _:false */
 'use strict';
 
 var app = angular.module('mean.system');
 
 //Setting up route
 app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
-
-    // Check if the user is connected
-    var checkLoggedin = function ($q, $timeout, $http, $location) {
-        // Initialize a new promise
-        var deferred = $q.defer();
-        // Make an AJAX call to check if the user is logged in
-        $http.get('/loggedin').success(function (user) {
-            // Authenticated
-            if (user !== '0') {
-                $timeout(deferred.resolve);
-            }
-            // Not Authenticated
-            else {
-                $timeout(deferred.reject);
-                $location.url('/auth/login');
-            }
-        });
-        return deferred.promise;
-    };
 
     // For unmatched routes:
     $urlRouterProvider.otherwise('/auth/login');
@@ -31,56 +13,44 @@ app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $u
     $urlRouterProvider.when('', '/tasklist');
 
     /**
-     * Auth
-     */
+    * Auth
+    */
     $stateProvider.state('auth', {
         url: '/auth',
-        templateUrl: 'users/views/index.html'
+        templateUrl: 'users/views/index.html',
+        //resolve: {
+        //    //loggedin: !checkLoggedin
+        //},
+        //onEnter: function () {
+        //    //console.log('entering auth parent state');
+        //}
     })
     .state('auth.login', {
         url: '/login',
         templateUrl: 'users/views/login.html',
-        resolve: {
-            loggedin: !checkLoggedin
-        }
     })
     .state('auth.register', {
         url: '/register',
         templateUrl: 'users/views/register.html',
-        resolve: {
-            loggedin: !checkLoggedin
-        }
     }).state('forgot-password', {
         url: '/forgot-password',
         templateUrl: 'users/views/forgot-password.html',
-        resolve: {
-            loggedin: !checkLoggedin
-        }
     }).state('reset-password', {
         url: '/reset/:tokenId',
         templateUrl: 'users/views/reset-password.html',
-        resolve: {
-            loggedin: !checkLoggedin
-        }
     });
 
     /**
-     * Tasklist
-     */
+    * Tasklist
+    */
     $stateProvider.state('tasklist', {
         url: '/tasklist',
         templateUrl: 'tasklist/views/index.html',
-        resolve: {
-            loggedin: checkLoggedin
-        }
     });
 
     $stateProvider.state('tasklist.auth', {
         url: '/auth',
         templateUrl: 'tasklist/views/index.html',
-        resolve: {
-            loggedin: checkLoggedin
-        }
     });
 
     $stateProvider.state('tasklist.query.test', {
@@ -92,7 +62,7 @@ app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $u
         templateUrl: 'tasklist/views/index.html'
     });
 
-    //// states for my app
+    // states for my app
     //$stateProvider.state('home', {
     //    url: '/', templateUrl: 'system/views/index.html'
     //});
@@ -100,32 +70,46 @@ app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $u
     $locationProvider.hashPrefix('!');
 }]);
 
-//app.run(['$rootScope', function ($rootScope) {
-//
-//    //$rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-//    //    console.log(event);
-//    //    console.log(toState);
-//    //    console.log(toParams);
-//    //    console.log(fromState);
-//    //    console.log(fromParams);
-//    //});
-//
-//    // enumerate routes that don't need authentication
-//    var routesThatDontRequireAuth = ['/login'];
-//
-//    // check if current location matches route
-//    var routeClean = function (route) {
-//        return _.find(routesThatDontRequireAuth,
-//        function (noAuthRoute) {
-//            return _.str.startsWith(route, noAuthRoute);
-//        });
-//    };
-//
-//    $rootScope.$on('$routeChangeStart', function (event, next, current) {
-//        // if route requires auth and user is not logged in
-//        if (!routeClean($location.url()) && !AuthenticationService.isLoggedIn()) {
-//            // redirect back to login
-//            $location.path('/login');
-//        }
-//    });
-//}]);
+app.run(['$rootScope', '$location', 'AuthenticationService', '$state', '$timeout',
+         function ($rootScope, $location, AuthenticationService, $state, $timeout) {
+
+    // enumerate routes that don't need authentication
+    var routesThatDontRequireAuth = ['/auth'];
+
+    // check if current location matches route
+    var routeClean = function (route) {
+        //console.log(route);
+        return _.find(routesThatDontRequireAuth, function (noAuthRoute) {
+            //console.log(noAuthRoute);
+            return _.str.startsWith(route, noAuthRoute);
+        });
+    };
+
+    $rootScope.$on('$stateChangeStart', function (event, to, toParams, from) {
+        // if route requires auth and user is not logged in
+        var loggedIn = AuthenticationService.isAuthenticated();
+        // If logged in
+        loggedIn.then(function () {
+            if (routeClean($location.url())) {
+                $timeout(function () {
+                    console.log(from.name);
+                    console.log(to.name);
+                    // Redirect back, if it's a good address to go back to
+                    if (from.name && from.name !== to.name) {
+                        $state.go(from.name);
+                    // Otherwise, kick them back to tasklist state
+                    } else {
+                        $state.go('tasklist');
+                    }
+                }, 0);
+            }
+        }, function () {
+            if (!routeClean($location.url())) {
+                // This needs to be wrapped in timeout() so that it won't interrupt the current state change
+                $timeout(function () {
+                    $state.go('auth.login');
+                }, 0);
+            }
+        });
+    });
+}]);

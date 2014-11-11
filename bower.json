@@ -12,6 +12,7 @@
         "angular-ui-router": "#master",
         "socket.io-client": "latest",
         "stacktrace-js": "latest",
-        "underscore": "latest"
+        "underscore": "latest",
+        "underscore.string": "latest"
     }
 }

@@ -5,8 +5,8 @@
 
     // For controllerAs syntax, check out: http://toddmotto.com/digging-into-angulars-controller-as-syntax/
     app.controller('TasklistController',
-        ['$scope', '$stateParams', '$location', 'SocketService',
-         function ($scope, $stateParams, $location, SocketService) {
+        ['$scope', '$location', 'SocketService',
+         function ($scope, $location, SocketService) {
 
              var vm = this;
 

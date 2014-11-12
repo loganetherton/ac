@@ -41,7 +41,7 @@ describe('Model Log:', function() {
         });
     });
 
-    describe.only('Method Save', function() {
+    describe('Method Save', function() {
         it('should be able to save without problems', function(done) {
             return task.save(function(err) {
                 should.not.exist(err);

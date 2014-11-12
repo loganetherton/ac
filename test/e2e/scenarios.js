@@ -11,7 +11,7 @@ describe('initial setup', function () {
 
 
     beforeEach(function() {
-        browser.get('');
+        browser.get('/#!/auth/login');
         //browser.executeScript(function() {console.error('error from test')});
     });
 
@@ -33,10 +33,10 @@ describe('initial setup', function () {
             it('should be able to clear the users collection', function () {
                 browser.executeScript(function() {
                     var service = angular.injector(['mean']).get('FixtureService');
-                    service.clearUsers();
-                }).then(function () {
+                    return service.clearUsers();
+                }).then(function (data) {
                     expect(true).toBeTruthy();
-                }, function () {
+                }, function (error) {
                     expect(false).toBeTruthy();
                 });
             });
@@ -55,9 +55,9 @@ describe('initial setup', function () {
             });
         });
 
-        it('should not let the user access any page other than the login page when not logged in', function () {
-
-        });
+        //it('should not let the user access any page other than the login page when not logged in', function () {
+        //    browser.get('/#!/tasklist');
+        //});
 
         it('should redirect immediately to the login page when not logged in', function () {
 

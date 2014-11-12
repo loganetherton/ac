@@ -78,7 +78,7 @@
         });
     });
 
-    ddescribe('TasklistInsertController', function () {
+    describe('TasklistInsertController', function () {
         var scope, controller, global, tasklistService;
 
         beforeEach(function () {

@@ -78,11 +78,11 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
     //);
 
     app.route('/tasklist').
-        get(taskList.all).
+        get(auth.requiresLogin, taskList.all).
         post(auth.requiresLogin, taskList.create);
 
     app.route('/task').
-        get(taskList.findOne).
+        get(auth.requiresLogin, taskList.findOne).
         post(auth.requiresLogin, taskList.create);
 
     app.get('/tasklist/example/admin',

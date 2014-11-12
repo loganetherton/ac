@@ -92,8 +92,6 @@ app.run(['$rootScope', '$location', 'AuthenticationService', '$state', '$timeout
         loggedIn.then(function () {
             if (routeClean($location.url())) {
                 $timeout(function () {
-                    console.log(from.name);
-                    console.log(to.name);
                     // Redirect back, if it's a good address to go back to
                     if (from.name && from.name !== to.name) {
                         $state.go(from.name);

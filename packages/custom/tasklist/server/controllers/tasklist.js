@@ -92,7 +92,7 @@ exports.show = function(req, res) {
  * List of tasks
  */
 exports.all = function(req, res) {
-    Task.find().sort('-created').populate('user', 'name username').exec(function(err, tasks) {
+    Task.find().sort('-created').populate('user', 'name').exec(function(err, tasks) {
         if (err) {
             return res.json(500, {
                 error: 'Cannot list the tasks'

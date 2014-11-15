@@ -62,12 +62,15 @@ exports.create = function (req, res, next) {
     user.save(function (err) {
         if (err) {
             switch (err.code) {
-                case 11000:
-                case 11001:
-                    res.status(400).send([{
-                                              msg: 'Username already taken', param: 'username'
-                                          }]);
-                    break;
+            /**
+             * Todo Handle specific index breaking errors
+             */
+                //case 11000:
+                //case 11001:
+                //    res.status(400).send([{
+                //                              msg: 'Username already taken', param: 'username'
+                //                          }]);
+                //    break;
                 default:
                     var modelErrors = [];
 
@@ -78,18 +81,26 @@ exports.create = function (req, res, next) {
                                 param: x, msg: err.errors[x].message, value: err.errors[x].value
                             });
                         }
-
+                        console.log('error saying model');
                         res.status(400).send(modelErrors);
                     }
             }
-
             return res.status(400);
         }
         req.logIn(user, function (err) {
             if (err) {
+                console.log('error logging in');
                 return next(err);
             }
-            return res.redirect('/');
+            //console.log(res);
+            //return;
+            res.send({
+                user: req.user,
+                redirectState: 'tasklist'
+            });
+            //console.log('redirecting to google');
+            //return res.redirect('http://www.google.com');
+            //return res.redirect('/');
         });
         res.status(200);
     });

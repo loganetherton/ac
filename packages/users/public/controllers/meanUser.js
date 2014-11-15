@@ -73,8 +73,8 @@ angular.module('mean.users')
       };
     }
   ])
-  .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global',
-    function($scope, $rootScope, $http, $location, Global) {
+  .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', '$state', '$timeout',
+    function($scope, $rootScope, $http, $location, Global, $state, $timeout) {
       $scope.user = {};
       $scope.global = Global;
       $scope.global.registerForm = true;
@@ -110,12 +110,15 @@ angular.module('mean.users')
           username: $scope.user.username,
           name: $scope.user.name
         })
-          .success(function() {
+          .success(function(data) {
             // authentication OK
             $scope.registerError = 0;
             $rootScope.user = $scope.user;
             $rootScope.$emit('loggedin');
-            $location.url('/');
+            // Redirect to /tasklist
+            $timeout(function () {
+                $state.go(data.redirectState);
+            }, 0);
           })
           .error(function(error) {
             // Error: authentication failed

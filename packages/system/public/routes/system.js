@@ -4,7 +4,8 @@
 var app = angular.module('mean.system');
 
 //Setting up route
-app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
+app.config(['$stateProvider', '$urlRouterProvider',
+function ($stateProvider, $urlRouterProvider) {
 
     // For unmatched routes:
     $urlRouterProvider.otherwise('/auth/login');
@@ -18,9 +19,11 @@ app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $u
     $stateProvider.state('auth', {
         url: '/auth',
         templateUrl: 'users/views/index.html',
-        //resolve: {
-        //    //loggedin: !checkLoggedin
-        //},
+        resolve: {
+            //loggedin: function (AuthenticationService) {
+            //    return AuthenticationService.isAuthenticated();
+            //}
+        }
         //onEnter: function () {
         //    //console.log('entering auth parent state');
         //}
@@ -61,51 +64,97 @@ app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $u
         url: '/tasklist/anyone',
         templateUrl: 'tasklist/views/index.html'
     });
-
-    // states for my app
-    //$stateProvider.state('home', {
-    //    url: '/', templateUrl: 'system/views/index.html'
-    //});
 }]).config(['$locationProvider', function ($locationProvider) {
     $locationProvider.hashPrefix('!');
 }]);
 
-app.run(['$rootScope', '$location', 'AuthenticationService', '$state', '$timeout',
-         function ($rootScope, $location, AuthenticationService, $state, $timeout) {
+app.run(['$rootScope', '$location', 'AuthenticationService', '$state', '$timeout', 'Global',
+function ($rootScope, $location, AuthenticationService, $state, $timeout, Global) {
 
     // enumerate routes that don't need authentication
-    var routesThatDontRequireAuth = ['/auth'];
+    var loginRoutes = ['/auth'];
+    var authRequiredRoutes = ['/tasklist'];
 
-    // check if current location matches route
-    var routeClean = function (route) {
-        //console.log(route);
-        return _.find(routesThatDontRequireAuth, function (noAuthRoute) {
-            //console.log(noAuthRoute);
-            return _.str.startsWith(route, noAuthRoute);
+    /**
+     * Routes that should not be accessed by logged in users (such as login or register)
+     *
+     * @param route
+     * @returns {*}
+     */
+    var loginRoute = function (route) {
+        return _.find(loginRoutes, function (loginRoute) {
+            return _.str.startsWith(route, loginRoute);
         });
     };
 
+    /**
+     * Routes that require authorization (generally user routes)
+     *
+     * @param route
+     * @returns {*}
+     */
+    var authRequiredRoute = function (route) {
+        return _.find(authRequiredRoutes, function (loginRoute) {
+            return _.str.startsWith(route, loginRoute);
+        });
+    };
+
+    /**
+    * Get current state for theme
+    */
+    var setCurrentState = function (toName) {
+        var toPath;
+        var lastDot = toName.lastIndexOf('.');
+        toPath = toName.substring(lastDot + 1);
+        //toPath = to.url.replace('/', '');
+        Global.currentState = toPath;
+    };
+
+    /**
+     * @todo Check out: http://stackoverflow.com/questions/22537311/angular-ui-router-login-authentication
+     */
     $rootScope.$on('$stateChangeStart', function (event, to, toParams, from) {
-        // if route requires auth and user is not logged in
         var loggedIn = AuthenticationService.isAuthenticated();
+        var transitionTo;
         // If logged in
         loggedIn.then(function () {
-            if (routeClean($location.url())) {
+            // If the user is trying to go to a route used for logging in, prevent this
+            if (loginRoute($location.url())) {
                 $timeout(function () {
                     // Redirect back, if it's a good address to go back to
                     if (from.name && from.name !== to.name) {
-                        $state.go(from.name);
-                    // Otherwise, kick them back to tasklist state
+                        transitionTo = from.name;
+                        // Otherwise, default to myAmerica state
                     } else {
-                        $state.go('tasklist');
+                        transitionTo = 'auth.login';
                     }
+                    // Set the state for theme
+                    setCurrentState(transitionTo);
+                    // Transition
+                    $state.go(transitionTo);
+                }, 0);
+                // If trying to go somewhere that isn't used for logging in, proceed
+            } else {
+                $timeout(function () {
+                    // Set the state for theme
+                    setCurrentState(to.name);
+                    $state.go(to.name);
                 }, 0);
             }
+            // If not logged in
         }, function () {
-            if (!routeClean($location.url())) {
-                // This needs to be wrapped in timeout() so that it won't interrupt the current state change
+            // If trying to go somewhere that requires authorization, kick back to myAmerica
+            if (authRequiredRoute($location.url())) {
                 $timeout(function () {
+                    // Set the state for theme
+                    setCurrentState('auth.login');
                     $state.go('auth.login');
+                }, 0);
+                // Otherwise, proceed
+            } else {
+                $timeout(function () {
+                    setCurrentState(to.name);
+                    $state.go(to.name);
                 }, 0);
             }
         });

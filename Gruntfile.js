@@ -6,7 +6,7 @@ var paths = {
     coffee: ['**/*.coffee'],
     html: ['packages/**/public/**/views/**', 'packages/**/server/views/**'],
     css: ['!bower_components/**', 'packages/**/public/**/css/*.css', '!packages/contrib/**/public/**/css/*.css',
-          '!packages/articles/public/assets/vendor/**']
+          '!packages/articles/public/assets/vendor/**', '!packages/system/public/assets/css/*.css']
 };
 
 module.exports = function (grunt) {

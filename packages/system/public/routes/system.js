@@ -64,6 +64,19 @@ function ($stateProvider, $urlRouterProvider) {
         url: '/tasklist/anyone',
         templateUrl: 'tasklist/views/index.html'
     });
+
+    /**
+     * Team
+     */
+    $stateProvider.state('team', {
+        url: '/team',
+        template: '<div ui-view></div>'
+    });
+
+    $stateProvider.state('team.messages', {
+        url: '/messages',
+        templateUrl: 'tasklist/views/index.html'
+    });
 }]).config(['$locationProvider', function ($locationProvider) {
     $locationProvider.hashPrefix('!');
 }]);

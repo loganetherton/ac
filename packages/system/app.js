@@ -18,7 +18,17 @@ system.register(function (app, auth, database) {
     system.routes(app, auth, database);
 
     system.aggregateAsset('css', 'common.css');
-    system.aggregateAsset('css', 'bootstrap.css');
+    //system.aggregateAsset('css', 'bootstrap.css');
+
+    system.aggregateAsset('css', 'demo.min.css');
+    system.aggregateAsset('css', 'fixes.css');
+    system.aggregateAsset('css', 'font-awesome.min.css');
+    system.aggregateAsset('css', 'invoice.css');
+    system.aggregateAsset('css', 'lockscreen.min.css');
+    system.aggregateAsset('css', 'smartadmin-production.min.css');
+    system.aggregateAsset('css', 'smartadmin-production-plugins.min.css');
+    system.aggregateAsset('css', 'smartadmin-skins.min.css');
+    system.aggregateAsset('css', 'your_style.css');
 
     // The middleware in config/express will run before this code
 
@@ -30,6 +40,11 @@ system.register(function (app, auth, database) {
 
     // Adding robots and humans txt
     app.use(express.static(__dirname + '/public/assets/static'));
+
+    // Static image assets
+    app.use('/img', express.static(__dirname + '/public/assets/img'));
+    // Static fonts
+    app.use('/fonts', express.static(__dirname + '/public/assets/fonts'));
 
     return system;
 });

@@ -2,22 +2,55 @@
     "core": {
         "css": {
             "bower_components/build/css/dist.min.css": [
-                "bower_components/bootstrap/dist/css/bootstrap.css"
+                "bower_components/bootstrap/dist/css/bootstrap.css",
+                "bower_components/pace/themes/blue/pace-theme-barber-shop.css",
+                "bower_components/morris.js/morris.css"
             ]
         }, "js": {
             "bower_components/build/js/dist.min.js": [
-                "bower_components/jquery/dist/jquery.min.js",
+                "bower_components/jquery/jquery.min.js",
+                "bower_components/jquery-ui/jquery-ui.min.js",
+                "bower_components/underscore/underscore.js",
+                "bower_components/underscore.string/dist/underscore.string.min.js",
+                "bower_components/bootstrap/dist/js/bootstrap.min.js",
                 "bower_components/stacktrace-js/stacktrace.js",
                 "bower_components/angular/angular.js",
                 "bower_components/angular-mocks/angular-mocks.js",
                 "bower_components/angular-cookies/angular-cookies.js",
                 "bower_components/angular-resource/angular-resource.js",
+                "bower_components/angular-sanitize/angular-sanitize.min.js",
+                "bower_components/angular-animate/angular-animate.min.js",
+                "bower_components/requirejs-domready/domReady.js",
                 "bower_components/angular-ui-router/release/angular-ui-router.js",
+                "bower_components/angular-google-maps/dist/angular-google-maps.min.js",
                 "bower_components/angular-bootstrap/ui-bootstrap.js",
                 "bower_components/angular-bootstrap/ui-bootstrap-tpls.js",
-                "bower_components/angular-resource/angular-resource.js",
-                "bower_components/underscore/underscore.js",
-                "bower_components/underscore.string/dist/underscore.string.min.js"
+                "bower_components/angular-couch-potato/dist/angular-couch-potato.js",
+                "bower_components/angular-easyfb/angular-easyfb.js",
+                "bower_components/angular-google-plus/dist/angular-google-plus.min.js",
+                "bower_components/pace/pace.min.js",
+                "bower_components/jquery-color/jquery.color.js",
+                "bower_components/select2/select2.min.js",
+                "bower_components/summernote/dist/summernote.min.js",
+                "bower_components/he/he.js",
+                "bower_components/to-markdown/src/to-markdown.js",
+                "bower_components/markdown/lib/markdown.js",
+                "bower_components/bootstrap-markdown/js/bootstrap-markdown.js",
+                "bower_components/ckeditor/ckeditor.js",
+                "bower_components/moment/min/moment-with-locales.min.js",
+                "bower_components/moment-timezone/builds/moment-timezone.min.js",
+                "bower_components/relayfoods-jquery.sparkline/dist/jquery.sparkline.js",
+                "bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js",
+                "bower_components/flot/jquery.flot.js",
+                "bower_components/flot/jquery.flot.resize.js",
+                "bower_components/flot/jquery.flot.fillbetween.js",
+                "bower_components/flot.orderbars/js/jquery.flot.orderBars.js",
+                "bower_components/flot/jquery.flot.pie.js",
+                "bower_components/flot/jquery.flot.time.js",
+                "bower_components/flot.tooltip/js/jquery.flot.tooltip.min.js",
+                "bower_components/raphael/raphael-min.js",
+                "bower_components/morris.js/morris.min.js",
+                "bower_components/dygraphs/dygraphs-combined.js"
             ]
         }
     }

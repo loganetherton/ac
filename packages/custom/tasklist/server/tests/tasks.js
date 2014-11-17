@@ -24,7 +24,12 @@ var task;
  * @param done
  */
 var createUserAndTask = function (done) {
-    var saveUser = function () {
+    /**
+     * Clear the users collection and create a test user
+     *
+     * @returns {Promise.promise|*}
+     */
+    var initUsers = function () {
         var deferred = q.defer();
         // Create a user
         user = new User({
@@ -33,18 +38,36 @@ var createUserAndTask = function (done) {
             username: 'user',
             password: 'password'
         });
+        /**
+         * Clear the collection
+         */
+        //deferred.reject('Could not save user');
+        User.remove({}, function (err) {
+            if (err) {
+                deferred.reject('Could not clear users collection');
+            }
+        });
         user.save(function (err) {
             if (err) {
-                deferred.reject('Failed to save user');
-            } else {
-                deferred.resolve('Saved user');
+                deferred.reject('Could not save user');
             }
+            deferred.resolve('Saved user');
         });
         return deferred.promise;
     };
 
-    var saveTask = function () {
+    /**
+     * Clear the tasks collection and create a test task
+     *
+     * @returns {Promise.promise|*}
+     */
+    var initTasks = function () {
         var deferred = q.defer();
+        Task.remove({}, function (err) {
+            if (err) {
+                deferred.reject('Could not clear tasks collection');
+            }
+        });
         task = new Task({
             title: 'Task Title',
             content: 'Task Content',
@@ -53,26 +76,25 @@ var createUserAndTask = function (done) {
         task.save(function (err) {
             if (err) {
                 deferred.reject('Failed to save task');
-            } else {
-                deferred.resolve('Saved task');
             }
+            deferred.resolve('Saved task');
         });
         return deferred.promise;
     };
 
-    // Save user, then task
-    saveUser().then(function (success) {
-        console.log('save user success');
-        return saveTask();
-    }, function (error) {
-        console.error(error);
-        should.not.exist(error);
-    }).then(function (success) {
-        console.log('save task success');
-        return done();
-    }, function (error) {
-        console.error(error);
-        should.not.exist(error);
+    /**
+     * Create user and task
+     */
+    q.all([initUsers().then(function () {
+        //console.log('saved user');
+    }), initTasks().then(function () {
+        //console.log('saved task');
+    })]).then(function () {
+        //console.log('all promises resolved');
+        done();
+    }).fail(function (err) {
+        console.log(err);
+        should.not.exist(err);
     });
 };
 
@@ -87,7 +109,7 @@ describe('Task model', function () {
     });
 
     describe('Task model save', function () {
-        it('should be able to save without problems', function (done) {
+        it('should be able to save a task', function (done) {
             return task.save(function (err) {
                 should.not.exist(err);
                 task.title.should.equal('Task Title');

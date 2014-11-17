@@ -11,11 +11,15 @@ _ = require('lodash');
 /**
  * Find article by id
  */
-exports.article = function(req, res, next, id) {
-    Task.load(id, function(err, article) {
-        if (err) return next(err);
-        if (!article) return next(new Error('Failed to load article ' + id));
-        req.article = article;
+exports.task = function(req, res, next, id) {
+    Task.load(id, function (err, task) {
+        if (err) {
+            return next(err);
+        }
+        if (!task) {
+            return next(new Error('Failed to load task ' + id));
+        }
+        req.task = task;
         next();
     });
 };
@@ -30,12 +34,14 @@ exports.create = function(req, res) {
     task.validate(function (error) {
         if (typeof error !== 'undefined') {
             console.log(error);
+            console.log(1);
         }
     });
 
     task.save(function(err) {
         if (err) {
             console.log('could not save task to database: ' + err);
+            console.log(2);
             return res.json(500, {
                 error: 'Cannot save the task'
             });
@@ -84,7 +90,7 @@ exports.destroy = function(req, res) {
 /**
  * Show an task
  */
-exports.show = function(req, res) {
+exports.singleTaskAsJson = function(req, res) {
     res.json(req.task);
 };
 
@@ -95,7 +101,7 @@ exports.all = function(req, res) {
     Task.find().sort('-created').populate('user', 'name').exec(function(err, tasks) {
         if (err) {
             return res.json(500, {
-                error: 'Cannot list the tasks'
+                error: 'Cannot list tasks'
             });
         }
         res.json(tasks);

@@ -7,7 +7,7 @@
 
         <!-- Note: The activity badge color changes when clicked and resets the number to 0
         Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->
-    <span id="activity" class="activity-dropdown" activities-dropdown-toggle> 
+    <span id="activity" class="activity-dropdown" activities-dropdown-toggle data-ng-if="headerCtrl.global.authenticated">
         <i class="fa fa-user"></i> 
         <b class="badge bg-color-red">21</b> 
     </span>
@@ -15,7 +15,7 @@
     </div>
 
 
-    <recent-projects></recent-projects>
+    <recent-projects data-ng-if="headerCtrl.global.authenticated"></recent-projects>
 
 
 
@@ -74,13 +74,13 @@
         <!-- end logout button -->
 
         <!-- search mobile button (this is hidden till mobile view port) -->
-        <div id="search-mobile" class="btn-header transparent pull-right" data-search-mobile>
+        <div id="search-mobile" class="btn-header transparent pull-right" data-search-mobile data-ng-if="headerCtrl.global.authenticated">
             <span> <a href="#" title="Search"><i class="fa fa-search"></i></a> </span>
         </div>
         <!-- end search mobile button -->
 
         <!-- input: search field -->
-        <form action="#/search" class="header-search pull-right">
+        <form action="#/search" class="header-search pull-right" data-ng-if="headerCtrl.global.authenticated">
             <input id="search-fld" type="text" name="param" placeholder="search" data-autocomplete='[
 					"ActionScript",
 					"AppleScript",

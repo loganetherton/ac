@@ -1,16 +1,16 @@
 <div class="project-context hidden-xs dropdown">
 
     <span class="label">Projects:</span>
-    <span class="project-selector dropdown-toggle">Recent projects<i ng-if="projects.length"
+    <span class="project-selector dropdown-toggle">Recent projects<i ng-if="recentProjectsCtrl.projects.length"
                                                                      class="fa fa-angle-down"></i></span>
 
-    <ul class="dropdown-menu" ng-if="projects.length">
-        <li ng-repeat="project in projects">
+    <ul class="dropdown-menu" ng-if="recentProjectsCtrl.projects.length">
+        <li ng-repeat="project in recentProjectsCtrl.projects">
             <a href="{{project.href}}">{{project.title}}</a>
         </li>
         <li class="divider"></li>
         <li>
-            <a ng-click="clearProjects()"><i class="fa fa-power-off"></i> Clear</a>
+            <a ng-click="recentProjectsCtrl.clearProjects()"><i class="fa fa-power-off"></i> Clear</a>
         </li>
     </ul>
 

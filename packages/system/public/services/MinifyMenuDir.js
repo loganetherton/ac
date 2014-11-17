@@ -1,3 +1,5 @@
+/*global $:false */
+
 'use strict';
 
 var app = angular.module('mean.system');
@@ -8,10 +10,10 @@ app.directive('minifyMenu', [function () {
         link: function(scope, element){
             var $body = $('body');
             var minifyMenu = function() {
-                if (!$body.hasClass("menu-on-top")) {
-                    $body.toggleClass("minified");
-                    $body.removeClass("hidden-menu");
-                    $('html').removeClass("hidden-menu-mobile-lock");
+                if (!$body.hasClass('menu-on-top')) {
+                    $body.toggleClass('minified');
+                    $body.removeClass('hidden-menu');
+                    $('html').removeClass('hidden-menu-mobile-lock');
                 }
             };
 

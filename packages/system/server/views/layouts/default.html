@@ -3,7 +3,9 @@
 {% include '../includes/head.html' %}
 
 <body data-ng-controller="ThemeController" ng-cloak class="ng-cloak" ng-class="global.currentState">
-    <div class="navbar navbar-inverse navbar-fixed-top" data-ng-include="'/system/views/header.html'" data-role="navigation"></div>
+    <!--<div class="navbar navbar-inverse navbar-fixed-top" data-ng-include="'/system/views/header.html'" data-role="navigation"></div>-->
+
+    <div data-smart-include="system/views/headerNew.html" class="placeholder-header"></div>
 
     <div data-smart-include="system/views/navigation.html" class="placeholder-left-panel"></div>
 

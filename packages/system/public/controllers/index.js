@@ -6,6 +6,8 @@ app.controller('IndexController', ['$scope', 'Global', function ($scope, Global)
     $scope.global = Global;
 }]);
 
+
+
 app.controller('InvoiceController', ['$scope', 'currencyConverter', function($scope, currencyConverter){
     $scope.qty = 10;
     $scope.cost = 2;

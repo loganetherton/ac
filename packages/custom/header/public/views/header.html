@@ -1,8 +1,8 @@
-<header id="header">
+<header id="header" data-ng-controller="HeaderController as headerCtrl">
     <div id="logo-group">
 
         <!-- PLACE YOUR LOGO HERE -->
-        <span id="logo"> <img src="img/logo.png" alt="SmartAdmin"> </span>
+        <span id="logo"> <img src="img/logo_placeholder.jpg" alt="SmartAdmin"> </span>
         <!-- END LOGO PLACEHOLDER -->
 
         <!-- Note: The activity badge color changes when clicked and resets the number to 0
@@ -23,10 +23,10 @@
     <div class="pull-right">
 
         <!-- collapse menu button -->
-        <div id="hide-menu" class="btn-header pull-right">
-        <span> <a toggle-menu title="Collapse Menu"><i
-                class="fa fa-reorder"></i></a> </span>
-        </div>
+        <!--<div id="hide-menu" class="btn-header pull-right">-->
+        <!--<span> <a toggle-menu title="Collapse Menu"><i-->
+                <!--class="fa fa-reorder"></i></a> </span>-->
+        <!--</div>-->
         <!-- end collapse menu -->
 
         <!-- #MOBILE -->
@@ -66,11 +66,11 @@
         </ul>
 
         <!-- logout button -->
-        <div id="logout" class="btn-header transparent pull-right">
-        <span> <a ui-sref="login" title="Sign Out" data-action="userLogout"
-                  data-logout-msg="You can improve your security further after logging out by closing this opened browser"><i
-                class="fa fa-sign-out"></i></a> </span>
-        </div>
+        <!--<div id="logout" class="btn-header transparent pull-right">-->
+        <!--<span> <a ui-sref="login" title="Sign Out" data-action="userLogout"-->
+                  <!--data-logout-msg="You can improve your security further after logging out by closing this opened browser"><i-->
+                <!--class="fa fa-sign-out"></i></a> </span>-->
+        <!--</div>-->
         <!-- end logout button -->
 
         <!-- search mobile button (this is hidden till mobile view port) -->
@@ -81,7 +81,7 @@
 
         <!-- input: search field -->
         <form action="#/search" class="header-search pull-right">
-            <input id="search-fld" type="text" name="param" placeholder="Find reports and more" data-autocomplete='[
+            <input id="search-fld" type="text" name="param" placeholder="search" data-autocomplete='[
 					"ActionScript",
 					"AppleScript",
 					"Asp",
@@ -110,46 +110,6 @@
             <a href="$" id="cancel-search-js" title="Cancel Search"><i class="fa fa-times"></i></a>
         </form>
         <!-- end input: search field -->
-
-        <!-- fullscreen button -->
-        <div id="fullscreen" class="btn-header transparent pull-right">
-        <span> <a full-screen title="Full Screen"><i
-                class="fa fa-arrows-alt"></i></a> </span>
-        </div>
-        <!-- end fullscreen button -->
-
-        <!-- #Voice Command: Start Speech -->
-        <div id="speech-btn" class="btn-header transparent pull-right hidden-sm hidden-xs">
-            <div>
-                <a title="Voice Command" id="voice-command-btn" speech-recognition><i class="fa fa-microphone"></i></a>
-
-                <div class="popover bottom">
-                    <div class="arrow"></div>
-                    <div class="popover-content">
-                        <h4 class="vc-title">Voice command activated <br>
-                            <small>Please speak clearly into the mic</small>
-                        </h4>
-                        <h4 class="vc-title-error text-center">
-                            <i class="fa fa-microphone-slash"></i> Voice command failed
-                            <br>
-                            <small class="txt-color-red">Must <strong>"Allow"</strong> Microphone</small>
-                            <br>
-                            <small class="txt-color-red">Must have <strong>Internet Connection</strong></small>
-                        </h4>
-                        <a href-void class="btn btn-success" id="speech-help-btn">See Commands</a>
-                        <a href-void class="btn bg-color-purple txt-color-white"
-                           onclick="$('#speech-btn .popover').fadeOut(50);">Close Popup</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end voice command -->
-
-
-
-        <!-- multiple lang dropdown : find all flags in the flags page -->
-        <language-selector></language-selector>
-        <!-- end multiple lang -->
 
     </div>
     <!-- end pulled right: nav area -->

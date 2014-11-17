@@ -23,56 +23,51 @@ angular.module('mean.users')
           }
         });
     }
-  ])
-  .controller('LoginCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global',
-    function($scope, $rootScope, $http, $location, Global) {
-      // This object will be filled by the form
-      $scope.user = {};
-      $scope.global = Global;
-      $scope.global.registerForm = false;
-      $scope.input = {
+  ]).controller('LoginCtrl',
+['$scope', '$rootScope', '$http', '$location', 'Global', function ($scope, $rootScope, $http, $location, Global) {
+    // This object will be filled by the form
+    $scope.user = {};
+    $scope.global = Global;
+    $scope.global.registerForm = false;
+    $scope.input = {
         type: 'password',
         placeholder: 'Password',
         confirmPlaceholder: 'Repeat Password',
         iconClass: '',
         tooltipText: 'Show password'
-      };
+    };
 
-      $scope.togglePasswordVisible = function() {
+    $scope.togglePasswordVisible = function () {
         $scope.input.type = $scope.input.type === 'text' ? 'password' : 'text';
         $scope.input.placeholder = $scope.input.placeholder === 'Password' ? 'Visible Password' : 'Password';
         $scope.input.iconClass = $scope.input.iconClass === 'icon_hide_password' ? '' : 'icon_hide_password';
         $scope.input.tooltipText = $scope.input.tooltipText === 'Show password' ? 'Hide password' : 'Show password';
-      };
+    };
 
-      // Register the login() function
-      $scope.login = function() {
+    // Register the login() function
+    $scope.login = function () {
         $http.post('/login', {
-          email: $scope.user.email,
-          password: $scope.user.password
-        })
-          .success(function(response) {
+            email: $scope.user.email, password: $scope.user.password
+        }).success(function (response) {
             // authentication OK
             $scope.loginError = 0;
             $rootScope.user = response.user;
             $rootScope.$emit('loggedin');
             if (response.redirect) {
-              if (window.location.href === response.redirect) {
-                //This is so an admin user will get full admin page
-                window.location.reload();
-              } else {
-                window.location = response.redirect;
-              }
+                if (window.location.href === response.redirect) {
+                    //This is so an admin user will get full admin page
+                    window.location.reload();
+                } else {
+                    window.location = response.redirect;
+                }
             } else {
-              $location.url('/');
+                $location.url('/');
             }
-          })
-          .error(function() {
+        }).error(function () {
             $scope.loginerror = 'Authentication failed.';
-          });
-      };
-    }
-  ])
+        });
+    };
+}])
   .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', '$state', '$timeout',
     function($scope, $rootScope, $http, $location, Global, $state, $timeout) {
       $scope.user = {};

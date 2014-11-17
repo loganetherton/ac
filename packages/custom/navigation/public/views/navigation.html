@@ -1,4 +1,4 @@
-<aside id="left-panel">
+<aside id="left-panel" data-ng-controller="NavigationController as navigationCtrl">
 
 <!-- User info -->
 <div login-info></div>
@@ -17,31 +17,26 @@ traditional href="" links. See documentation for details.
 -->
 
 <ul data-smart-menu>
-<li data-ui-sref-active="active">
+<li data-ui-sref-active="active" data-ng-if="navigationCtrl.global.authenticated">
     <a data-ui-sref="tasklist" title="Tasklist"><i class="fa fa-lg fa-fw fa-home"></i> <span
             class="menu-item-parent">Tasklist</span></a>
 </li>
-<li data-ui-sref-active="active">
+<li data-ui-sref-active="active" data-ng-if="navigationCtrl.global.authenticated">
     <a data-ui-sref="team.messages" title="Inbox">
         <i class="fa fa-lg fa-fw fa-inbox"></i> <span class="menu-item-parent">Team messages</span><span
             unread-messages-count class="badge pull-right inbox-badge"></span></a>
 </li>
-<li data-ui-sref-active="active">
+<li data-ui-sref-active="active" data-ng-if="navigationCtrl.global.authenticated">
     <a data-ui-sref="team" title="Team">
         <i class="fa fa-lg fa-fw fa-users"></i> <span class="menu-item-parent">Team</span><span
             class="badge pull-right inbox-badge"></span></a>
 </li>
-<li data-ui-sref-active="active">
+<li data-ui-sref-active="active" data-ng-if="!navigationCtrl.global.authenticated">
     <a data-ui-sref="auth.register" title="Register">
         <i class="fa fa-lg fa-fw fa-sign-in"></i> <span class="menu-item-parent">Register</span><span
             class="badge pull-right inbox-badge"></span></a>
 </li>
-<li data-ui-sref-active="active">
-    <a data-ui-sref="auth.login" title="Login">
-        <i class="fa fa-lg fa-fw fa-sign-in"></i> <span class="menu-item-parent">Login</span><span
-            class="badge pull-right inbox-badge"></span></a>
-</li>
-<li data-menu-collapse>
+<li data-menu-collapse data-ng-show="navigationCtrl.global.authenticated">
     <a href="#"><i class="fa fa-lg fa-fw fa-bar-chart-o"></i> <span
             class="menu-item-parent">Team</span></a>
     <ul>
@@ -52,6 +47,18 @@ traditional href="" links. See documentation for details.
             <a data-ui-sref="team.messages">Messages</a>
         </li>
     </ul>
+</li>
+<li data-ui-sref-active="active">
+    <a href="/logout" title="Logout" data-ng-show="navigationCtrl.global.authenticated">
+        <i class="fa fa-lg fa-fw fa-sign-in"></i>
+        <span class="menu-item-parent">Logout</span>
+        <span class="badge pull-right inbox-badge"></span>
+    </a>
+    <a data-ui-sref="auth.login" title="Login" data-ng-show="!navigationCtrl.global.authenticated">
+        <i class="fa fa-lg fa-fw fa-sign-in"></i>
+        <span class="menu-item-parent">Login</span>
+        <span class="badge pull-right inbox-badge"></span>
+    </a>
 </li>
 
 <!--<li data-menu-collapse>-->

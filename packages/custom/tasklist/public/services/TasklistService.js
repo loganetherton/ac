@@ -31,7 +31,7 @@ app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService'
                     title: title,
                     content: content
                 };
-                $http.post('/task', task).then(function (data) {
+                $http.post('/newTask', task).then(function (data) {
                     // Resolve and emit
                     deferred.resolve(task);
                     SocketService.emit('newTask', {

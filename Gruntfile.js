@@ -116,7 +116,8 @@ module.exports = function (grunt) {
                     function () {
                         require('meanio/lib/util').preload(__dirname + '/packages/**/server', 'model');
                     }
-                ]
+                ],
+                log: true
             },
             src: ['packages/**/server/tests/**/*.js']
         },

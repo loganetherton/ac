@@ -19,7 +19,39 @@ var user;
 var task;
 
 /**
- * Create a user and a task
+ * Clear the tasks collection
+ *
+ * @returns {Promise.promise|*}
+ */
+var removeTasks = function () {
+    var deferred = q.defer();
+    Task.remove({}, function (err) {
+        if (err) {
+            deferred.reject('Could not clear tasks collection');
+        }
+    });
+    deferred.resolve('tasks cleared');
+    return deferred.promise;
+};
+
+/**
+ * Clear the users collection
+ *
+ * @returns {Promise.promise|*}
+ */
+var removeUsers = function () {
+    var deferred = q.defer();
+    User.remove({}, function (err) {
+        if (err) {
+            deferred.reject('Could not clear tasks collection');
+        }
+    });
+    deferred.resolve('tasks cleared');
+    return deferred.promise;
+};
+
+/**
+ * Ensures that only a single user and task exist in the database
  *
  * @param done
  */
@@ -41,17 +73,13 @@ var createUserAndTask = function (done) {
         /**
          * Clear the collection
          */
-        //deferred.reject('Could not save user');
-        User.remove({}, function (err) {
-            if (err) {
-                deferred.reject('Could not clear users collection');
-            }
-        });
-        user.save(function (err) {
-            if (err) {
-                deferred.reject('Could not save user');
-            }
-            deferred.resolve('Saved user');
+        removeUsers().then(function () {
+            user.save(function (err) {
+                if (err) {
+                    deferred.reject('Could not save user');
+                }
+                deferred.resolve('Saved user');
+            });
         });
         return deferred.promise;
     };
@@ -63,21 +91,18 @@ var createUserAndTask = function (done) {
      */
     var initTasks = function () {
         var deferred = q.defer();
-        Task.remove({}, function (err) {
-            if (err) {
-                deferred.reject('Could not clear tasks collection');
-            }
-        });
         task = new Task({
             title: 'Task Title',
             content: 'Task Content',
             user: user
         });
-        task.save(function (err) {
-            if (err) {
-                deferred.reject('Failed to save task');
-            }
-            deferred.resolve('Saved task');
+        removeTasks().then(function () {
+            task.save(function (err) {
+                if (err) {
+                    deferred.reject('Failed to save task');
+                }
+                deferred.resolve('Saved task');
+            });
         });
         return deferred.promise;
     };
@@ -85,12 +110,7 @@ var createUserAndTask = function (done) {
     /**
      * Create user and task
      */
-    q.all([initUsers().then(function () {
-        //console.log('saved user');
-    }), initTasks().then(function () {
-        //console.log('saved task');
-    })]).then(function () {
-        //console.log('all promises resolved');
+    q.all([initUsers(), initTasks()]).then(function () {
         done();
     }).fail(function (err) {
         console.log(err);
@@ -98,14 +118,32 @@ var createUserAndTask = function (done) {
     });
 };
 
-// Single requests are made with describe.only
+var removeUserAndTask = function (done) {
+    q.all(user.remove(), task.remove()).then(function () {
+        done();
+    });
+};
+
+var loginUser = function (email, password, done) {
+    server
+    .post('/login')
+    .send({ email: email, password: password })
+    .expect(200)
+    .end(function (err, res) {
+        if (err) {
+            return done(err);
+        }
+        res.body.user._id.should.be.ok;
+        return done();
+    });
+};
 
 /**
  * Test Suites
  */
 describe('Task model', function () {
     beforeEach(function (done) {
-        return createUserAndTask(done);
+        createUserAndTask(done);
     });
 
     describe('Task model save', function () {
@@ -149,19 +187,19 @@ describe('Task model', function () {
     });
 
     afterEach(function (done) {
-        user.remove();
-        task.remove();
-        done();
+        removeUserAndTask(done);
     });
 });
 
 describe('GET /tasklist API', function () {
+
     // Create user and task only once
     before(function (done) {
         createUserAndTask(done);
     });
     // Remove user and task at the end
     after(function (done) {
+        // Need to make these async and call done
         user.remove();
         task.remove();
         done();
@@ -183,20 +221,9 @@ describe('GET /tasklist API', function () {
     });
 
     describe('GET /tasklist authenticated', function () {
-        var cookie;
-        it('should allow the user to login', function (done) {
-            server
-            .post('/login')
-            .send({ email: 'test@test.com', password: 'password' })
-            .expect(200)
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-                res.body.user._id.should.be.ok;
-                cookie = res.headers['set-cookie'];
-                return done();
-            });
+
+        before(function (done) {
+            loginUser('test@test.com', 'password', done);
         });
 
         it('should allow authenticated requests to /tasklist and return the tasklist', function (done) {
@@ -216,6 +243,121 @@ describe('GET /tasklist API', function () {
                 tasks.user.name.should.be.equal('Full name');
                 done();
             });
+        });
+    });
+});
+
+describe('GET /task/:taskId API', function () {
+
+    // Find a single task
+    var findTask = function () {
+        var defer = q.defer();
+        Task.find({}, function (err, data) {
+            if (err) {
+                should.not.exist(err);
+                defer.reject('Could not find task ID');
+            }
+            defer.resolve(data[0]._id);
+        });
+        return defer.promise;
+    };
+
+    // Create user and task only once
+    before(function (done) {
+        createUserAndTask(done);
+    });
+    // Remove user and task at the end
+    after(function (done) {
+        removeUserAndTask(done);
+    });
+
+    describe('retrieve a single a task (unauthenticated)', function () {
+        it('should deny an unauthenticated user to retrieve a task', function (done) {
+            findTask().then(function (taskId) {
+                server
+                .get('/task/' + taskId)
+                .expect(401)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(401);
+                    res.text.should.be.equal('User is not authorized');
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('retrieve a single a task (authenticated)', function () {
+        before(function (done) {
+            loginUser('test@test.com', 'password', done);
+        });
+        it('should allow an authenticated user to retrieve a task', function (done) {
+            // Get the single task ID in the database
+            findTask().then(function (taskId) {
+                server
+                .get('/task/' + taskId)
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(200);
+                    // Convert to object and get first task
+                    var tasks = JSON.parse(res.text);
+                    tasks._id.should.be.ok;
+                    tasks.title.should.be.equal('Task Title');
+                    tasks.content.should.be.equal('Task Content');
+                    tasks.user.name.should.be.equal('Full name');
+                    done();
+                });
+            });
+        });
+    });
+});
+
+describe('POST /newTask', function () {
+    var userId;
+
+    describe('unauthenticated user', function () {
+        before(function (done) {
+            createUserAndTask(done);
+        });
+
+        before(function (done) {
+            User.find({}, function (err, data) {
+                if (err) {
+                    should.not.exist(err);
+                }
+                userId = data[0]._id;
+                done();
+            });
+        });
+
+        it('should not allow unauthenticated users to create a task', function (done) {
+            userId.should.be.ok;
+            var task = {
+                user: userId,
+                title: 'new task',
+                content: 'new content'
+            };
+            'a'.should.be.equal('a');
+            server
+            .post('/newTask')
+            .send(task)
+            .expect(401)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.error.text.should.be.equal('User is not authorized');
+                return done();
+            });
+        });
+
+        after(function (done) {
+            removeUserAndTask(done);
         });
     });
 });

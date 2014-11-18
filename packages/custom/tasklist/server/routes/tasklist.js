@@ -27,30 +27,30 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
     //);
 
     app.route('/tasklist').
-        get(auth.requiresLogin, taskList.all).
+        get(auth.requiresLogin, taskList.all);
+
+    // Create a new task
+    app.route('/newTask').
         post(auth.requiresLogin, taskList.create);
 
-    app.route('/task').
-        get(auth.requiresLogin, taskList.findOne).
-        post(auth.requiresLogin, taskList.create);
-
+    // Retrieve a single task by ID
     app.route('/task/:taskId').
-        get(taskList.singleTaskAsJson);
+        get(auth.requiresLogin, taskList.singleTaskAsJson);
 
-    app.get('/tasklist/example/admin',
-        auth.requiresAdmin,
-        function (req, res, next) {
-            res.send('Only users with Admin role can access this');
-    });
+    //app.get('/tasklist/example/admin',
+    //    auth.requiresAdmin,
+    //    function (req, res, next) {
+    //        res.send('Only users with Admin role can access this');
+    //});
 
-    app.get('/tasklist/example/render', function (req, res, next) {
-        Tasklist.render('index', {
-            package: 'tasklist'
-        }, function (err, html) {
-            //Rendering a view from the Package server/views
-            res.send(html);
-        });
-    });
+    //app.get('/tasklist/example/render', function (req, res, next) {
+    //    Tasklist.render('index', {
+    //        package: 'tasklist'
+    //    }, function (err, html) {
+    //        //Rendering a view from the Package server/views
+    //        res.send(html);
+    //    });
+    //});
 
     // Finish with setting up the articleId param
     app.param('taskId', taskList.task);

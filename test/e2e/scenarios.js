@@ -7,11 +7,36 @@
  browser.debugger();
  */
 
+//describe('user fixtures', function () {
+//    it('should be able to clear the users collection', function () {
+//        browser.executeScript(function() {
+//            var service = angular.injector(['mean']).get('FixtureService');
+//            return service.clearUsers();
+//        }).then(function (data) {
+//            expect(true).toBeTruthy();
+//        }, function (error) {
+//            expect(false).toBeTruthy();
+//        });
+//    });
+//});
+//
+//describe('task fixtures', function () {
+//    it('should be able to clear the tasks collection', function () {
+//        browser.executeScript(function() {
+//            var service = angular.injector(['mean']).get('FixtureService');
+//            service.clearTasks();
+//        }).then(function () {
+//            expect(true).toBeTruthy();
+//        }, function () {
+//            expect(false).toBeTruthy();
+//        });
+//    });
+//});
+
 describe('initial setup', function () {
 
-
     beforeEach(function() {
-        browser.get('/#!/auth/login');
+        //browser.get('/#!/auth/login');
         //browser.executeScript(function() {console.error('error from test')});
     });
 
@@ -25,42 +50,48 @@ describe('initial setup', function () {
     });
     // Note that changing describe to describe or it to itt will only run that describe or it instance, no others
     describe('setup:', function () {
+        browser.get('/#!/auth/login');
         it('should correctly display the title', function () {
             expect(browser.getTitle()).toEqual('MEAN - A Modern Stack - Test');
         });
 
-        describe('user fixtures', function () {
-            it('should be able to clear the users collection', function () {
-                browser.executeScript(function() {
-                    var service = angular.injector(['mean']).get('FixtureService');
-                    return service.clearUsers();
-                }).then(function (data) {
-                    expect(true).toBeTruthy();
-                }, function (error) {
-                    expect(false).toBeTruthy();
+        it('should allow the user to visit the registration page when not logged in', function () {
+            browser.get('/#!/auth/register');
+            // Generic wait function
+            browser.wait(function () {
+                var deferred = protractor.promise.defer();
+                browser.getCurrentUrl().then(function (url) {
+                    expect(url).toEqual('http://localhost:3000/#!/auth/register');
+                    deferred.fulfill(true);
                 });
+                return deferred.promise;
             });
         });
 
-        describe('task fixtures', function () {
-            it('should be able to clear the tasks collection', function () {
-                browser.executeScript(function() {
-                    var service = angular.injector(['mean']).get('FixtureService');
-                    service.clearTasks();
-                }).then(function () {
-                    expect(true).toBeTruthy();
-                }, function () {
-                    expect(false).toBeTruthy();
+        it('should allow the user to visit the login page when not logged in', function () {
+            browser.get('/#!/auth/login');
+            // Generic wait function
+            browser.wait(function () {
+                var deferred = protractor.promise.defer();
+                browser.getCurrentUrl().then(function (url) {
+                    expect(url).toEqual('http://localhost:3000/#!/auth/login');
+                    deferred.fulfill(true);
                 });
+                return deferred.promise;
             });
         });
 
-        //it('should not let the user access any page other than the login page when not logged in', function () {
-        //    browser.get('/#!/tasklist');
-        //});
-
-        it('should redirect immediately to the login page when not logged in', function () {
-
+        it('should not let the user access any page other than the login page when not logged in', function () {
+            browser.get('/#!/tasklist');
+            // Generic wait function
+            browser.wait(function () {
+                var deferred = protractor.promise.defer();
+                browser.getCurrentUrl().then(function (url) {
+                    expect(url).toEqual('http://localhost:3000/#!/auth/login');
+                    deferred.fulfill(true);
+                });
+                return deferred.promise;
+            });
         });
     });
 

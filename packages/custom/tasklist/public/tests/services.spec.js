@@ -84,7 +84,7 @@
                 beforeEach(function () {
                     deferred = q.defer();
                     // Make fake post
-                    httpBackend.whenPOST('/task', task).respond(deferred.promise);
+                    httpBackend.whenPOST('/newTask', task).respond(deferred.promise);
                     task = {
                         user: 1,
                         title: 'title',
@@ -122,7 +122,7 @@
                 var task;
                 beforeEach(function () {
                     // Mock failure
-                    httpBackend.whenPOST('/task').respond(500);
+                    httpBackend.whenPOST('/newTask').respond(500);
                     task = {
                         user: 1,
                         title: 'title',

@@ -372,7 +372,6 @@ describe('POST /newTask', function () {
                 if (err) {
                     return done(err);
                 }
-                console.log(res.body);
                 // Cast to string
                 res.body.user.should.be.equal(userId + '');
                 res.body.title.should.be.equal('new task');

@@ -33,6 +33,32 @@
 //    });
 //});
 
+function waitForPromiseTest(promiseFn, testFn) {
+    browser.wait(function () {
+        var deferred = protractor.promise.defer();
+        promiseFn().then(function (data) {
+            deferred.fulfill(testFn(data));
+        });
+        return deferred.promise;
+    });
+}
+
+/**
+ * Correctly test a URL
+ * @param testUrl
+ */
+var testUrl = function (testUrl) {
+    // Generic wait function
+    browser.wait(function () {
+        var deferred = protractor.promise.defer();
+        browser.getCurrentUrl().then(function (url) {
+            expect(url).toEqual('http://localhost:3000/#!/' + testUrl);
+            deferred.fulfill(true);
+        });
+        return deferred.promise;
+    });
+};
+
 describe('initial setup', function () {
 
     beforeEach(function() {
@@ -57,41 +83,17 @@ describe('initial setup', function () {
 
         it('should allow the user to visit the registration page when not logged in', function () {
             browser.get('/#!/auth/register');
-            // Generic wait function
-            browser.wait(function () {
-                var deferred = protractor.promise.defer();
-                browser.getCurrentUrl().then(function (url) {
-                    expect(url).toEqual('http://localhost:3000/#!/auth/register');
-                    deferred.fulfill(true);
-                });
-                return deferred.promise;
-            });
+            testUrl('auth/register');
         });
 
         it('should allow the user to visit the login page when not logged in', function () {
             browser.get('/#!/auth/login');
-            // Generic wait function
-            browser.wait(function () {
-                var deferred = protractor.promise.defer();
-                browser.getCurrentUrl().then(function (url) {
-                    expect(url).toEqual('http://localhost:3000/#!/auth/login');
-                    deferred.fulfill(true);
-                });
-                return deferred.promise;
-            });
+            testUrl('auth/login');
         });
 
         it('should not let the user access any page other than the login page when not logged in', function () {
             browser.get('/#!/tasklist');
-            // Generic wait function
-            browser.wait(function () {
-                var deferred = protractor.promise.defer();
-                browser.getCurrentUrl().then(function (url) {
-                    expect(url).toEqual('http://localhost:3000/#!/auth/login');
-                    deferred.fulfill(true);
-                });
-                return deferred.promise;
-            });
+            testUrl('auth/login');
         });
     });
 

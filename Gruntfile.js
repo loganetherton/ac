@@ -133,6 +133,7 @@ module.exports = function (grunt) {
             }
         },
         // e2e test
+        // Run individual tests like this: grunt e2e --specs=packages/users/public/tests/e2e/users.js
         protractor: {
             options: {
                 configFile: 'protractorConf.js', // Default config file

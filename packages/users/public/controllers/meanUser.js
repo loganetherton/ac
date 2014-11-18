@@ -8,7 +8,9 @@ angular.module('mean.users')
     function($scope, $rootScope, $http, $location, Global) {
       // This object will contain list of available social buttons to authorize
       $scope.socialButtons = {
-          facebook: true
+          facebook: true,
+          twitter: true,
+          google: true
       };
       $scope.socialButtonsCounter = 0;
       $scope.global = Global;
@@ -47,7 +49,8 @@ angular.module('mean.users')
     // Register the login() function
     $scope.login = function () {
         $http.post('/login', {
-            email: $scope.user.email, password: $scope.user.password
+            email: $scope.user.email,
+            password: $scope.user.password
         }).success(function (response) {
             // authentication OK
             $scope.loginError = 0;
@@ -95,35 +98,32 @@ angular.module('mean.users')
         $scope.input.tooltipTextConfirmPass = $scope.input.tooltipTextConfirmPass === 'Show password' ? 'Hide password' : 'Show password';
       };
 
-      $scope.register = function() {
-        $scope.usernameError = null;
-        $scope.registerError = null;
-        $http.post('/register', {
-          email: $scope.user.email,
-          password: $scope.user.password,
-          confirmPassword: $scope.user.confirmPassword,
-          username: $scope.user.username,
-          name: $scope.user.name
-        })
-          .success(function(data) {
-            // authentication OK
-            $scope.registerError = 0;
-            $rootScope.user = $scope.user;
-            $rootScope.$emit('loggedin');
-            // Redirect to /tasklist
-            $timeout(function () {
-                $state.go(data.redirectState);
-            }, 0);
-          })
-          .error(function(error) {
-            // Error: authentication failed
-            if (error === 'Username already taken') {
-              $scope.usernameError = error;
-            } else if (error === 'Email already taken') {
-              $scope.emailError = error;
-            } else $scope.registerError = error;
-          });
-      };
+        $scope.register = function () {
+            $scope.registerError = null;
+            $http.post('/register', {
+                email: $scope.user.email,
+                password: $scope.user.password,
+                confirmPassword: $scope.user.confirmPassword,
+                name: $scope.user.name
+            }).success(function (data) {
+                // authentication OK
+                $scope.registerError = 0;
+                $rootScope.user = $scope.user;
+                $rootScope.$emit('loggedin');
+                // Redirect to /tasklist
+                $timeout(function () {
+                    $state.go(data.redirectState);
+                }, 0);
+            }).error(function (error) {
+                console.log(error);
+                // Error: authentication failed
+                if (error === 'Email already taken') {
+                    $scope.emailError = error;
+                } else {
+                    $scope.registerError = error;
+                }
+            });
+        };
     }
   ])
   .controller('ForgotPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global',

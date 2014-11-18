@@ -24,14 +24,6 @@
         </div>
 
         <div class="input-wrapper">
-            <input required id="username" type="text" name="username" placeholder="Username"
-                   ng-model="user.username">
-
-            <div class="error_message">Please enter a correct info #</div>
-            <span class="pic username"></span>
-        </div>
-
-        <div class="input-wrapper">
             <input required id="password_block" name="password" type="{{input.type}}"
                    placeholder="{{input.placeholder}}" ng-model="user.password">
 
@@ -58,9 +50,6 @@
             <button type="submit" class="submit_button">Sign up</button>
             <p>Already have an account?</p>
             <a ui-sref='auth.login'>Log in</a>
-        </div>
-        <div class="woman_ninja_bottom">
-            <img src="/theme/assets/img/woman_ninja.png" alt="#">
         </div>
     </form>
 </div>

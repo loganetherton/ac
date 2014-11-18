@@ -67,7 +67,6 @@ var createUserAndTask = function (done) {
         user = new User({
             name: 'Full name',
             email: 'test@test.com',
-            username: 'user',
             password: 'password'
         });
         /**
@@ -320,6 +319,12 @@ describe('GET /task/:taskId API', function () {
 describe('POST /newTask', function () {
     var userId;
 
+    var task = {
+        user: userId,
+        title: 'new task',
+        content: 'new content'
+    };
+
     describe('unauthenticated user', function () {
         before(function (done) {
             createUserAndTask(done);
@@ -331,18 +336,13 @@ describe('POST /newTask', function () {
                     should.not.exist(err);
                 }
                 userId = data[0]._id;
+                userId.should.be.ok;
                 done();
             });
         });
 
         it('should not allow unauthenticated users to create a task', function (done) {
-            userId.should.be.ok;
-            var task = {
-                user: userId,
-                title: 'new task',
-                content: 'new content'
-            };
-            'a'.should.be.equal('a');
+            // Make a request to /newTask
             server
             .post('/newTask')
             .send(task)
@@ -355,9 +355,34 @@ describe('POST /newTask', function () {
                 return done();
             });
         });
+    });
 
-        after(function (done) {
-            removeUserAndTask(done);
+    describe('authenticated user', function () {
+        before(function (done) {
+            loginUser('test@test.com', 'password', done);
         });
+
+        it('should allow authenticated users to create tasks', function (done) {
+            // Make a request to /newTask
+            server
+            .post('/newTask')
+            .send(task)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                console.log(res.body);
+                // Cast to string
+                res.body.user.should.be.equal(userId + '');
+                res.body.title.should.be.equal('new task');
+                res.body.content.should.be.equal('new content');
+                return done();
+            });
+        });
+    });
+
+    after(function (done) {
+        removeUserAndTask(done);
     });
 });

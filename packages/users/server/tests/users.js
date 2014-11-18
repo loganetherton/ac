@@ -36,7 +36,6 @@ describe('<Unit Test>', function() {
       user1 = {
         name: 'Full name',
         email: 'test' + getRandomString() + '@test.com',
-        username: getRandomString(),
         password: 'password',
         provider: 'local'
       };
@@ -44,7 +43,6 @@ describe('<Unit Test>', function() {
       user2 = {
         name: 'Full name',
         email: 'test' + getRandomString() + '@test.com',
-        username: getRandomString(),
         password: 'password',
         provider: 'local'
       };
@@ -161,17 +159,6 @@ describe('<Unit Test>', function() {
 
         var _user = new User(user1);
         _user.name = '';
-
-        return _user.save(function(err) {
-          should.exist(err);
-          done();
-        });
-      });
-
-      it('should show an error when try to save without username', function(done) {
-
-        var _user = new User(user1);
-        _user.username = '';
 
         return _user.save(function(err) {
           should.exist(err);

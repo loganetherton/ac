@@ -10,7 +10,7 @@ app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService'
         // Get an initial listing of tasks, return promise
         init: function(){
             var deferred = $q.defer();
-            $http.get('/tasklist').then(function (response) {
+            $http.get('/tasks/user/' + Global.user._id).then(function (response) {
                 deferred.resolve(response.data);
                 //return response.data;
             }, function (error) {

@@ -30,6 +30,7 @@
                 "bower_components/pace/pace.min.js",
                 "bower_components/jquery-color/jquery.color.js",
                 "bower_components/select2/select2.min.js",
+                "bower_components/fastclick/lib/fastclick.js",
                 "bower_components/summernote/dist/summernote.min.js",
                 "bower_components/he/he.js",
                 "bower_components/to-markdown/src/to-markdown.js",

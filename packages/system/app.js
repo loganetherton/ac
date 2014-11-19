@@ -28,7 +28,7 @@ system.register(function (app, auth, database) {
     system.aggregateAsset('css', 'smartadmin-production.min.css');
     system.aggregateAsset('css', 'smartadmin-skins.min.css');
     system.aggregateAsset('css', 'fixes.css');
-    system.aggregateAsset('css', 'your_style.css');
+    //system.aggregateAsset('css', 'your_style.css');
 
     // The middleware in config/express will run before this code
 

@@ -30,17 +30,17 @@ function ($stateProvider, $urlRouterProvider) {
     })
     .state('auth.login', {
         url: '/login',
-        templateUrl: 'users/views/login.html',
+        templateUrl: 'users/views/login.html'
     })
     .state('auth.register', {
         url: '/register',
-        templateUrl: 'users/views/register.html',
+        templateUrl: 'users/views/register.html'
     }).state('forgot-password', {
         url: '/forgot-password',
-        templateUrl: 'users/views/forgot-password.html',
+        templateUrl: 'users/views/forgot-password.html'
     }).state('reset-password', {
         url: '/reset/:tokenId',
-        templateUrl: 'users/views/reset-password.html',
+        templateUrl: 'users/views/reset-password.html'
     });
 
     /**
@@ -128,7 +128,7 @@ function ($rootScope, $location, AuthenticationService, $state, $timeout, Global
         var lastDot = toName.lastIndexOf('.');
         toPath = toName.substring(lastDot + 1);
         //toPath = to.url.replace('/', '');
-        Global.currentState = toPath;
+        Global.currentState = toPath + ' fixed-navigation fixed-header';
     };
 
     /**

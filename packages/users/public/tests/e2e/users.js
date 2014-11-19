@@ -87,21 +87,16 @@ describe('registration page', function () {
         testBadSubmit();
     });
 
-    // Damnit, protractor doesn't support redirects right now. That's kinda fucked up
-    // https://github.com/angular/protractor/issues/1376
     it('should allow the user to sign up with correct values', function () {
         confirmInput.clear();
         confirmInput.sendKeys('password');
         expect(confirmInput.getAttribute('value')).toBe('password');
         submitButton.click();
-        // Verify the user can now go to the tasklist, since we can't test the redirect
-        browser.get('/#!/tasklist');
         testUrl('tasklist');
     });
 
     it('should allow the user to logout', function () {
         browser.get('/logout');
-        browser.get('/#!/tasklist');
         testUrl('auth/login');
     });
 });
@@ -111,7 +106,6 @@ describe('login page', function () {
 
     afterEach(function() {
         browser.manage().logs().get('browser').then(function(browserLog) {
-            //expect(browserLog.length).toEqual(0);
             if (browserLog.length) {
                 console.log('log: ' + require('util').inspect(browserLog));
             }
@@ -141,5 +135,11 @@ describe('login page', function () {
         passwordInput.sendKeys('password');
         expect(passwordInput.getAttribute('value')).toBe('password');
         testBadSubmit(true);
+    });
+
+    it('should allow the user to login with the previously created user', function () {
+        emailInput.sendKeys('test@test.com');
+        submitButton.click();
+        testUrl('tasklist');
     });
 });

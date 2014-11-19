@@ -41,9 +41,17 @@ TaskSchema.path('content').validate(function (content) {
 /**
  * Statics
  */
+// Query task by ID
 TaskSchema.statics.load = function (id, cb) {
     this.findOne({
         _id: id
+    }).populate('user', 'name username').exec(cb);
+};
+
+// Query task by user ID
+TaskSchema.statics.loadByUserId = function (id, cb) {
+    this.find({
+        user: id
     }).populate('user', 'name username').exec(cb);
 };
 

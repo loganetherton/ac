@@ -27,15 +27,19 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
     //);
 
     app.route('/tasklist').
-        get(auth.requiresLogin, taskList.all);
+    get(auth.requiresLogin, taskList.all);
 
     // Create a new task
     app.route('/newTask').
-        post(auth.requiresLogin, taskList.create);
+    post(auth.requiresLogin, taskList.create);
 
     // Retrieve a single task by ID
     app.route('/task/:taskId').
-        get(auth.requiresLogin, taskList.singleTaskAsJson);
+    get(auth.requiresLogin, taskList.singleTaskAsJson);
+
+    // Retrieve tasks for the current user
+    app.route('/tasks/user/:userId').
+    get(auth.requiresLogin, taskList.getTasksByUserId);
 
     //app.get('/tasklist/example/admin',
     //    auth.requiresAdmin,
@@ -52,6 +56,6 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
     //    });
     //});
 
-    // Finish with setting up the articleId param
-    app.param('taskId', taskList.task);
+    // Task ID for individual task query
+    app.param('taskId', taskList.queryTaskById);
 };

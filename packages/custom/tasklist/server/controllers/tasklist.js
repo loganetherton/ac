@@ -9,9 +9,9 @@ _ = require('lodash');
 
 
 /**
- * Find article by id
+ * Find task by id
  */
-exports.task = function(req, res, next, id) {
+exports.queryTaskById = function(req, res, next, id) {
     Task.load(id, function (err, task) {
         if (err) {
             return next(err);
@@ -41,7 +41,6 @@ exports.create = function(req, res) {
     task.save(function(err) {
         if (err) {
             console.log('could not save task to database: ' + err);
-            console.log(2);
             return res.json(500, {
                 error: 'Cannot save the task'
             });
@@ -88,10 +87,29 @@ exports.destroy = function(req, res) {
 };
 
 /**
- * Show an task
+ * Show a task
  */
 exports.singleTaskAsJson = function(req, res) {
     res.json(req.task);
+};
+
+/**
+ * Get tasks for the current requested user
+ */
+exports.getTasksByUserId = function(req, res, next) {
+    // Make sure a user ID was passed in
+    if (!req.params.hasOwnProperty('userId')) {
+        return next(new Error('A user ID must be passed in to this query'));
+    }
+    Task.loadByUserId(req.params.userId, function (err, task) {
+        if (err) {
+            return next(err);
+        }
+        if (!task) {
+            return next(new Error('Failed to load tasks for ' + req.params.userId));
+        }
+        return res.json(task);
+    });
 };
 
 /**

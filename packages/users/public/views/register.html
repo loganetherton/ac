@@ -1,5 +1,5 @@
 <div data-ng-controller="RegisterCtrl">
-    <div ng-repeat="error in registerError">
+    <div ng-repeat="error in registerError track by $index">
         <div class="alert alert-danger animated fadeIn">{{error.msg}}</div>
     </div>
     <div class="alert alert-danger animated fadeIn" ng-show="usernameError">{{usernameError}}</div>

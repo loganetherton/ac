@@ -11,8 +11,6 @@ app.directive('smartLayout',
         $body = $('body'),
         $navigation ,
         $menu,
-        $ribbon,
-        $footer,
         initialized = false,
         initializedResolver = $q.defer();
         initializedResolver.promise.then(function () {

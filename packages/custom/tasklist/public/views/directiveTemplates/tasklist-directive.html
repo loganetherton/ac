@@ -1,4 +1,4 @@
-<div data-ng-repeat="task in tasklist.tasks">
+<div data-ng-repeat="task in tasklist.tasks track by $index">
     <a data-ng-href="#!/task/{{task._id}}">{{task.title}}</a>
         <span data-ng-if="hasAuthorization(task)">
             <a class="btn" href="/#!/task/{{task._id}}/edit">

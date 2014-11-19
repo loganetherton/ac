@@ -23,9 +23,9 @@ app.directive('smartLayout',
     (function cacheElements() {
         $navigation = $('#header');
         $menu = $('#left-panel');
-        $ribbon = $('#ribbon');
-        $footer = $('.page-footer');
-        if (_.every([$navigation, $menu, $ribbon, $footer], function ($it) {
+        //$ribbon = $('#ribbon');
+        //$footer = $('.page-footer');
+        if (_.every([$navigation, $menu], function ($it) {
             return angular.isNumber($it.height());
         })) {
             initializedResolver.resolve();
@@ -63,7 +63,8 @@ app.directive('smartLayout',
 
 
                 calcWidth = $window.width() - menuWidth - contentXPad;
-                calcHeight = $window.height() - menuHeight - contentYPad - $navigation.height() - $ribbon.height() - $footer.height();
+                //calcHeight = $window.height() - menuHeight - contentYPad - $navigation.height() - $ribbon.height() - $footer.height();
+                calcHeight = $window.height() - menuHeight - contentYPad - $navigation.height();
 
                 deltaX = appViewWidth - calcWidth;
                 deltaY = appViewHeight - calcHeight;

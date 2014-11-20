@@ -28,17 +28,23 @@ function ($stateProvider, $urlRouterProvider) {
     $stateProvider.state('auth', {
         url: '/auth',
         templateUrl: 'users/views/index.html',
-        resolve: {
-            authorize: ['AuthorizationService', function (AuthorizationService) {
-                return !AuthorizationService.authorize();
-            }]
-        },
+        //resolve: {
+        //    authorize: ['AuthorizationService', '$state', function (AuthorizationService, $state) {
+        //        return AuthorizationService.recheckAuthorization();
+        //        //if (AuthorizationService.authorize()) {
+        //        //    return $state.go('site.tasklist');
+        //        //}
+        //    }]
+        //},
         data: {
             roles: []
-        }
-        //onEnter: function () {
-        //    //console.log('entering auth parent state');
-        //}
+        },
+        //onEnter: ['AuthorizationService', '$state', function (AuthorizationService, $state) {
+        //    console.log('onenter');
+        //    if (AuthorizationService.recheckAuthorization()) {
+        //        return $state.go('site.tasklist');
+        //    }
+        //}]
     })
     .state('auth.login', {
         url: '/login',
@@ -71,7 +77,10 @@ function ($stateProvider, $urlRouterProvider) {
      */
     $stateProvider.state('team', {
         url: '/team',
-        template: '<div ui-view></div>'
+        template: '<div ui-view></div>',
+        data: {
+            roles: ['authenticated']
+        }
     });
 
     $stateProvider.state('team.messages', {

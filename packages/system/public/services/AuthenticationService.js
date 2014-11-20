@@ -57,8 +57,6 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
         /**
          * Authenticate and hold access to the user's identity
          *
-         * TODO Change storage mechanism
-         *
          * @param identity
          */
         authenticate: function(identity) {
@@ -74,8 +72,6 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
         },
         /**
          * Retrieve the user's identity
-         *
-         * Todo Change storage mechanism
          *
          * @param force
          * @returns {*}
@@ -100,6 +96,10 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
             $http.get('/users/me', {ignoreErrors: true}).success(function (data) {
                 //_identity = data;
                 //_authenticated = true;
+
+                //if (!data) {
+                //    deferred.reject('unauthenticated');
+                //}
                 self.authenticate(data);
                 deferred.resolve(data);
             }).error(function () {
@@ -120,6 +120,7 @@ function ($rootScope, $state, AuthenticationService) {
         authorize: function () {
             return AuthenticationService.identity().then(function () {
                 var isAuthenticated = AuthenticationService.isAuthenticated();
+                console.log(isAuthenticated);
 
                 if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 &&
                     !AuthenticationService.isInAnyRole($rootScope.toState.data.roles)) {
@@ -143,6 +144,7 @@ function ($rootScope, $state, AuthenticationService) {
         },
         recheckAuthorization: function () {
             return AuthenticationService.identity(true).then(function () {
+                console.log('recheck auth logged in');
                 var isAuthenticated = AuthenticationService.isAuthenticated();
 
                 if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 &&

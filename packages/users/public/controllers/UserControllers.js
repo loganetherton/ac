@@ -24,7 +24,7 @@ var AuthCtrl = function ($scope, $rootScope, $http, $location, Global) {
     });
 };
 
-var LoginCtrl = function ($scope, $rootScope, $http, $location, Global, AuthorizationService, User, $state) {
+var LoginCtrl = function ($scope, $rootScope, $http, Global, AuthorizationService, User, $state) {
     // This object will be filled by the form
     $scope.user = {};
     $scope.global = Global;
@@ -184,7 +184,7 @@ var ResetPasswordCtrl = function($scope, $rootScope, $http, $location, $statePar
 
 angular.module('mean.users')
 .controller('AuthCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', AuthCtrl])
-.controller('LoginCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', 'AuthorizationService', 'User', '$state', LoginCtrl])
+.controller('LoginCtrl', ['$scope', '$rootScope', '$http', 'Global', 'AuthorizationService', 'User', '$state', LoginCtrl])
 .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', '$state', '$timeout', RegisterCtrl])
 .controller('ForgotPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', ForgotPasswordCtrl])
 .controller('ResetPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'Global', ResetPasswordCtrl]);

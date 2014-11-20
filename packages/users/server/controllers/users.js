@@ -64,25 +64,18 @@ exports.create = function (req, res, next) {
             /**
              * Todo Handle specific index breaking errors
              */
-                //case 11000:
-                //case 11001:
-                //    res.status(400).send([{
-                //                              msg: 'Username already taken', param: 'username'
-                //                          }]);
-                //    break;
-                default:
-                    var modelErrors = [];
+            default:
+                var modelErrors = [];
 
-                    if (err.errors) {
+                if (err.errors) {
 
-                        for (var x in err.errors) {
-                            modelErrors.push({
-                                param: x, msg: err.errors[x].message, value: err.errors[x].value
-                            });
-                        }
-                        console.log('error saying model');
-                        res.status(400).send(modelErrors);
+                    for (var x in err.errors) {
+                        modelErrors.push({
+                            param: x, msg: err.errors[x].message, value: err.errors[x].value
+                        });
                     }
+                    res.status(400).send(modelErrors);
+                }
             }
             return res.status(400);
         }
@@ -95,7 +88,7 @@ exports.create = function (req, res, next) {
             //return;
             res.send({
                 user: req.user,
-                redirectState: 'tasklist'
+                redirectState: 'site.tasklist'
             });
             //console.log('redirecting to google');
             //return res.redirect('http://www.google.com');

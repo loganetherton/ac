@@ -48,7 +48,7 @@ var LoginCtrl = function ($scope, $rootScope, $http, Global, AuthorizationServic
      */
     $rootScope.$on('loggedin', function (emit, response) {
         AuthorizationService.forceCheckAuthorize().then(function () {
-            if (response.hasOwnProperty('redirect') && response.redirect) {
+            if (typeof response !== 'undefined' && response.hasOwnProperty('redirect') && response.redirect) {
                 $state.go(response.redirect);
             } else {
                 $state.go('site.tasklist');

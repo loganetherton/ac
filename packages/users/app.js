@@ -10,6 +10,11 @@ var MeanUser = new Module('users');
 /*
  * All MEAN packages require registration
  * Dependency injection is used to define required modules
+ *
+ * Holy shit, the order doesn't matter. These are dependencies! app, auth, passport, etc
+ *
+ * These dependencies are registered throughout using mean.register calls. For example, passport is registered
+ * in access/app.js
  */
 MeanUser.register(function(app, auth, passport, database) {
 

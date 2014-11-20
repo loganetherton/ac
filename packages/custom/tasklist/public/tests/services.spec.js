@@ -38,6 +38,7 @@
                 _id: 1
             };
             global = Global;
+            global.user = window.user;
             q = $q;
         }));
 
@@ -51,7 +52,7 @@
             var deferred;
             beforeEach(function () {
                 deferred = q.defer();
-                httpBackend.whenGET('/tasklist').respond(deferred.promise);
+                httpBackend.whenGET(/tasks\/user.*/).respond(deferred.promise);
             });
 
             it('should return an initial listing of tasks: init()', function () {
@@ -60,6 +61,9 @@
                 httpBackend.flush();
                 responsePromise.then(function (data) {
                     expect(data).toEqual({data: 'data'});
+                }, function (error) {
+                    // Fail
+                    expect(error).toBe(null);
                 });
             });
 

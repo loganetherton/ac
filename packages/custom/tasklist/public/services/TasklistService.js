@@ -10,13 +10,18 @@ app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService'
         // Get an initial listing of tasks, return promise
         init: function(){
             var deferred = $q.defer();
+            // If the user ID is not set correctly, don't make the request
+            if (!Global.hasOwnProperty('user') || !Global.user || !Global.user.hasOwnProperty('_id') || !Global.user._id) {
+                deferred.reject({data: {error: 'User ID is not defined'}});
+                return deferred.promise;
+            }
             $http.get('/tasks/user/' + Global.user._id).then(function (response) {
                 deferred.resolve(response.data);
                 //return response.data;
             }, function (error) {
                 deferred.reject({
                     data: {
-                        error: 'Could not resolve $http request to /tasklist'
+                        error: 'Could not resolve get requests for user tasklist'
                     }
                 });
             });

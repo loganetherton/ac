@@ -1,8 +1,4 @@
 <div class="" data-ng-controller="TasklistInsertController as tasklistInsert" ng-cloak>
-    <h3><img src="/tasklist/assets/img/logo.png" /></h3>
-
-    <h2>{{tasklistInsert.strings.name}}</h2>
-    <h2 class="alert alert-warning">{{tasklistInsert.strings.project}}</h2>
     <div class="row no-border">
         <form name="articleForm" class="form-horizontal" role="form" data-ng-submit="tasklistInsert.create(articleForm.$valid)" novalidate>
             <div class="input-group col-md-9">
@@ -21,19 +17,5 @@
             </div>
         </form>
     </div>
-    <ol>
-        <li>
-            <a href="tasklist/example/anyone">Server route that anyone can access</a>
-        </li>
-        <li>
-            <a href="tasklist/example/auth">Server route that requires authentication</a>
-        </li>
-        <li>
-            <a href="tasklist/example/admin">Server route that requires admin user</a>
-        </li>
-        <li>
-            <a href="tasklist/example/render">Raw Html rendering example from using swig</a>
-        </li>
-    </ol>
 </div>
 

@@ -30,7 +30,7 @@ module.exports = function (MeanUser, app, auth, database, passport) {
     }), function (req, res) {
         res.send({
             user: req.user,
-            redirect: '/#!/tasklist'
+            redirect: 'site.tasklist'
         });
     });
 

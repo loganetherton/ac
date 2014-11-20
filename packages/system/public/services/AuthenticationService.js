@@ -38,7 +38,7 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
                 return false;
             }
 
-            return _identity.roles.indexOf(role) != -1;
+            return _identity.roles.indexOf(role) !== -1;
         },
         // Check whether the user has been assigned any role at all
         isInAnyRole: function(roles) {
@@ -46,7 +46,7 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
                 return false;
             }
 
-            for (var i = 0; i < roles.length; i++) {
+            for (var i = 0; i < roles.length; i = i + 1) {
                 if (this.isInRole(roles[i])) {
                     return true;
                 }
@@ -61,7 +61,7 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
          */
         authenticate: function(identity) {
             _identity = identity;
-            _authenticated = identity != null;
+            _authenticated = identity !== null;
 
             // for this demo, we'll store the identity in localStorage. For you, it could be a cookie, sessionStorage, whatever
             if (identity) {
@@ -94,12 +94,6 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
 
             // otherwise, retrieve the identity data from the server, update the identity object, and then resolve.
             $http.get('/users/me', {ignoreErrors: true}).success(function (data) {
-                //_identity = data;
-                //_authenticated = true;
-
-                //if (!data) {
-                //    deferred.reject('unauthenticated');
-                //}
                 self.authenticate(data);
                 deferred.resolve(data);
             }).error(function () {
@@ -114,13 +108,13 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
     };
 }]);
 
-app.factory('AuthorizationService', ['$rootScope', '$state', 'AuthenticationService',
-function ($rootScope, $state, AuthenticationService) {
+app.factory('AuthorizationService', ['$rootScope', '$state', 'AuthenticationService', '$q',
+function ($rootScope, $state, AuthenticationService, $q) {
     return {
         authorize: function () {
+            // identity() will make a call to /users/me to get user
             return AuthenticationService.identity().then(function () {
                 var isAuthenticated = AuthenticationService.isAuthenticated();
-                console.log(isAuthenticated);
 
                 if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 &&
                     !AuthenticationService.isInAnyRole($rootScope.toState.data.roles)) {
@@ -138,14 +132,19 @@ function ($rootScope, $state, AuthenticationService) {
                         $state.go('auth.login');
                     }
                 }
-            }, function () {
-                console.log('not logged in');
             });
         },
-        recheckAuthorization: function () {
+        /**
+         * Force recheck of auth state
+         *
+         * @returns {*}
+         */
+        forceCheckAuthorize: function () {
+            // identity() will make a call to /users/me to get user
             return AuthenticationService.identity(true).then(function () {
-                console.log('recheck auth logged in');
+                var deferred = $q.defer();
                 var isAuthenticated = AuthenticationService.isAuthenticated();
+                deferred.resolve();
 
                 if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 &&
                     !AuthenticationService.isInAnyRole($rootScope.toState.data.roles)) {
@@ -163,8 +162,18 @@ function ($rootScope, $state, AuthenticationService) {
                         $state.go('auth.login');
                     }
                 }
-            }, function () {
-                console.log('not logged in');
+                return deferred.promise;
+            });
+        },
+        /**
+         * Verify that the user is not authenticated before accessing auth states
+         */
+        checkAuthStateAccess: function () {
+            return AuthenticationService.identity(true).then(function (data) {
+                // If the user is logged in, kick them back to where they just were
+                if (data) {
+                    $state.go($rootScope.fromState.name);
+                }
             });
         }
     };

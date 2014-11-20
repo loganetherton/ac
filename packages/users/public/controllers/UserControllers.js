@@ -1,3 +1,5 @@
+/*global Pace:false */
+
 'use strict';
 // To avoid displaying unneccesary social logins
 var clientIdProperty = 'clientID',
@@ -22,7 +24,7 @@ var AuthCtrl = function ($scope, $rootScope, $http, $location, Global) {
     });
 };
 
-var LoginCtrl = function ($scope, $rootScope, $http, $location, Global, AuthorizationService, User) {
+var LoginCtrl = function ($scope, $rootScope, $http, $location, Global, AuthorizationService, User, $state) {
     // This object will be filled by the form
     $scope.user = {};
     $scope.global = Global;
@@ -42,11 +44,21 @@ var LoginCtrl = function ($scope, $rootScope, $http, $location, Global, Authoriz
         $scope.input.tooltipText = $scope.input.tooltipText === 'Show password' ? 'Hide password' : 'Show password';
     };
     /**
-     * Make sure authorization is updated
+     * Make sure authorization is updated, then reidirect
      */
-    $rootScope.$on('loggedin', function () {
-        console.log('checking identity again');
-        AuthorizationService.recheckAuthorization();
+    $rootScope.$on('loggedin', function (emit, response) {
+        AuthorizationService.forceCheckAuthorize().then(function () {
+            if (response.hasOwnProperty('redirect') && response.redirect) {
+                $state.go(response.redirect);
+            } else {
+                $state.go('site.tasklist');
+            }
+            // Todo Debug why Pace never completed on login
+            // This is a temporary fix -- 11/20/14
+            if (typeof Pace === 'object' && typeof Pace.restart === 'function') {
+                Pace.restart();
+            }
+        });
     });
 
     // Register the login() function
@@ -60,17 +72,7 @@ var LoginCtrl = function ($scope, $rootScope, $http, $location, Global, Authoriz
             $rootScope.user = response.user;
             window.user = response.user;
             User.identity = response.user;
-            $rootScope.$emit('loggedin', response.user);
-            if (response.redirect) {
-                if (window.location.href === response.redirect) {
-                    //This is so an admin user will get full admin page
-                    window.location.reload();
-                } else {
-                    window.location = response.redirect;
-                }
-            } else {
-                $location.url('/');
-            }
+            $rootScope.$emit('loggedin', response);
         }).error(function () {
             $scope.loginerror = 'Authentication failed.';
         });
@@ -182,7 +184,7 @@ var ResetPasswordCtrl = function($scope, $rootScope, $http, $location, $statePar
 
 angular.module('mean.users')
 .controller('AuthCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', AuthCtrl])
-.controller('LoginCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', 'AuthorizationService', 'User', LoginCtrl])
+.controller('LoginCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', 'AuthorizationService', 'User', '$state', LoginCtrl])
 .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', '$state', '$timeout', RegisterCtrl])
 .controller('ForgotPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', ForgotPasswordCtrl])
 .controller('ResetPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'Global', ResetPasswordCtrl]);

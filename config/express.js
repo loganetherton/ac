@@ -75,9 +75,14 @@ module.exports = function (app, passport, db) {
 
     // Express/Mongo session storage
     app.use(session({
-        secret: config.sessionSecret, store: new mongoStore({
-            db: db.connection.db, collection: config.sessionCollection
-        }), cookie: config.sessionCookie, name: config.sessionName, resave: true, saveUninitialized: true
+        secret: config.sessionSecret,
+        store: new mongoStore({
+            db: db.connection.db,
+            collection: config.sessionCollection
+        }), cookie: config.sessionCookie,
+        name: config.sessionName,
+        resave: true,
+        saveUninitialized: true
     }));
 
     // Dynamic helpers

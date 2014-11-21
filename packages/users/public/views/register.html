@@ -1,10 +1,9 @@
 <div data-ng-controller="RegisterCtrl as registerCtrl">
-    <div ng-repeat="error in registerError track by $index">
+    <div ng-repeat="error in registerCtrl.registerError track by $index">
         <div class="alert alert-danger animated fadeIn">{{error.msg}}</div>
     </div>
-    <div class="alert alert-danger animated fadeIn" ng-show="usernameError">{{usernameError}}</div>
-    <div class="alert alert-danger animated fadeIn" ng-show="emailError">{{emailError}}</div>
-    <form id="register_form" ng-submit="register()">
+    <div class="alert alert-danger animated fadeIn" ng-show="registerCtrl.emailError">{{registerCtrl.emailError}}</div>
+    <form id="register_form" ng-submit="registerCtrl.register()">
         <h2>Sign Up</h2>
 
         <div class="input-wrapper">

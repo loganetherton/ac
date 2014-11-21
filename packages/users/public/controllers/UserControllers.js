@@ -24,7 +24,11 @@ var AuthCtrl = function ($scope, $rootScope, $http, $location, Global) {
     });
 };
 
-var LoginCtrl = function ($scope, $rootScope, $http, Global, AuthorizationService, User, $state) {
+/**
+ * Handle state for login form, as well as login requests
+ */
+var LoginCtrl = function ($scope, $rootScope, $http, Global, AuthorizationService, User, $state, acLoginService) {
+    var vm = this;
     // This object will be filled by the form
     $scope.user = {};
     $scope.global = Global;
@@ -55,18 +59,10 @@ var LoginCtrl = function ($scope, $rootScope, $http, Global, AuthorizationServic
     });
 
     // Register the login() function
-    $scope.login = function () {
-        $http.post('/login', {
-            email: $scope.user.email,
-            password: $scope.user.password
-        }).success(function (response) {
-            // authentication OK
+    vm.login = function () {
+        acLoginService.login($scope.user).then(function () {
             $scope.loginError = 0;
-            $rootScope.user = response.user;
-            window.user = response.user;
-            User.identity = response.user;
-            $rootScope.$emit('loggedin', response);
-        }).error(function () {
+        }, function () {
             $scope.loginerror = 'Authentication failed.';
         });
     };
@@ -164,7 +160,7 @@ var ResetPasswordCtrl = function($scope, $rootScope, $http, $location, $statePar
 
 angular.module('mean.users')
 .controller('AuthCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', AuthCtrl])
-.controller('LoginCtrl', ['$scope', '$rootScope', '$http', 'Global', 'AuthorizationService', 'User', '$state', LoginCtrl])
+.controller('LoginCtrl', ['$scope', '$rootScope', '$http', 'Global', 'AuthorizationService', 'User', '$state', 'acLoginService', LoginCtrl])
 .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', '$state', '$timeout', RegisterCtrl])
 .controller('ForgotPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', ForgotPasswordCtrl])
 .controller('ResetPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'Global', ResetPasswordCtrl]);

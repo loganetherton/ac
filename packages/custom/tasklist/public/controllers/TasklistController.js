@@ -15,15 +15,5 @@
                      vm.tasks.unshift(data.data);
                  }
              });
-
-             /**
-              * And here's how we do the watch when in controllerAs syntax
-              */
-             //$scope.$watchCollection(function () {
-             //    return vm.tasks;
-             //}, function (newVal) {
-             //    console.log('updating vm.tasks');
-             //    console.log(newVal);
-             //});
          }]);
 })();

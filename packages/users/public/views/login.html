@@ -4,7 +4,7 @@
 
     <h2>Login</h2>
 
-    <form id="login_form" ng-submit="login()">
+    <form id="login_form" ng-submit="loginCtrl.login()">
         <div class="input-wrapper">
             <input required id="email_block" type="email" name="email" placeholder="Email Address" ng-model="user.email">
             <div class="error_message">Please enter a correct info #</div>

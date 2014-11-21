@@ -102,7 +102,6 @@
         });
 
         it('should register with correct data', function () {
-
             spyOn($rootScope, '$emit');
             // test expected GET request
             scope.user.name = 'Fred';

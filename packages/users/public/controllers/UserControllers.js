@@ -29,20 +29,12 @@ var LoginCtrl = function ($scope, $rootScope, $http, Global, AuthorizationServic
     $scope.user = {};
     $scope.global = Global;
     $scope.global.registerForm = false;
-    $scope.input = {
+    $scope.passwordInput = {
         type: 'password',
         placeholder: 'Password',
-        confirmPlaceholder: 'Repeat Password',
-        iconClass: '',
-        tooltipText: 'Show password'
+        confirmPlaceholder: 'Repeat Password'
     };
 
-    $scope.togglePasswordVisible = function () {
-        $scope.input.type = $scope.input.type === 'text' ? 'password' : 'text';
-        $scope.input.placeholder = $scope.input.placeholder === 'Password' ? 'Visible Password' : 'Password';
-        $scope.input.iconClass = $scope.input.iconClass === 'icon_hide_password' ? '' : 'icon_hide_password';
-        $scope.input.tooltipText = $scope.input.tooltipText === 'Show password' ? 'Hide password' : 'Show password';
-    };
     /**
      * Make sure authorization is updated, then reidirect
      */
@@ -83,26 +75,11 @@ var RegisterCtrl = function($scope, $rootScope, $http, $location, Global, $state
     $scope.user = {};
     $scope.global = Global;
     $scope.global.registerForm = true;
-    $scope.input = {
+    // Password and confirm password input boxes
+    $scope.passwordInput = {
         type: 'password',
         placeholder: 'Password',
-        placeholderConfirmPass: 'Repeat Password',
-        iconClassConfirmPass: '',
-        tooltipText: 'Show password',
-        tooltipTextConfirmPass: 'Show password'
-    };
-
-    $scope.togglePasswordVisible = function() {
-        $scope.input.type = $scope.input.type === 'text' ? 'password' : 'text';
-        $scope.input.placeholder = $scope.input.placeholder === 'Password' ? 'Visible Password' : 'Password';
-        $scope.input.iconClass = $scope.input.iconClass === 'icon_hide_password' ? '' : 'icon_hide_password';
-        $scope.input.tooltipText = $scope.input.tooltipText === 'Show password' ? 'Hide password' : 'Show password';
-    };
-    $scope.togglePasswordConfirmVisible = function() {
-        $scope.input.type = $scope.input.type === 'text' ? 'password' : 'text';
-        $scope.input.placeholderConfirmPass = $scope.input.placeholderConfirmPass === 'Repeat Password' ? 'Visible Password' : 'Repeat Password';
-        $scope.input.iconClassConfirmPass = $scope.input.iconClassConfirmPass === 'icon_hide_password' ? '' : 'icon_hide_password';
-        $scope.input.tooltipTextConfirmPass = $scope.input.tooltipTextConfirmPass === 'Show password' ? 'Hide password' : 'Show password';
+        placeholderConfirmPass: 'Repeat Password'
     };
 
     $scope.register = function () {

@@ -1,4 +1,4 @@
-<div data-ng-controller="RegisterCtrl">
+<div data-ng-controller="RegisterCtrl as registerCtrl">
     <div ng-repeat="error in registerError track by $index">
         <div class="alert alert-danger animated fadeIn">{{error.msg}}</div>
     </div>
@@ -24,26 +24,14 @@
         </div>
 
         <div class="input-wrapper">
-            <input required id="password_block" name="password" type="{{input.type}}"
-                   placeholder="{{input.placeholder}}" ng-model="user.password">
-
+            <input required id="password_block" name="password" type="{{passwordInput.type}}"
+                   placeholder="{{passwordInput.placeholder}}" ng-model="user.password">
             <div class="error_message">Please enter a correct info #</div>
-        <span class="pic password {{input.iconClass}}" ng-click="togglePasswordVisible()">
-              <div class="hide_text_password">
-                  {{input.tooltipText}}
-              </div>
-        </span>
+            <ac-toggle-password></ac-toggle-password>
         </div>
         <div class="input-wrapper">
-            <input required id="confirm_password" name="confirm_password" type="{{input.type}}"
-                   placeholder="{{input.placeholderConfirmPass}}" ng-model="user.confirmPassword">
-
-            <div class="error_message">Please enter a correct info #</div>
-        <span class="pic password {{input.iconClassConfirmPass}}" ng-click="togglePasswordConfirmVisible()">
-              <div class="hide_text_password">
-                  {{input.tooltipTextConfirmPass}}
-              </div>
-        </span>
+            <input required id="confirm_password" name="confirm_password" type="{{passwordInput.type}}"
+                   placeholder="{{passwordInput.placeholderConfirmPass}}" ng-model="user.confirmPassword">
         </div>
 
         <div class="button_register">

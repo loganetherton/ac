@@ -8,23 +8,31 @@ var mongoose = require('mongoose'),
     crypto = require('crypto');
 
 /**
- * Validations
+ * Ensure that a password is given for local strategy only
  */
 var validatePresenceOf = function (value) {
     // If you are authenticating by any of the oauth strategies, don't validate.
     return (this.provider && this.provider !== 'local') || (value && value.length);
 };
 
+/**
+ * Ensure that the email given is unique
+ * @param value
+ * @param callback
+ */
 var validateUniqueEmail = function (value, callback) {
     var User = mongoose.model('User');
     User.find({
-        $and: [{
-                   email: value
-               }, {
-                   _id: {
-                       $ne: this._id
-                   }
-               }]
+        $and: [
+            {
+                email: value
+            },
+            {
+                _id: {
+                    $ne: this._id
+                }
+            }
+        ]
     }, function (err, user) {
         callback(err || user.length === 0);
     });

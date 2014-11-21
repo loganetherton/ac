@@ -372,7 +372,6 @@ describe.only('Model User:', function () {
                 }
             });
         });
-
     });
 
     after(function (done) {

@@ -26,12 +26,12 @@
         <div class="input-wrapper">
             <input required id="password_block" name="password" type="{{passwordInput.type}}"
                    placeholder="{{passwordInput.placeholder}}" ng-model="user.password">
-            <div class="error_message">Please enter a correct info #</div>
             <ac-toggle-password></ac-toggle-password>
         </div>
         <div class="input-wrapper">
             <input required id="confirm_password" name="confirm_password" type="{{passwordInput.type}}"
                    placeholder="{{passwordInput.placeholderConfirmPass}}" ng-model="user.confirmPassword">
+            <ac-toggle-password></ac-toggle-password>
         </div>
 
         <div class="button_register">

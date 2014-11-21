@@ -4,17 +4,20 @@ var app = angular.module('mean.users');
 
 app.directive('acTogglePassword', [function () {
     return {
-        template: '<span class="pic password {{toggleCtrl.passwordInput.iconClass}}">' +
-                    '<div class="hide_text_password">{{toggleCtrl.passwordInput.tooltipText}}</div>' +
+        template: '<span class="pic password {{passwordInput.iconClass}}">' +
+                    '<div class="hide_text_password">{{passwordInput.tooltipText}}</div>' +
                   '</span>',
-        controller: 'togglePasswordDirCtrl',
-        controllerAs: 'toggleCtrl',
-        link: function ($scope, element, attr, controller) {
+        link: function ($scope, element) {
             element.on('click', function () {
                 $scope.passwordInput.type = $scope.passwordInput.type === 'text' ? 'password' : 'text';
                 $scope.passwordInput.placeholder = $scope.passwordInput.placeholder === 'Password' ? 'Visible Password' : 'Password';
-                controller.passwordInput.iconClass = controller.passwordInput.iconClass === 'icon_hide_password' ? '' : 'icon_hide_password';
-                controller.passwordInput.tooltipText = controller.passwordInput.tooltipText === 'Show password' ? 'Hide password' : 'Show password';
+                $scope.passwordInput.iconClass = $scope.passwordInput.iconClass === 'icon_hide_password' ? '' : 'icon_hide_password';
+                $scope.passwordInput.tooltipText = $scope.passwordInput.tooltipText === 'Show password' ? 'Hide password' : 'Show password';
+                if ('placeholderConfirmPass' in $scope.passwordInput) {
+                    $scope.passwordInput.placeholderConfirmPass =
+                        $scope.passwordInput.placeholderConfirmPass === 'Repeat Password' ? 'Visible Password' :
+                        'Repeat Password';
+                }
             });
         }
     };

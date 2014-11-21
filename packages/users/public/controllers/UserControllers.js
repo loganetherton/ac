@@ -32,7 +32,8 @@ var LoginCtrl = function ($scope, $rootScope, $http, Global, AuthorizationServic
     $scope.passwordInput = {
         type: 'password',
         placeholder: 'Password',
-        confirmPlaceholder: 'Repeat Password'
+        iconClass: '',
+        tooltipText: 'Show password'
     };
 
     /**
@@ -79,7 +80,9 @@ var RegisterCtrl = function($scope, $rootScope, $http, $location, Global, $state
     $scope.passwordInput = {
         type: 'password',
         placeholder: 'Password',
-        placeholderConfirmPass: 'Repeat Password'
+        placeholderConfirmPass: 'Repeat Password',
+        iconClass: '',
+        tooltipText: 'Show password'
     };
 
     $scope.register = function () {

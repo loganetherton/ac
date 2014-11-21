@@ -7,6 +7,7 @@ app.directive('acTogglePassword', [function () {
         template: '<span class="pic password {{passwordInput.iconClass}}">' +
                     '<div class="hide_text_password">{{passwordInput.tooltipText}}</div>' +
                   '</span>',
+        scope: true,
         link: function ($scope, element) {
             element.on('click', function () {
                 $scope.passwordInput.type = $scope.passwordInput.type === 'text' ? 'password' : 'text';

@@ -4,7 +4,9 @@
         beforeEach(function () {
             module('mean');
             module('mean.system');
-            module('mean.tasklist');
+            module('mean.tasklist', function ($provide) {
+                $provide.factory('User', UserMock);
+            });
         });
 
         beforeEach(inject(function ($rootScope, SocketService) {
@@ -20,19 +22,22 @@
     });
 
     describe('Service: TasklistService', function () {
-        var scope, tasklistService, httpBackend, socketService, logService, q, global;
+        var scope, tasklistService, httpBackend, socketService, logService, q, global, user;
         beforeEach(function () {
             module('mean');
             module('mean.system');
-            module('mean.tasklist');
+            module('mean.tasklist', function ($provide) {
+                $provide.factory('User', UserMock);
+            });
         });
 
-        beforeEach(inject(function ($rootScope, TasklistService, $httpBackend, Global, LogService, $q, SocketService) {
+        beforeEach(inject(function ($rootScope, TasklistService, $httpBackend, Global, LogService, $q, SocketService, User) {
             scope = $rootScope.$new();
             tasklistService = TasklistService;
             httpBackend = $httpBackend;
             logService = LogService;
             socketService = SocketService;
+            user = User;
             // Mock the userID for global
             window.user = {
                 _id: 1
@@ -53,6 +58,12 @@
             beforeEach(function () {
                 deferred = q.defer();
                 httpBackend.whenGET(/tasks\/user.*/).respond(deferred.promise);
+                // Set a basic user identity
+                user.identity = {
+                    _id: 1,
+                    name: 'Some bullshit',
+                    email: 'some@bullshit.com'
+                };
             });
 
             it('should return an initial listing of tasks: init()', function () {

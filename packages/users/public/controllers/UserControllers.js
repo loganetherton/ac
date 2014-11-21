@@ -93,13 +93,13 @@
         vm.register = function () {
             $scope.registerError = null;
             acRegisterService.register($scope.user).then(function () {
-                $scope.registerError = 0;
+                vm.registerError = 0;
             }, function (error) {
                 // Error: authentication failed
                 if (error === 'Email already taken') {
-                    $scope.emailError = error;
+                    vm.emailError = error;
                 } else {
-                    $scope.registerError = error;
+                    vm.registerError = error;
                 }
             });
         };

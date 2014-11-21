@@ -46,20 +46,20 @@
             $httpBackend.when('POST', '/login').respond(200, {
                 user: 'Fred'
             });
-            scope.login();
+            LoginCtrl.login();
             $httpBackend.flush();
             // test scope value
-            expect($rootScope.user).toEqual('Fred');
-            expect($rootScope.$emit).toHaveBeenCalledWith('loggedin');
-            expect($location.url()).toEqual('/auth/login');
+            //expect($rootScope.user).toEqual('Fred');
+            expect($rootScope.$emit).toHaveBeenCalledWith('loggedin', { user : 'Fred' });
+            expect($location.url()).toEqual('/tasklist');
         });
 
         it('should fail to log in ', function () {
             $httpBackend.expectPOST('/login').respond(400, 'Authentication failed');
-            scope.login();
+            LoginCtrl.login();
             $httpBackend.flush();
             // test scope value
-            expect(scope.loginerror).toEqual('Authentication failed.');
+            expect(LoginCtrl.loginerror).toEqual('Authentication failed.');
 
         });
     });
@@ -106,21 +106,20 @@
             // test expected GET request
             scope.user.name = 'Fred';
             $httpBackend.when('POST', '/register').respond(200, 'Fred');
-            scope.register();
+            RegisterCtrl.register();
             $httpBackend.flush();
             // test scope value
-            expect($rootScope.user.name).toBe('Fred');
-            expect(scope.registerError).toEqual(0);
-            expect($rootScope.$emit).toHaveBeenCalledWith('loggedin');
+            expect(RegisterCtrl.registerError).toEqual(0);
+            expect($rootScope.$emit).toHaveBeenCalledWith('loggedin', 'Fred');
             expect($location.url()).toBe('/tasklist');
         });
 
         it('should fail to register with non-matching passwords', function () {
             $httpBackend.when('POST', '/register').respond(400, 'Password mismatch');
-            scope.register();
+            RegisterCtrl.register();
             $httpBackend.flush();
             // test scope value
-            expect(scope.registerError).toBe('Password mismatch');
+            expect(RegisterCtrl.registerError.data).toBe('Password mismatch');
         });
     });
 }());

@@ -7,6 +7,7 @@
             module("mean.templates");
             module('mean.tasklist', function ($provide) {
                 $provide.factory('TasklistService', MockTasklistService);
+                $provide.factory('User', UserMock);
             });
         });
 

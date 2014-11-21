@@ -17,6 +17,7 @@
             module('mean.tasklist', function ($provide) {
                 $provide.factory('TasklistService', MockTasklistService);
                 $provide.factory('SocketService', SocketMock);
+                $provide.factory('User', UserMock);
             });
         });
 
@@ -87,6 +88,7 @@
             module('mean.tasklist', function ($provide) {
                 $provide.factory('Global', GlobalMock);
                 $provide.factory('TasklistService', MockTasklistService);
+                $provide.factory('User', UserMock);
             });
         });
 

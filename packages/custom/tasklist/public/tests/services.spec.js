@@ -9,8 +9,7 @@
             });
         });
 
-        beforeEach(inject(function ($rootScope, SocketService) {
-            scope = $rootScope.$new();
+        beforeEach(inject(function (SocketService) {
             socketService = SocketService;
         }));
 

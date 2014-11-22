@@ -1,5 +1,3 @@
-/*global dump:false */
-
 'use strict';
 
 (function () {

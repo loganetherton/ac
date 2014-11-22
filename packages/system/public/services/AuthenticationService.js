@@ -7,23 +7,6 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
     _authenticated = false;
 
     return {
-        ////Check whether the user is authenticated
-        //isAuthenticated: function () {
-        //    // Initialize a new promise
-        //    var deferred = $q.defer();
-        //    // Make an AJAX call to check if the user is logged in
-        //    $http.get('/loggedin').success(function (user) {
-        //        // Authenticated
-        //        if (user !== '0') {
-        //            $timeout(deferred.resolve);
-        //        }
-        //        // Not Authenticated
-        //        else {
-        //            $timeout(deferred.reject);
-        //        }
-        //    });
-        //    return deferred.promise;
-        //}
         // Check whether the identity has currently been resolved
         isIdentityResolved: function() {
             return angular.isDefined(_identity);
@@ -40,7 +23,9 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
 
             return _identity.roles.indexOf(role) !== -1;
         },
-        // Check whether the user has been assigned any role at all
+        /**
+         * Check whether the user has a role that is required by the requested state
+         */
         isInAnyRole: function(roles) {
             if (!_authenticated || !_identity.roles) {
                 return false;
@@ -61,7 +46,7 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
          */
         authenticate: function(identity) {
             _identity = identity;
-            _authenticated = identity !== null;
+            _authenticated = !!identity;
 
             // for this demo, we'll store the identity in localStorage. For you, it could be a cookie, sessionStorage, whatever
             if (identity) {

@@ -1,3 +1,4 @@
+/*global Pace:false */
 'use strict';
 
 (function () {
@@ -123,7 +124,7 @@
         });
     });
 
-    ddescribe('AuthCtrl', function () {
+    describe('AuthCtrl', function () {
         var scope, rootScope, authCtrl;
 
         beforeEach(function () {
@@ -169,5 +170,12 @@
             rootScope.$digest();
             expect($state.go).toHaveBeenCalledWith('site.tasklist');
         }));
+
+        it('should call Pace.restart() after login', function () {
+            spyOn(Pace, 'restart');
+            rootScope.$emit('loggedin');
+            rootScope.$digest();
+            expect(Pace.restart).toHaveBeenCalled();
+        });
     });
 }());

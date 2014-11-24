@@ -1,5 +1,5 @@
 (function () {
-    ddescribe('Service: SocketService', function () {
+    describe('Service: SocketService', function () {
         var socketService, socket;
         beforeEach(function () {
             module('mean');

@@ -16,7 +16,6 @@ app.directive('minifyMenu', [function () {
                     $('html').removeClass('hidden-menu-mobile-lock');
                 }
             };
-
             element.on('click', minifyMenu);
         }
     };

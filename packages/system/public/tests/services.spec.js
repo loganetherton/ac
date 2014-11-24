@@ -227,7 +227,7 @@ describe('AuthorizationService', function () {
     });
 });
 
-ddescribe('hasAuthorizationService', function () {
+describe('hasAuthorizationService', function () {
     var hasAuthorizationService,
     user = {
         _id: 1,

@@ -3,8 +3,8 @@
 var app = angular.module('mean.tasklist');
 
 // Directive for listing tasks in right pane
-app.directive('tasklist', ['hasAuthorizationService', 'TasklistService', 'LogService',
-                           function (hasAuthorizationService, TasklistService, LogService) {
+app.directive('tasklist', ['HasAuthorizationService', 'TasklistService', 'LogService',
+                           function (HasAuthorizationService, TasklistService, LogService) {
     return {
         restrict: 'E',
         templateUrl: 'tasklist/views/directiveTemplates/tasklist-directive.html',
@@ -13,7 +13,7 @@ app.directive('tasklist', ['hasAuthorizationService', 'TasklistService', 'LogSer
         controllerAs: 'tasklist',
         controller: 'TasklistController',
         link: function (scope, element, attrs, controller) {
-            scope.hasAuthorization = hasAuthorizationService;
+            scope.hasAuthorization = HasAuthorizationService;
             // Get the initial tasklist
             TasklistService.init().then(function (data) {
                 controller.tasks = data;

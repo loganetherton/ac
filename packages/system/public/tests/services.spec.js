@@ -226,3 +226,48 @@ describe('AuthorizationService', function () {
         }));
     });
 });
+
+ddescribe('hasAuthorizationService', function () {
+    var hasAuthorizationService,
+    user = {
+        _id: 1,
+        name: 'Baron von Bullshit'
+    },
+    task = {
+        content: 'content',
+        title: 'title',
+        user: {
+            _id: 1
+        }
+    };
+    beforeEach(function () {
+        module('mean');
+        module('mean.system');
+        module('mean.users');
+    });
+
+    beforeEach(inject(function (HasAuthorizationService) {
+        hasAuthorizationService = HasAuthorizationService;
+    }));
+
+    it('should allow access if the user ID is the same as the task ID', inject(function (User) {
+        User.setIdentity(user);
+        expect(hasAuthorizationService(task)).toBeTruthy();
+    }));
+
+    it('should deny unauthenticated users', function () {
+        expect(hasAuthorizationService()).toBeFalsy();
+    });
+
+    it('should deny access if a task does not have a user set', inject(function (User) {
+        delete task.user._id;
+        User.setIdentity = user;
+        expect(hasAuthorizationService(task)).toBeFalsy();
+    }));
+
+    it('should allow access to admin users', inject(function (User) {
+        user.roles = ['admin'];
+        User.setIdentity(user);
+        expect(hasAuthorizationService(task)).toBeTruthy();
+    }));
+});

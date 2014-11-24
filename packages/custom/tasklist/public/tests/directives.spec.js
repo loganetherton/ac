@@ -1,6 +1,6 @@
 (function () {
     describe('directive: tasklist', function () {
-        var scope, element, hasAuthorizationService, TasklistService, SocketService;
+        var scope, element, TasklistService;
         beforeEach(function () {
             module('mean');
             module('mean.system');

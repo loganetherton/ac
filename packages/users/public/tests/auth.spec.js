@@ -122,4 +122,52 @@
             expect(RegisterCtrl.registerError.data).toBe('Password mismatch');
         });
     });
+
+    ddescribe('AuthCtrl', function () {
+        var scope, rootScope, authCtrl;
+
+        beforeEach(function () {
+            module('mean');
+            module('mean.system');
+            module('mean.users');
+        });
+
+        beforeEach(inject(function ($controller, $rootScope, AuthorizationService, $q, $state) {
+            scope = $rootScope.$new();
+            authCtrl = $controller('AuthCtrl', {
+                $scope: scope
+            });
+            rootScope = $rootScope;
+            // Spy on state transitions
+            spyOn($state, 'go');
+            // Fake the forceCheckAuthorize call
+            spyOn(AuthorizationService, 'forceCheckAuthorize').andCallFake(function () {
+                var _identity = {
+                    _id: 1,
+                    roles: ['authenticated']
+                };
+                var deferred = $q.defer();
+                deferred.resolve(_identity);
+                return deferred.promise;
+            });
+        }));
+
+        it('should force check of users identity on login', inject(function (AuthorizationService) {
+            rootScope.$emit('loggedin', {redirect: 'fake.redirect'});
+            rootScope.$digest();
+            expect(AuthorizationService.forceCheckAuthorize).toHaveBeenCalled();
+        }));
+
+        it('should redirect to the requested URL after login', inject(function ($state) {
+            rootScope.$emit('loggedin', {redirect: 'fake.redirect'});
+            rootScope.$digest();
+            expect($state.go).toHaveBeenCalledWith('fake.redirect');
+        }));
+
+        it('should redirect to site.tasklist if no redirect is given', inject(function ($state) {
+            rootScope.$emit('loggedin');
+            rootScope.$digest();
+            expect($state.go).toHaveBeenCalledWith('site.tasklist');
+        }));
+    });
 }());

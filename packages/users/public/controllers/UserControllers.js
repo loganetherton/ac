@@ -24,7 +24,7 @@
         });
 
         /**
-         * Make sure authorization is updated, then redirect
+         * Make sure authorization is updated after login, then redirect
          */
         $rootScope.$on('loggedin', function (emit, response) {
             AuthorizationService.forceCheckAuthorize().then(function () {

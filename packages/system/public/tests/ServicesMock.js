@@ -91,3 +91,25 @@ var AuthenticationServiceMock = function ($http, SocketService, Global, LogServi
         }
     };
 };
+
+var AuthorizationServiceMock = function ($q) {
+    var _identity = {
+        _id: 1,
+        roles: ['authenticated']
+    };
+    return {
+        authorize: function () {
+            var deferred = $q.defer();
+            deferred.resolve(_identity);
+            return deferred.promise;
+        },
+        forceCheckAuthorize: function () {
+            var deferred = $q.defer();
+            deferred.resolve(_identity);
+            return deferred.promise;
+        },
+        checkAuthStateAccess: function () {
+
+        }
+    }
+};

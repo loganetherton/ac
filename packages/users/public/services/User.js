@@ -9,10 +9,13 @@ app.factory('User', ['$rootScope', function ($rootScope) {
         get identity() {
             return identity;
         },
-        set identity(val) {
-            identity = val;
+        set identity(user) {
+            this.setIdentity(user);
+        },
+        setIdentity: function (user) {
             // Make accessible to rootScope (this will eventually be removed)
-            $rootScope.user = val;
+            $rootScope.user = user;
+            identity = user;
         }
     };
 }]);

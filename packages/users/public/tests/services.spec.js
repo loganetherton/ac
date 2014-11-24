@@ -145,5 +145,20 @@ describe('RegisterService', function () {
 });
 
 describe('User', function () {
+    beforeEach(function () {
+        module('mean');
+        module('mean.system');
+        module('mean.users');
+    });
 
+    // It seems as though Karma won't let you test services as getters/setters? PhantomJS always crashes -- Logan 11/24/14
+    it('should work as a getter/setter', inject(function (User) {
+        User.setIdentity(user);
+        expect(User.identity).toBe(user);
+    }));
+
+    it('should set identity on rootScope when identity is set as a setter', inject(function ($rootScope, User) {
+        User.setIdentity(user);
+        expect($rootScope.user).toBe(user);
+    }));
 });

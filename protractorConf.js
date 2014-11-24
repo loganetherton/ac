@@ -1,9 +1,3 @@
-// Reference Configuration File
-//
-// This file shows all of the configuration options that may be passed
-// to Protractor.
-
-
 exports.config = {
   // ---------------------------------------------------------------------------
   // ----- How to setup Selenium -----------------------------------------------

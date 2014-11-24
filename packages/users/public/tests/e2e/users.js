@@ -2,21 +2,11 @@
 
 var submitButton;
 
-/**
- * Test the current URL
- * @param testUrl
- */
-var testUrl = function (testUrl) {
-    // Generic wait function
-    browser.wait(function () {
-        var deferred = protractor.promise.defer();
-        browser.getCurrentUrl().then(function (url) {
-            expect(url).toEqual('http://localhost:3000/#!/' + testUrl);
-            deferred.fulfill(true);
-        });
-        return deferred.promise;
-    });
-};
+var HttpBackend = require('httpbackend');
+var backend = null;
+
+var helpers = require('../../../../../test/helpers'),
+    login = require('../../../../../test/loginUser');
 
 /**
  * Make sure the user can't submit the page without good values
@@ -28,13 +18,18 @@ var testBadSubmit = function (loginPage) {
     }
     submitButton.click();
     if (loginPage) {
-        testUrl('auth/login');
+        helpers.testUrl('auth/login');
     } else {
-        testUrl('auth/register');
+        helpers.testUrl('auth/register');
     }
 };
 
 describe('registration page', function () {
+
+    beforeEach(function () {
+        backend = new HttpBackend(browser);
+    });
+
     afterEach(function() {
         browser.manage().logs().get('browser').then(function(browserLog) {
             //expect(browserLog.length).toEqual(0);
@@ -44,7 +39,49 @@ describe('registration page', function () {
         });
     });
 
+    afterEach(function() {
+        backend.clear();
+    });
+
     var nameInput, emailInput, passwordInput, confirmInput;
+
+    //beforeEach(function () {
+    //    browser.addMockModule('httpBackendMock', function () {
+    //        angular.module('httpBackendMock', ['mean', 'ngMockE2E']).run(function ($httpBackend) {
+    //            //$httpBackend.whenPOST('/register').respond('raoul');
+    //            $httpBackend.whenGET(/.*/).passThrough();
+    //            $httpBackend.whenPOST(/.*/).passThrough();
+    //            var user = {
+    //                __v: 0,
+    //                email: 'test@test.com',
+    //                hashed_password: 'ceFxftE2t/d/yNHtQ1xNvb5zOXdA1k4tdTnz+wCvcup4NBdRJqFf6OLlJa7YzHyqzhkQhXG1MnI5OH5HZjlLgQ==',
+    //                salt: 'VQ8ndTjH2vzfBZyJWrU67w==',
+    //                name: 'Bigdick von Monstercock',
+    //                _id: '5473b104a551a556735b2831',
+    //                provider: 'local',
+    //                roles: ['authenticated']
+    //            };
+    //            $httpBackend.whenPOST('/register').respond(function(method, url, data) {
+    //                console.log('Received these data:', method, url, data);
+    //                return [200, {user: user, redirectState: 'site.tasklist'}, {}];
+    //            });
+    //        });
+    //    });
+    //});
+
+    //it('should set up httpBackend mock', function () {
+    //    browser.addMockModule('httpBackendMock', function () {
+    //        angular.module('httpBackendMock', ['mean.users', 'ngMockE2E']).run(function ($httpBackend) {
+    //            $httpBackend.whenPOST('/register').respond('raoul');
+    //            $httpBackend.whenPOST(/.*/).passThrough();
+    //        });
+    //    });
+    //});
+
+    beforeEach(function () {
+        backend.whenGET(/.*/).passThrough();
+        backend.whenPOST(/.*/).passThrough();
+    });
 
     it('should find all of the registration elements', function () {
         //browser.ignoreSynchronization = true;
@@ -92,12 +129,12 @@ describe('registration page', function () {
         confirmInput.sendKeys('password');
         expect(confirmInput.getAttribute('value')).toBe('password');
         submitButton.click();
-        testUrl('tasklist');
+        helpers.testUrl('tasklist');
     });
 
     it('should allow the user to logout', function () {
         browser.get('/logout');
-        testUrl('auth/login');
+        helpers.testUrl('auth/login');
     });
 });
 
@@ -138,8 +175,7 @@ describe('login page', function () {
     });
 
     it('should allow the user to login with the previously created user', function () {
-        emailInput.sendKeys('test@test.com');
-        submitButton.click();
-        testUrl('tasklist');
+        login.loginUser();
+        helpers.testUrl('tasklist');
     });
 });

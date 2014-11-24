@@ -84,15 +84,10 @@ exports.create = function (req, res, next) {
                 console.log('error logging in');
                 return next(err);
             }
-            //console.log(res);
-            //return;
             res.send({
                 user: req.user,
                 redirectState: 'site.tasklist'
             });
-            //console.log('redirecting to google');
-            //return res.redirect('http://www.google.com');
-            //return res.redirect('/');
         });
         res.status(200);
     });

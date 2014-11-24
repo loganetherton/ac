@@ -71,7 +71,11 @@ describe.only('Model User:', function () {
         it('should be able to save the user', function (done) {
             var _user = new User(user1);
             _user.save(function (err) {
-                should.not.exist(err);
+                if (err) {
+                    User.remove({}, function (err) {
+                        should.not.exist(err);
+                    });
+                }
                 _user.remove();
                 done();
             });

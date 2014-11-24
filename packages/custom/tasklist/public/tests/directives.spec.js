@@ -11,7 +11,7 @@
             });
         });
 
-        beforeEach(inject(function ($rootScope, $compile, $controller, $q, SocketService) {
+        beforeEach(inject(function ($rootScope, $compile) {
             scope = $rootScope.$new();
             element = '<tasklist></tasklist>';
 

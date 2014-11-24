@@ -144,10 +144,6 @@ describe('RegisterService', function () {
     });
 });
 
-describe('TogglePasswordDir', function () {
-
-});
-
 describe('User', function () {
 
 });

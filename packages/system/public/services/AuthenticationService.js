@@ -2,7 +2,7 @@
 
 var app = angular.module('mean.system');
 
-app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', function ($q, $timeout, $http, User) {
+app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', '$rootScope', function ($q, $timeout, $http, User,$rootScope) {
     var _identity,
     _authenticated = false;
 
@@ -47,8 +47,7 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
         authenticate: function(identity) {
             _identity = identity;
             _authenticated = !!identity;
-
-            // for this demo, we'll store the identity in localStorage. For you, it could be a cookie, sessionStorage, whatever
+            // Store on the user object (persists in session)
             if (identity) {
                 User.identity = identity;
             } else {
@@ -76,7 +75,6 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
             }
 
             var self = this;
-
             // otherwise, retrieve the identity data from the server, update the identity object, and then resolve.
             $http.get('/users/me', {ignoreErrors: true}).success(function (data) {
                 self.authenticate(data);
@@ -95,28 +93,39 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', functio
 
 app.factory('AuthorizationService', ['$rootScope', '$state', 'AuthenticationService', '$q',
 function ($rootScope, $state, AuthenticationService, $q) {
+    /**
+     * Perform the actual auth check after identity retrieval
+     * @param identity
+     * @returns {*}
+     */
+    var checkAuth = function (identity) {
+        var deferred = $q.defer();
+        var isAuthenticated = AuthenticationService.isAuthenticated();
+        deferred.resolve(identity);
+        if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 &&
+            !AuthenticationService.isInAnyRole($rootScope.toState.data.roles)) {
+            // user is signed in but not authorized for desired state
+            if (isAuthenticated) {
+                // Todo Make an access denied state
+                $state.go('accessDenied');
+            } else {
+                // user is not authenticated. stow the state they wanted before you
+                // send them to the signin state, so you can return them when you're done
+                $rootScope.returnToState = $rootScope.toState;
+                $rootScope.returnToStateParams = $rootScope.toStateParams;
+
+                // now, send them to the signin state so they can log in
+                $state.go('auth.login');
+            }
+        }
+        return deferred.promise;
+    };
+
     return {
         authorize: function () {
             // identity() will make a call to /users/me to get user
-            return AuthenticationService.identity().then(function () {
-                var isAuthenticated = AuthenticationService.isAuthenticated();
-
-                if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 &&
-                    !AuthenticationService.isInAnyRole($rootScope.toState.data.roles)) {
-                    // user is signed in but not authorized for desired state
-                    if (isAuthenticated) {
-                        // Todo Make an access denied state
-                        $state.go('auth.login');
-                    } else {
-                        // user is not authenticated. stow the state they wanted before you
-                        // send them to the signin state, so you can return them when you're done
-                        $rootScope.returnToState = $rootScope.toState;
-                        $rootScope.returnToStateParams = $rootScope.toStateParams;
-
-                        // now, send them to the signin state so they can log in
-                        $state.go('auth.login');
-                    }
-                }
+            return AuthenticationService.identity().then(function (identity) {
+                return checkAuth(identity);
             });
         },
         /**
@@ -126,28 +135,8 @@ function ($rootScope, $state, AuthenticationService, $q) {
          */
         forceCheckAuthorize: function () {
             // identity() will make a call to /users/me to get user
-            return AuthenticationService.identity(true).then(function () {
-                var deferred = $q.defer();
-                var isAuthenticated = AuthenticationService.isAuthenticated();
-                deferred.resolve();
-
-                if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 &&
-                    !AuthenticationService.isInAnyRole($rootScope.toState.data.roles)) {
-                    // user is signed in but not authorized for desired state
-                    if (isAuthenticated) {
-                        // Todo Make an access denied state
-                        $state.go('auth.login');
-                    } else {
-                        // user is not authenticated. stow the state they wanted before you
-                        // send them to the signin state, so you can return them when you're done
-                        $rootScope.returnToState = $rootScope.toState;
-                        $rootScope.returnToStateParams = $rootScope.toStateParams;
-
-                        // now, send them to the signin state so they can log in
-                        $state.go('auth.login');
-                    }
-                }
-                return deferred.promise;
+            return AuthenticationService.identity(true).then(function (identity) {
+                return checkAuth(identity);
             });
         },
         /**
@@ -157,7 +146,11 @@ function ($rootScope, $state, AuthenticationService, $q) {
             return AuthenticationService.identity(true).then(function (data) {
                 // If the user is logged in, kick them back to where they just were
                 if (data) {
-                    $state.go($rootScope.fromState.name);
+                    if ('fromState' in $rootScope && 'name' in $rootScope.fromState && $rootScope.fromState.name) {
+                        $state.go($rootScope.fromState.name);
+                    } else {
+                        $state.go('site.tasklist');
+                    }
                 }
             });
         }

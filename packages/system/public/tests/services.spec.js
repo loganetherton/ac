@@ -1,5 +1,5 @@
 describe('AuthenticationService', function () {
-    var authenticationService, user, httpBackend, rootScope;
+    var authenticationService, user, httpBackend, scope;
 
     beforeEach(function () {
         module('mean');
@@ -12,7 +12,9 @@ describe('AuthenticationService', function () {
         authenticationService = AuthenticationService;
         user = User;
         httpBackend = $httpBackend;
-        rootScope = $rootScope.$new();
+        scope = $rootScope.$new();
+        // Remove event listeners for onStateChangeStart
+        $rootScope.$$listeners.$stateChangeStart = [];
     }));
 
     it('should have all of the necessary methods', function () {
@@ -79,44 +81,148 @@ describe('AuthenticationService', function () {
     });
 
     describe('identity()', function () {
+        beforeEach(inject(function (AuthorizationService) {
+            // Override the initial call to authorize in app.config
+            spyOn(AuthorizationService, 'authorize').andCallFake(function () {
+                //console.log('fake checkAuthStateAccess');
+            });
+        }));
+
         beforeEach(function () {
             httpBackend.when('GET', '/users/me').respond({_id: 1});
         });
 
         // Make sure no expectGET etc calls were missed
         afterEach(function() {
-            // This is necessary for the initial auth request made in app.run
-            httpBackend.flush();
-            //rootScope.$digest();
+            // This is necessary for the urlRouterProvider handling in app.config
             httpBackend.verifyNoOutstandingExpectation();
             httpBackend.verifyNoOutstandingRequest();
         });
-        it('should retrieve the users identity if not previously defined', function () {
-            var identityResponse = authenticationService.identity();
+        it('should retrieve the users identity once and only once', function () {
+            var spy = jasmine.createSpy('identity()');
+            authenticationService.identity().then(spy);
+            // Need to call scope.$digest() for promise to fulfill
             httpBackend.flush();
-            identityResponse.then(function () {
-                expect(authenticationService.isIdentityResolved()).toBe(true);
-                expect(authenticationService.isAuthenticated()).toBe(true);
-            });
-        });
-
-        it('should return the same identity when called again, rather than getting identity again', function () {
-            var identityResponse = authenticationService.identity();
-            httpBackend.flush();
-            identityResponse.then(function () {
-                // This will fail due to outstanding requests if another one is made
-                authenticationService.identity();
-            });
+            scope.$digest();
+            expect(spy).toHaveBeenCalledWith({_id: 1});
+            // Verify that another call won't be made to /users/me
+            // Since no call to httpBackend.flush() is made, will fail in afterEach if one is made
+            var secondSpy = jasmine.createSpy('identity() again');
+            authenticationService.identity().then(secondSpy);
+            scope.$digest();
+            expect(secondSpy).toHaveBeenCalledWith({_id: 1});
         });
 
         it('should retrieve the identity again when called with force', function () {
-            var identityResponse = authenticationService.identity();
+            var spy = jasmine.createSpy('identity()');
+            authenticationService.identity().then(spy);
+            // Need to call scope.$digest() for promise to fulfill
             httpBackend.flush();
-            identityResponse.then(function () {
-                // This will force another call to /users/me
-                authenticationService.identity(true);
-                httpBackend.flush();
-            });
+            scope.$digest();
+            expect(spy).toHaveBeenCalledWith({_id: 1});
+            // Verify that another call won't be made to /users/me
+            // Since no call to httpBackend.flush() is made, will fail in afterEach if one is made
+            var secondSpy = jasmine.createSpy('identity() again');
+            authenticationService.identity(true).then(secondSpy);
+            httpBackend.flush();
+            scope.$digest();
+            expect(secondSpy).toHaveBeenCalledWith({_id: 1});
         });
+    });
+});
+
+describe('AuthorizationService', function () {
+    var state, scope, authorizationService, authenticationService;
+    beforeEach(function () {
+        module('mean');
+        module('mean.system', function ($provide) {
+            $provide.factory('User', UserMock);
+            $provide.factory('AuthenticationService', AuthenticationServiceMock);
+            $provide.factory('SocketService', SocketMock);
+        });
+    });
+
+    beforeEach(inject(function ($state, $rootScope, $templateCache, AuthorizationService, AuthenticationService) {
+        state = $state;
+        scope = $rootScope.$new();
+        authorizationService = AuthorizationService;
+        authenticationService = AuthenticationService;
+        // Set toState to authenticated
+        $rootScope.toState = {
+            data: {
+                roles: ['authenticated']
+            }
+        };
+        // Remove event listeners for onStateChangeStart
+        $rootScope.$$listeners.$stateChangeStart = [];
+        // For judging state transitions
+        spyOn($state, 'go');
+    }));
+
+    it('should have the three tested methods, and nothing more', function () {
+        expect(angular.isFunction(authorizationService.authorize));
+        expect(angular.isFunction(authorizationService.forceCheckAuthorize));
+        expect(angular.isFunction(authorizationService.checkAuthStateAccess));
+        expect(Object.keys(authorizationService).length).toBe(3);
+    });
+
+    describe('authorize()', function () {
+        it('should verify that the user has the role requested before making the transition',
+        inject(function ($state) {
+            var spy = jasmine.createSpy('success');
+            authorizationService.authorize().then(spy);
+            // Need to call scope.$digest() for promise to fulfill
+            scope.$digest();
+            expect(spy).toHaveBeenCalledWith({_id: 1, roles: ['authenticated']});
+            expect($state.go).not.toHaveBeenCalled();
+        }));
+
+        it('should deny the user if the user does not have the requested role', inject(function ($state, $rootScope) {
+            $rootScope.toState = {
+                data: {
+                    roles: ['notAuthorized']
+                }
+            };
+            authorizationService.authorize();
+            // Need to call scope.$digest() for promise to fulfill
+            scope.$digest();
+            expect($state.go).toHaveBeenCalled();
+        }));
+    });
+
+    describe('forceCheckAuthorize()', function () {
+        it('should recheck authorization for the user', inject(function ($state, $rootScope) {
+            // Check by normal means, then check by forcing reauth (will return different identity for testing)
+            var spy = jasmine.createSpy('success');
+            authorizationService.authorize().then(spy);
+            scope.$digest();
+            expect(spy).toHaveBeenCalledWith({_id: 1, roles: ['authenticated']});
+            expect($state.go).not.toHaveBeenCalled();
+            // Set user unauthenticated, then force reauth
+            authenticationService.setUnauthenticated();
+            authorizationService.forceCheckAuthorize();
+            scope.$digest();
+            expect($state.go).toHaveBeenCalledWith('auth.login');
+        }));
+    });
+
+    describe('checkAuthStateAccess()', function () {
+        it('should allow non-logged in users access to auth only state', inject(function ($state, AuthenticationService, $q) {
+            spyOn(AuthenticationService, 'identity').andCallFake(function() {
+                var deferred = $q.defer();
+                scope.$apply(deferred.resolve(null));
+                return deferred.promise;
+            });
+            authorizationService.checkAuthStateAccess();
+            scope.$digest();
+            expect($state.go).not.toHaveBeenCalled();
+        }));
+
+        it('should prevent logged in users from accessing the auth only states', inject(function ($state) {
+            authorizationService.checkAuthStateAccess();
+            scope.$digest();
+            expect($state.go).toHaveBeenCalled();
+            expect($state.go).toHaveBeenCalledWith('site.tasklist');
+        }));
     });
 });

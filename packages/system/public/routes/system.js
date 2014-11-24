@@ -19,12 +19,12 @@ function ($stateProvider, $urlRouterProvider) {
                 return AuthorizationService.authorize();
             }]
         }
-    });
+    })
 
     /**
     * Auth
     */
-    $stateProvider.state('auth', {
+    .state('auth', {
         url: '/auth',
         templateUrl: 'users/views/index.html',
         resolve: {
@@ -49,39 +49,39 @@ function ($stateProvider, $urlRouterProvider) {
     }).state('reset-password', {
         url: '/reset/:tokenId',
         templateUrl: 'users/views/reset-password.html'
-    });
+    })
 
     /**
     * Tasklist
     */
-    $stateProvider.state('site.tasklist', {
+    .state('site.tasklist', {
         url: '/tasklist',
         templateUrl: 'tasklist/views/index.html',
         data: {
             roles: ['authenticated']
         }
-    });
+    })
 
     /**
      * Team
      */
-    $stateProvider.state('team', {
+    .state('team', {
         url: '/team',
         template: '<div ui-view></div>',
         data: {
             roles: ['authenticated']
         }
-    });
+    })
 
-    $stateProvider.state('team.messages', {
+    .state('team.messages', {
         url: '/messages',
         templateUrl: 'tasklist/views/index.html'
-    });
+    })
 
     /**
      * Placeholder
      */
-    $stateProvider.state('placeholder', {
+    .state('placeholder', {
         url: '/placeholder',
         template: '<div ui-view></div>'
     });

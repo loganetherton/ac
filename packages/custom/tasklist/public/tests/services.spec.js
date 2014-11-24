@@ -1,6 +1,6 @@
 (function () {
-    describe('Service: SocketService', function () {
-        var scope, socketService;
+    ddescribe('Service: SocketService', function () {
+        var socketService, socket;
         beforeEach(function () {
             module('mean');
             module('mean.system');
@@ -13,10 +13,39 @@
             socketService = SocketService;
         }));
 
+        beforeEach(function () {
+            var baseUrl = 'http://localhost:8282/task';
+            socket = io.connect(baseUrl);
+        });
+
         it('should have init, emit, and on functions', function () {
             expect(angular.isFunction(socketService.init)).toBeTruthy();
             expect(angular.isFunction(socketService.on)).toBeTruthy();
             expect(angular.isFunction(socketService.emit)).toBeTruthy();
+        });
+
+        describe('init()', function () {
+            it('should remove all event listeners on init', function () {
+                spyOn(socket, 'removeAllListeners');
+                socketService.init();
+                expect(socket.removeAllListeners).toHaveBeenCalled();
+            });
+        });
+
+        describe('on()', function () {
+            it('should call socket.on', function () {
+                spyOn(socket, 'on');
+                socketService.on('test');
+                expect(socket.on.mostRecentCall.args[0]).toEqual('test');
+            });
+        });
+
+        describe('emit()', function () {
+            it('should call socket.emit', function () {
+                spyOn(socket, 'emit');
+                socketService.emit('test');
+                expect(socket.emit.mostRecentCall.args[0]).toEqual('test');
+            });
         });
     });
 

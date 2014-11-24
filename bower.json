@@ -7,7 +7,7 @@
     "angular-cookies": "latest",
     "angular-route": "latest",
     "angular-ui-router": "#master",
-    "socket.io-client": "latest",
+    "socket.io-client": "~1.2.1",
     "stacktrace-js": "latest",
     "underscore": "latest",
     "underscore.string": "latest",

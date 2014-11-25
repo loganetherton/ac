@@ -125,11 +125,7 @@ describe('registration page', function () {
     });
 
     it('should allow the user to sign up with correct values', function () {
-        confirmInput.clear();
-        confirmInput.sendKeys('password');
-        expect(confirmInput.getAttribute('value')).toBe('password');
-        submitButton.click();
-        helpers.testUrl('tasklist');
+        login.createUser();
     });
 
     it('should allow the user to logout', function () {

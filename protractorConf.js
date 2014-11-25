@@ -156,6 +156,7 @@ exports.config = {
     // are using Jasmine, you can add a reporter with:
     //     jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter(
     //         'outputdir/', true, true));
+      global.registeredUsers = [];
   },
 
   // A callback function called once tests are finished.

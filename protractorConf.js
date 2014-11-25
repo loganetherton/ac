@@ -157,6 +157,17 @@ exports.config = {
     //     jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter(
     //         'outputdir/', true, true));
       global.registeredUsers = [];
+      global.helpers = require('./test/helpers');
+      global.login = require('./test/loginUser');
+      global.HttpBackend = require('httpbackend');
+
+      afterEach(function() {
+          browser.manage().logs().get('browser').then(function(browserLog) {
+              if (browserLog.length) {
+                  console.log('log: ' + require('util').inspect(browserLog));
+              }
+          });
+      });
   },
 
   // A callback function called once tests are finished.

@@ -1,5 +1,3 @@
-var helpers = require('./helpers');
-//var q = require('q');
 var _ = require('lodash');
 
 /**
@@ -56,7 +54,7 @@ var loginUser = function (email, password) {
         // Go to the login page
         browser.get('/#!/auth/login');
         // Verify login page
-        helpers.testUrl('auth/login');
+        global.helpers.testUrl('auth/login');
         // Find submit button
         submitButton = element(by.css('.submit_button'));
         expect(submitButton).toBeTruthy();
@@ -96,7 +94,7 @@ var createUser = function (email, password, name) {
     // Submit
     submitButton = element(by.css('.submit_button'));
     submitButton.click();
-    helpers.testUrl('tasklist');
+    global.helpers.testUrl('tasklist');
     global.registeredUsers.push(email);
     deferred.fulfill();
     return deferred.promise;

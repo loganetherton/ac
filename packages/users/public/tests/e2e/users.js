@@ -90,12 +90,17 @@ describe('registration page', function () {
 describe('login page', function () {
     var emailInput, passwordInput;
 
+    beforeEach(function () {
+        backend = new global.HttpBackend(browser);
+    });
+
+    beforeEach(function () {
+        backend.whenGET(/.*/).passThrough();
+        backend.whenPOST(/.*/).passThrough();
+    });
+
     afterEach(function() {
-        browser.manage().logs().get('browser').then(function(browserLog) {
-            if (browserLog.length) {
-                console.log('log: ' + require('util').inspect(browserLog));
-            }
-        });
+        backend.clear();
     });
 
     it('should find all of the login page elements', function () {

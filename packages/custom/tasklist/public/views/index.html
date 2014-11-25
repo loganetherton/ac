@@ -1,6 +1,6 @@
 <div class="" data-ng-controller="TasklistInsertController as tasklistInsert" ng-cloak>
     <div class="row no-border">
-        <form name="articleForm" class="form-horizontal" role="form" data-ng-submit="tasklistInsert.create(articleForm.$valid)" novalidate>
+        <form name="taskForm" class="form-horizontal" role="form" data-ng-submit="tasklistInsert.create(taskForm.$valid)" novalidate>
             <div class="input-group col-md-9">
                 <span class="input-group-addon task-input-label">Title</span>
                 <input name="title" type="text" class="form-control" data-ng-model="tasklistInsert.title" id="title" placeholder="Title" required>

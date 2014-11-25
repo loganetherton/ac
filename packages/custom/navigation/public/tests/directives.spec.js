@@ -25,20 +25,22 @@ describe('minifyMenu directive', function () {
         scope.$digest();
         $body = $('body');
         span = element.find('span');
+        // This is bad form, I need to account for Pace
+        $body.removeClass('pace-running');
     }));
 
     describe('click', function () {
         it('should toggle the minified class', function () {
-            expect($body.attr('class')).toBe(' pace-running');
+            expect($body.attr('class')).toBe('');
             $(span).trigger('click');
-            expect($body.attr('class')).toBe('pace-running minified');
+            expect($body.attr('class')).toBe('minified');
         });
 
         it('should remove the hidden-menu classes', function () {
             $body.addClass('hidden-menu');
-            expect($body.attr('class')).toBe('pace-running minified hidden-menu');
+            expect($body.attr('class')).toBe('minified hidden-menu');
             $(span).trigger('click');
-            expect($body.attr('class')).toBe('pace-running');
+            expect($body.attr('class')).toBe('');
         });
 
         it('should removed the hidden-menu-mobile-lock class from the html element', function () {

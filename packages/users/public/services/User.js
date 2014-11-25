@@ -7,7 +7,14 @@ var app = angular.module('mean.users');
  * fake getter and setter functions to maintain object integrity
  */
 app.factory('User', ['$rootScope', function ($rootScope) {
-    var identity;
+    var identity = window.user;
+    identity.authenticated = false;
+    identity.isAdmin = false;
+
+    if (window.user && window.user.roles) {
+        identity.authenticated = window.user.roles.length;
+        identity.isAdmin = window.user.roles.indexOf('admin') !== -1;
+    }
 
     return {
         /**

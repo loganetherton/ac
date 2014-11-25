@@ -107,7 +107,8 @@ function ($rootScope, $state, AuthenticationService, $q) {
             // user is signed in but not authorized for desired state
             if (isAuthenticated) {
                 // Todo Make an access denied state
-                $state.go('accessDenied');
+                console.log('access denied');
+                //$state.go('accessDenied');
             } else {
                 // user is not authenticated. stow the state they wanted before you
                 // send them to the signin state, so you can return them when you're done
@@ -147,6 +148,7 @@ function ($rootScope, $state, AuthenticationService, $q) {
                 // If the user is logged in, kick them back to where they just were
                 if (data) {
                     if ('fromState' in $rootScope && 'name' in $rootScope.fromState && $rootScope.fromState.name) {
+                        console.log('checking auth state access');
                         $state.go($rootScope.fromState.name);
                     } else {
                         $state.go('site.tasklist');

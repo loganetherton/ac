@@ -4,18 +4,20 @@ var app = angular.module('mean.tasklist');
 
 // Favorite service for retrieving and creating tasks
 app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService', '$q', 'User',
-                         function ($http, SocketService, Global, LogService, $q, User) {
+function ($http, SocketService, Global, LogService, $q, User) {
+
+    var _identity = User.getIdentity();
 
     return {
         // Get an initial listing of tasks, return promise
         init: function(){
             var deferred = $q.defer();
             // If the user ID is not set correctly, don't make the request
-            if (typeof User.identity._id === 'undefined') {
+            if (!'_id' in _identity || typeof _identity._id === 'undefined') {
                 deferred.reject({data: {error: 'User ID is not defined'}});
                 return deferred.promise;
             }
-            $http.get('/tasks/user/' + User.identity._id).then(function (response) {
+            $http.get('/tasks/user/' + _identity._id).then(function (response) {
                 deferred.resolve(response.data);
                 //return response.data;
             }, function (error) {
@@ -32,7 +34,7 @@ app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService'
             var deferred = $q.defer();
             if (isValid) {
                 var task = {
-                    user: Global.user._id,
+                    user: _identity._id,
                     title: title,
                     content: content
                 };

@@ -22,32 +22,32 @@ traditional href="" links. See documentation for details.
             class="menu-item-parent">Tasklist</span></a>
 </li>
 <li data-ui-sref-active="active" data-ng-if="navigationCtrl.global.authenticated">
-    <a data-ui-sref="team.messages" title="Inbox">
-        <i class="fa fa-lg fa-fw fa-inbox"></i> <span class="menu-item-parent">Team messages</span><span
-            unread-messages-count class="badge pull-right inbox-badge"></span></a>
-</li>
-<li data-ui-sref-active="active" data-ng-if="navigationCtrl.global.authenticated">
     <a data-ui-sref="team" title="Team">
         <i class="fa fa-lg fa-fw fa-users"></i> <span class="menu-item-parent">Team</span><span
             class="badge pull-right inbox-badge"></span></a>
+</li>
+<li data-ui-sref-active="active" data-ng-if="navigationCtrl.global.authenticated">
+    <a data-ui-sref="team.messages" title="Inbox">
+        <i class="fa fa-lg fa-fw fa-inbox"></i> <span class="menu-item-parent">Team Messages</span><span
+            unread-messages-count class="badge pull-right inbox-badge"></span></a>
 </li>
 <li data-ui-sref-active="active" data-ng-if="!navigationCtrl.global.authenticated">
     <a data-ui-sref="auth.register" title="Register">
         <i class="fa fa-lg fa-fw fa-sign-in"></i> <span class="menu-item-parent">Register</span><span
             class="badge pull-right inbox-badge"></span></a>
 </li>
-<li data-menu-collapse data-ng-if="navigationCtrl.global.authenticated">
-    <a href="#"><i class="fa fa-lg fa-fw fa-bar-chart-o"></i> <span
-            class="menu-item-parent">Team</span></a>
-    <ul>
-        <li data-ui-sref-active="active">
-            <a data-ui-sref="team">Team Members</a>
-        </li>
-        <li data-ui-sref-active="active">
-            <a data-ui-sref="team.messages">Messages</a>
-        </li>
-    </ul>
-</li>
+<!--<li data-menu-collapse data-ng-if="navigationCtrl.global.authenticated">-->
+    <!--<a href="#"><i class="fa fa-lg fa-fw fa-bar-chart-o"></i> <span-->
+            <!--class="menu-item-parent">Team</span></a>-->
+    <!--<ul>-->
+        <!--<li data-ui-sref-active="active">-->
+            <!--<a data-ui-sref="team">Team Members</a>-->
+        <!--</li>-->
+        <!--<li data-ui-sref-active="active">-->
+            <!--<a data-ui-sref="team.messages">Messages</a>-->
+        <!--</li>-->
+    <!--</ul>-->
+<!--</li>-->
 <li data-ui-sref-active="active" data-ng-if="!navigationCtrl.global.authenticated">
     <a data-ui-sref="auth.login" title="Login">
         <i class="fa fa-lg fa-fw fa-sign-in"></i>

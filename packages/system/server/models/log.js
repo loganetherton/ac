@@ -36,6 +36,8 @@ var LoggerSchema = new Schema({
         type: Schema.ObjectId,
         ref: 'User'
     }
+}, {
+    capped: 1024
 });
 
 /**

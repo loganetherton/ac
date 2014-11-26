@@ -9,7 +9,8 @@ var mongoose = require('mongoose'),
     config = require('meanio').loadConfig(),
     crypto = require('crypto'),
     nodemailer = require('nodemailer'),
-    templates = require('../template');
+    templates = require('../template'),
+    Team = mongoose.model('Team');
 
 /**
  * Auth callback
@@ -48,13 +49,17 @@ exports.session = function (req, res) {
  */
 exports.create = function (req, res, next) {
     var user = new User(req.body);
+    var team = new Team({
+        name: user.name + '\'s Team'
+    });
 
     user.provider = 'local';
 
     // because we set our user.provider to local our models/user.js validation will always be true
     req.assert('name', 'You must enter a name').notEmpty();
     req.assert('email', 'You must enter a valid email address').isEmail();
-    req.assert('password', 'Password must be between 8-20 characters long').len(8, 20);
+    req.assert('password', 'You must enter a password').notEmpty();
+    req.assert('password', 'Password must be between 8-100 characters long').len(8, 100);
     req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
 
     var errors = req.validationErrors();
@@ -62,40 +67,45 @@ exports.create = function (req, res, next) {
         return res.status(400).send(errors[0].msg);
     }
 
-    // Hard coded for now. Will address this with the user permissions system in v0.3.5
-    user.roles = ['authenticated'];
-    user.save(function (err) {
+    team.save(function (err) {
         if (err) {
-            switch (err.code) {
-            /**
-             * Todo Handle specific index breaking errors
-             */
-            default:
-                var modelErrors = [];
-
-                if (err.errors) {
-
-                    for (var x in err.errors) {
-                        modelErrors.push({
-                            param: x, msg: err.errors[x].message, value: err.errors[x].value
-                        });
-                    }
-                    res.status(400).send(modelErrors);
-                }
-            }
-            return res.status(400);
+            return res.status(400).send(errors[0].msg);
         }
-        req.logIn(user, function (err) {
+        user.roles = ['authenticated'];
+        user.teams.push(team._id);
+        user.save(function (err) {
             if (err) {
-                console.log('error logging in');
-                return next(err);
+                switch (err.code) {
+                /**
+                 * Todo Handle specific index breaking errors
+                 */
+                    default:
+                        var modelErrors = [];
+
+                        if (err.errors) {
+
+                            for (var x in err.errors) {
+                                modelErrors.push({
+                                    param: x, msg: err.errors[x].message, value: err.errors[x].value
+                                });
+                            }
+                            res.status(400).send(modelErrors);
+                        }
+                }
+                return res.status(400);
             }
-            res.send({
-                user: req.user,
-                redirectState: 'site.tasklist'
+            // Log the user in
+            req.logIn(user, function (err) {
+                if (err) {
+                    console.log('error logging in');
+                    return next(err);
+                }
+                return res.send({
+                    user: req.user,
+                    redirectState: 'site.tasklist'
+                });
             });
         });
-        res.status(200);
     });
 };
 /**

@@ -178,6 +178,7 @@ describe('AuthorizationService', function () {
         }));
 
         it('should deny the user if the user does not have the requested role', inject(function ($state, $rootScope) {
+            spyOn(console, 'log');
             $rootScope.toState = {
                 data: {
                     roles: ['notAuthorized']
@@ -186,7 +187,7 @@ describe('AuthorizationService', function () {
             authorizationService.authorize();
             // Need to call scope.$digest() for promise to fulfill
             scope.$digest();
-            expect($state.go).toHaveBeenCalled();
+            expect(console.log).toHaveBeenCalledWith('access denied');
         }));
     });
 
@@ -231,7 +232,8 @@ describe('hasAuthorizationService', function () {
     var hasAuthorizationService,
     user = {
         _id: 1,
-        name: 'Baron von Bullshit'
+        name: 'Baron von Bullshit',
+        roles: ['authenticated']
     },
     task = {
         content: 'content',
@@ -243,7 +245,9 @@ describe('hasAuthorizationService', function () {
     beforeEach(function () {
         module('mean');
         module('mean.system');
-        module('mean.users');
+        module('mean.users', function ($provide) {
+            $provide.factory('User', UserMock);
+        });
     });
 
     beforeEach(inject(function (HasAuthorizationService) {
@@ -256,7 +260,7 @@ describe('hasAuthorizationService', function () {
     }));
 
     it('should deny unauthenticated users', function () {
-        expect(hasAuthorizationService()).toBeFalsy();
+        expect(hasAuthorizationService(task)).toBeFalsy();
     });
 
     it('should deny access if a task does not have a user set', inject(function (User) {
@@ -266,7 +270,7 @@ describe('hasAuthorizationService', function () {
     }));
 
     it('should allow access to admin users', inject(function (User) {
-        user.roles = ['admin'];
+        user.roles.push('admin');
         User.setIdentity(user);
         expect(hasAuthorizationService(task)).toBeTruthy();
     }));

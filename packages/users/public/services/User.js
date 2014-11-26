@@ -7,6 +7,8 @@ var app = angular.module('mean.users');
  * fake getter and setter functions to maintain object integrity
  */
 app.factory('User', ['$rootScope', function ($rootScope) {
+    // Initialize the user identity on service creation
+    console.log('user service created');
     var identity = window.user;
     identity.authenticated = false;
     identity.isAdmin = false;
@@ -20,7 +22,9 @@ app.factory('User', ['$rootScope', function ($rootScope) {
         /**
          * Karma dies every time when a service has getter/setters. Pretty poor.
          */
-        isAdmin: false,
+        isAdmin: function () {
+            return identity.roles.indexOf('admin') !== -1;
+        },
         getIdentity: function () {
             return identity;
         },

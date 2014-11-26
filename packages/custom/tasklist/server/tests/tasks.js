@@ -43,7 +43,7 @@ var removeUsers = function () {
     var deferred = q.defer();
     User.remove({}, function (err) {
         if (err) {
-            deferred.reject('Could not clear tasks collection');
+            deferred.reject('Could not clear users collection');
         }
     });
     deferred.resolve('tasks cleared');

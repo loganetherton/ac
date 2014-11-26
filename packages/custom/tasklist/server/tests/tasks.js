@@ -67,7 +67,8 @@ var createUserAndTask = function (done) {
         user = new User({
             name: 'Full name',
             email: 'test@test.com',
-            password: 'password'
+            password: 'password',
+            teams: [mongoose.Types.ObjectId()]
         });
         /**
          * Clear the collection

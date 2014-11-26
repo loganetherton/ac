@@ -5,7 +5,8 @@
  */
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    crypto = require('crypto');
+    crypto = require('crypto'),
+    _ = require('lodash');
 
 /**
  * Ensure that a password is given for local strategy only
@@ -41,7 +42,6 @@ var validateUniqueEmail = function (value, callback) {
 /**
  * User Schema
  */
-
 var UserSchema = new Schema({
     name: {
         type: String, required: true
@@ -49,7 +49,9 @@ var UserSchema = new Schema({
     email: {
         type: String,
         required: true,
-        unique: true,
+        unique: true, set: function (email) {
+            return email.toLowerCase();
+        },
         match: [/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                 'Please enter a valid email'],
         validate: [validateUniqueEmail, 'E-mail address is already in-use']
@@ -57,6 +59,7 @@ var UserSchema = new Schema({
     roles: {
         type: Array, default: ['authenticated']
     },
+    teams: [{type: Schema.Types.ObjectId, ref: 'Team'}],
     hashed_password: {
         type: String, validate: [validatePresenceOf, 'Password cannot be blank']
     },
@@ -71,6 +74,10 @@ var UserSchema = new Schema({
     github: {},
     google: {},
     linkedin: {}
+});
+
+UserSchema.path('teams').validate(function (teams) {
+    return (teams && _.isArray(teams) && teams.length);
 });
 
 /**
@@ -98,7 +105,6 @@ UserSchema.pre('save', function (next) {
  * Methods
  */
 UserSchema.methods = {
-
     /**
      * HasRole - check if the user has required role
      *

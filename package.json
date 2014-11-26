@@ -75,6 +75,7 @@
     "lodash": "^2.4.1",
     "meanio": "~0.5.10",
     "method-override": "^1.0.0",
+    "moment": "^2.8.4",
     "mongoose": "^3.8.8",
     "mongoose-fixtures": "0.0.1",
     "morgan": "^1.0.0",

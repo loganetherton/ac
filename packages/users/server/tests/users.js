@@ -31,12 +31,13 @@ var user1,
 /**
  * Test Suites
  */
-describe.only('Model User:', function () {
+describe('Model User:', function () {
 
     before(function (done) {
         user1 = {
             name: 'Full name',
             email: 'test' + getRandomString() + '@test.com',
+            teams: [mongoose.Types.ObjectId()],
             password: 'password',
             provider: 'local'
         };
@@ -44,6 +45,7 @@ describe.only('Model User:', function () {
         user2 = {
             name: 'Full name',
             email: 'test' + getRandomString() + '@test.com',
+            teams: [mongoose.Types.ObjectId()],
             password: 'password',
             provider: 'local'
         };
@@ -97,13 +99,54 @@ describe.only('Model User:', function () {
                     done();
                 });
             });
+        });
 
+        it('should require at least one team to save', function (done) {
+            var userWithoutTeam = {};
+            // Create a copy of user1 without teams set
+            for (var attr in user1) {
+                if (user1.hasOwnProperty(attr)) {
+                    if (attr !== 'teams') {
+                        userWithoutTeam[attr] = user1[attr];
+                    }
+                }
+            }
+            // Create new user
+            var _user = new User(userWithoutTeam);
+            _user.save(function (err) {
+                // Verify error
+                should.exist(err);
+                _user.teams = mongoose.Types.ObjectId();
+                // Verify save with team
+                _user.save(function (err) {
+                    should.not.exist(err);
+                    _user.remove(function (err) {
+                        should.not.exist(err);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('should allow multiple teams for a single user', function (done) {
+            // Create new user
+            var _user = new User(user1);
+            // Add another team
+            _user.teams.push(mongoose.Types.ObjectId());
+            _user.save(function (err) {
+                // Verify save with multiple teams
+                _user.save(function (err) {
+                    should.not.exist(err);
+                    _user.remove(function (err) {
+                        should.not.exist(err);
+                        done();
+                    });
+                });
+            });
         });
 
         it('should confirm that password is hashed correctly', function (done) {
-
             var _user = new User(user1);
-
             _user.save(function (err) {
                 should.not.exist(err);
                 _user.hashed_password.should.not.have.length(0);
@@ -376,21 +419,5 @@ describe.only('Model User:', function () {
                 }
             });
         });
-    });
-
-    after(function (done) {
-
-        /** Clean up user objects
-         * un-necessary as they are cleaned up in each test but kept here
-         * for educational purposes
-         *
-         *  var _user1 = new User(user1);
-         *  var _user2 = new User(user2);
-         *
-         *  _user1.remove();
-         *  _user2.remove();
-         */
-
-        done();
     });
 });

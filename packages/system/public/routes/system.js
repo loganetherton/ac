@@ -89,8 +89,8 @@ function ($stateProvider, $urlRouterProvider) {
     $locationProvider.hashPrefix('!');
 }]);
 
-app.run(['$rootScope', '$location', 'AuthenticationService', 'AuthorizationService', '$state', '$timeout',
-function ($rootScope, $location, AuthenticationService, AuthorizationService, $state, $timeout) {
+app.run(['$rootScope', '$location', 'AuthenticationService', 'AuthorizationService',
+function ($rootScope, $location, AuthenticationService, AuthorizationService) {
 
     $rootScope.$on('$stateChangeStart', function(event, toState, toStateParams, fromState) {
         // track the state the user wants to go to; authorization service needs this

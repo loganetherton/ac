@@ -43,9 +43,9 @@ function ($http, SocketService, Global, LogService, $q, User) {
                 $http.post('/newTask', task).then(function (data) {
                     // Resolve and emit
                     deferred.resolve(task);
-                    SocketService.emit('newTask', {
-                        data: task
-                    });
+                    //SocketService.emit('newTask', {
+                    //    data: task
+                    //});
                 }, function () {
                     deferred.reject('Failed to save new task');
                     LogService.error({

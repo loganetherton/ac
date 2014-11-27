@@ -11,9 +11,7 @@ var taskList = require('../controllers/tasklist');
 //};
 
 // The Package is passed automatically as first parameter
-module.exports = function (Tasklist, app, auth, database, MeanSocket) {
-
-
+module.exports = function (Tasklist, app, auth) {
 
     //app.get('/tasklist/example/anyone', function (req, res, next) {
     //    res.send('Anyone can access this');
@@ -55,7 +53,4 @@ module.exports = function (Tasklist, app, auth, database, MeanSocket) {
     //        res.send(html);
     //    });
     //});
-
-    // Task ID for individual task query
-    app.param('taskId', taskList.queryTaskById);
 };

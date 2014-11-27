@@ -10,10 +10,10 @@
 
              var vm = this;
 
-             SocketService.on('newTask', function (data) {
-                 if (typeof vm.tasks !== 'undefined' && angular.isArray(vm.tasks)) {
-                     vm.tasks.unshift(data.data);
-                 }
-             });
+             //SocketService.on('newTask', function (data) {
+             //    if (typeof vm.tasks !== 'undefined' && angular.isArray(vm.tasks)) {
+             //        vm.tasks.unshift(data.data);
+             //    }
+             //});
          }]);
 })();

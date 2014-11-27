@@ -1,0 +1,62 @@
+<legend>
+	Mean-Socket
+	<a class="pull-right" ui-sref="Mean socket help page" target="_blank">Help</a>
+</legend>
+
+<div class="row" data-ng-controller="MeanSocketController">
+
+	<div class="col-lg-4 col-lg-offset-2">
+
+		<h4>Channels</h4>
+
+		<use-mean-socket after-join="socketAfterJoin(channel, messages)"
+								mean-socket-after-get="socketAfterGet(message)"
+								mean-socket-after-get-all-channels="socketAfterGetChannels(channels)"
+								join-to-channel="activeChannel"/>
+
+		<form data-ng-submit="createNewChannel(newChannel)">
+			<div class="input-group">
+				<input type="text" class="form-control" data-ng-model="newChannel" placeholder="type here new channel"/>
+				<span class="input-group-btn">
+					<button class="btn btn-info">Create</button>
+				</span>
+			</div>
+		</form>
+
+		<hr />
+		<ul class="nav nav-pills nav-stacked">
+			<li data-ng-repeat="channel in channels"
+			    data-ng-click="createNewChannel(channel)"
+					data-ng-class="{active: channel === activeChannel}">
+				<a href="">{{channel}}</a>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="col-lg-4">
+
+		<h4>Messages:</h4>
+
+		<div class="input-group">
+			<input class="form-control" type="text" data-ng-model="$parent.message.title" placeholder="type message here"/>
+			<span class="input-group-btn">
+			<div mean-socket
+					message="{message:$parent.message.title, channel: activeChannel}"
+					after-send="socketAfterSend(message)"></div>
+			</span>
+		</div>
+
+		<hr />
+
+		<div data-ng-repeat="message in messages">
+			<blockquote>
+				<div>
+				{{message.message}}
+				</div>
+				<small class="pull-right">{{message.user.name}} at {{message.time | date:'medium'}}</small>
+			</blockquote>
+		</div>
+
+	</div>
+</div>

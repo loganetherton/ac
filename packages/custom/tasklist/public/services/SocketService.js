@@ -8,27 +8,27 @@ var baseUrl = 'http://localhost:8282/task';
 app.factory('SocketService', ['$rootScope', function ($rootScope) {
     var socket = io.connect(baseUrl);
     return {
-        init: function () {
-            socket.removeAllListeners();
-        },
-        on: function(eventName, callback) {
-            socket.on(eventName, function() {
-                var args = arguments;
-                $rootScope.$apply(function() {
-                    callback.apply(socket, args);
-                });
-            });
-        },
-        emit: function(eventName, data, callback) {
-            socket.emit(eventName, data, function() {
-                console.log('event:', eventName);
-                var args = arguments;
-                $rootScope.$apply(function() {
-                    if (callback) {
-                        callback.apply(socket, args);
-                    }
-                });
-            });
-        }
+        //init: function () {
+        //    socket.removeAllListeners();
+        //},
+        //on: function(eventName, callback) {
+        //    socket.on(eventName, function() {
+        //        var args = arguments;
+        //        $rootScope.$apply(function() {
+        //            callback.apply(socket, args);
+        //        });
+        //    });
+        //},
+        //emit: function(eventName, data, callback) {
+        //    socket.emit(eventName, data, function() {
+        //        console.log('event:', eventName);
+        //        var args = arguments;
+        //        $rootScope.$apply(function() {
+        //            if (callback) {
+        //                callback.apply(socket, args);
+        //            }
+        //        });
+        //    });
+        //}
     };
 }]);

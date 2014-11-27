@@ -50,8 +50,7 @@
                 "bower_components/flot.tooltip/js/jquery.flot.tooltip.min.js",
                 "bower_components/raphael/raphael-min.js",
                 "bower_components/morris.js/morris.min.js",
-                "bower_components/dygraphs/dygraphs-combined.js",
-                "bower_components/socket.io-client/socket.io.js"
+                "bower_components/dygraphs/dygraphs-combined.js"
             ]
         }
     }

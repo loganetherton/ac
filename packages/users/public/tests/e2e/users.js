@@ -1,8 +1,8 @@
 'use strict';
 
-var submitButton;
-
-var backend = null;
+var submitButton,
+    backend = null,
+    helpers = new global.Helpers();
 
 /**
  * Make sure the user can't submit the page without good values
@@ -14,9 +14,9 @@ var testBadSubmit = function (loginPage) {
     }
     submitButton.click();
     if (loginPage) {
-        global.helpers.testUrl('auth/login');
+        helpers.testUrl('auth/login');
     } else {
-        global.helpers.testUrl('auth/register');
+        helpers.testUrl('auth/register');
     }
 };
 
@@ -78,12 +78,12 @@ describe('registration page', function () {
     });
 
     it('should allow the user to sign up with correct values', function () {
-        login.createUser();
+        helpers.loginUser();
     });
 
     it('should allow the user to logout', function () {
         browser.get('/logout');
-        global.helpers.testUrl('auth/login');
+        helpers.testUrl('auth/login');
     });
 });
 
@@ -129,7 +129,7 @@ describe('login page', function () {
     });
 
     it('should allow the user to login with the previously created user', function () {
-        global.login.loginUser();
-        global.helpers.testUrl('tasklist');
+        helpers.loginUser();
+        helpers.testUrl('tasklist');
     });
 });

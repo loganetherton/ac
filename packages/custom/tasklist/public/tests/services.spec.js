@@ -127,7 +127,7 @@
                 beforeEach(function () {
                     deferred = q.defer();
                     // Make fake post
-                    httpBackend.whenPOST('/newTask', task).respond(deferred.promise);
+                    httpBackend.whenPOST('/newTask').respond('ok');
                     task = {
                         user: 1,
                         title: 'title',
@@ -142,22 +142,23 @@
                     });
                 });
 
-                it('should return the newly submitted task on success', function () {
+                it('should return the newly submitted task on success', inject(function ($rootScope) {
                     var responsePromise = tasklistService.create(true, task.title, task.content);
                     // Handle response
                     responsePromise.then(function (data) {
-                        expect(data).toEqual({ user : 1, title : 'title', content : 'content' });
+                        expect(data).toEqual({ user : '1', title : 'title', content : 'content' });
                     }, function (error) {
 
                     });
                     httpBackend.flush();
-                });
+                }));
 
                 it('should emit the newly submitted task on success', function () {
                     spyOn(socketService, 'emit');
-                    tasklistService.create(true, task.title, task.content);
+                    tasklistService.create(true, task.title, task.content).then(function () {
+                        expect(socketService.emit).toHaveBeenCalled();
+                    });
                     httpBackend.flush();
-                    expect(socketService.emit).toHaveBeenCalled();
                 });
             });
 

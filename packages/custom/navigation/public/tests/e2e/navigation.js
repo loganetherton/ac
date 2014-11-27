@@ -1,4 +1,5 @@
-var backend = null;
+var backend = null,
+    helpers = new global.Helpers();
 
 describe('navigation menu', function () {
     var navigationMenuItems;
@@ -44,7 +45,7 @@ describe('navigation menu', function () {
 
     describe('logged in', function () {
         it('should allow us to login', function () {
-            global.login.loginUser();
+            helpers.loginUser();
         });
 
         it('should have five menu items', function () {
@@ -82,6 +83,11 @@ describe('navigation menu', function () {
             navigationMenuItems.get(3).getText().then(function (text) {
                 expect(text).toBe('Logout');
             });
+        });
+
+        it('should allow the user to logout', function () {
+            browser.get('/logout');
+            helpers.testUrl('auth/login');
         });
     });
 });

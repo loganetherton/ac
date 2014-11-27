@@ -160,8 +160,7 @@ exports.config = {
     //     jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter(
     //         'outputdir/', true, true));
       global.registeredUsers = [];
-      global.helpers = require('./test/helpers');
-      global.login = require('./test/loginUser');
+      global.Helpers = require('./test/helpers').Helpers;
       global.HttpBackend = require('httpbackend');
 
       afterEach(function() {

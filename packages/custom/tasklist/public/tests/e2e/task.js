@@ -1,4 +1,5 @@
-var backend = null;
+var backend = null,
+    helpers = new global.Helpers();
 
 describe('Create task', function () {
 
@@ -46,6 +47,7 @@ describe('Create task', function () {
     beforeEach(function () {
         backend.whenGET(/.*/).passThrough();
         backend.whenPOST('/register').passThrough();
+        backend.whenPOST('/login').passThrough();
         backend.whenPOST('/newTask').respond(function(method, url, data, headers){
             return [200, data, {}];
         });
@@ -56,9 +58,7 @@ describe('Create task', function () {
     });
 
     it('should allow the user to login', function () {
-        global.login.loginUser();
-        // Need to reload for socket in protractor for some reason...
-        browser.get('#!/tasklist');
+        helpers.loginUser();
     });
 
     it('should allow the user to create a task', function () {
@@ -75,5 +75,10 @@ describe('Create task', function () {
 
     it('should have the second task in the tasklist menu', function () {
         evaluateTask(1);
+    });
+
+    it('should allow the user to logout', function () {
+        browser.get('/logout');
+        helpers.testUrl('auth/login');
     });
 });

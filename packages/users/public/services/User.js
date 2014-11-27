@@ -8,14 +8,13 @@ var app = angular.module('mean.users');
  */
 app.factory('User', ['$rootScope', function ($rootScope) {
     // Initialize the user identity on service creation
-    console.log('user service created');
-    var identity = window.user;
-    identity.authenticated = false;
-    identity.isAdmin = false;
+    var _identity = window.user;
+    _identity.authenticated = false;
+    _identity.isAdmin = false;
 
     if (window.user && window.user.roles) {
-        identity.authenticated = window.user.roles.length;
-        identity.isAdmin = window.user.roles.indexOf('admin') !== -1;
+        _identity.authenticated = window.user.roles.length;
+        _identity.isAdmin = window.user.roles.indexOf('admin') !== -1;
     }
 
     return {
@@ -23,17 +22,19 @@ app.factory('User', ['$rootScope', function ($rootScope) {
          * Karma dies every time when a service has getter/setters. Pretty poor.
          */
         isAdmin: function () {
-            return identity.roles.indexOf('admin') !== -1;
+            return _identity.roles.indexOf('admin') !== -1;
         },
         getIdentity: function () {
-            return identity;
+            return _identity;
         },
         setIdentity: function (user) {
             var userObj = this;
             // Make accessible to rootScope (this will eventually be removed)
             $rootScope.user = user;
-            identity = user;
-            if ('roles' in user && angular.isArray(user.roles) && user.roles.indexOf('admin') !== -1) {
+            _identity = user;
+            if (_identity && 'roles' in _identity && angular.isArray(_identity.roles) &&
+                _identity.roles.indexOf('admin') !== -1)
+            {
                 userObj.isAdmin = true;
             }
         }

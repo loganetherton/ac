@@ -2,7 +2,8 @@
 
 var app = angular.module('mean.system');
 
-app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', '$rootScope', function ($q, $timeout, $http, User,$rootScope) {
+app.factory('AuthenticationService',
+['$q', '$timeout', '$http', 'User', '$rootScope', function ($q, $timeout, $http, User, $rootScope) {
     var _identity,
     _authenticated = false;
 
@@ -49,9 +50,9 @@ app.factory('AuthenticationService', ['$q', '$timeout', '$http', 'User', '$rootS
             _authenticated = !!identity;
             // Store on the user object (persists in session)
             if (identity) {
-                User.identity = identity;
+                User.setIdentity(identity);
             } else {
-                User.identity = null;
+                User.setIdentity(null);
             }
         },
         /**

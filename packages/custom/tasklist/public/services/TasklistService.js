@@ -13,7 +13,7 @@ function ($http, SocketService, Global, LogService, $q, User) {
         init: function(){
             var deferred = $q.defer();
             // If the user ID is not set correctly, don't make the request
-            if (!_identity.hasOwnProperty('_id') || typeof _identity._id === 'undefined') {
+            if (_identity && !_identity.hasOwnProperty('_id') || typeof _identity._id === 'undefined') {
                 deferred.reject({data: {error: 'User ID is not defined'}});
                 return deferred.promise;
             }

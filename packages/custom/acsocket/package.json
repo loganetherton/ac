@@ -1,7 +1,7 @@
 {
-  "name": "socket",
+  "name": "acsocket",
   "version": "0.0.1",
-  "description": "Some description of socket",
+  "description": "Some description of acsocket",
   "author": {
     "name": "mean scaffold"
   },

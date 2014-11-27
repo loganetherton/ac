@@ -72,7 +72,6 @@ function ($stateProvider, $urlRouterProvider) {
             roles: ['authenticated']
         }
     })
-
     .state('team.messages', {
         url: '/messages',
         templateUrl: 'tasklist/views/index.html'
@@ -84,7 +83,16 @@ function ($stateProvider, $urlRouterProvider) {
     .state('placeholder', {
         url: '/placeholder',
         template: '<div ui-view></div>'
+    })
+
+    /**
+     * Socket
+     */
+    .state('acsocket', {
+        url: '/acsocket',
+        templateUrl: 'acsocket/views/index.html'
     });
+
 }]).config(['$locationProvider', function ($locationProvider) {
     $locationProvider.hashPrefix('!');
 }]);
@@ -97,9 +105,10 @@ function ($rootScope, $location, AuthenticationService, AuthorizationService) {
         $rootScope.toState = toState;
         $rootScope.toStateParams = toStateParams;
         $rootScope.fromState = fromState;
-        // if the principal is resolved, do an authorization check immediately. otherwise,
-        // it'll be done when the state it resolved.
-        if (AuthenticationService.isIdentityResolved()) {
+        // Do an auth check if one is required
+        if ('data' in toState && 'roles' in toState.data && _.find(toState.data.roles, function (role) {
+            return role === 'authenticated';
+        }) && AuthenticationService.isIdentityResolved()) {
             AuthorizationService.authorize();
         }
     });

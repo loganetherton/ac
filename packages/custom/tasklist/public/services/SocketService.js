@@ -6,7 +6,7 @@ var app = angular.module('mean.tasklist');
 var baseUrl = 'http://localhost:8282/task';
 
 app.factory('SocketService', ['$rootScope', function ($rootScope) {
-    var socket = io.connect(baseUrl);
+    //var socket = io.connect(baseUrl);
     return {
         //init: function () {
         //    socket.removeAllListeners();

@@ -11,7 +11,7 @@ var taskList = require('../controllers/tasklist');
 //};
 
 // The Package is passed automatically as first parameter
-module.exports = function (Tasklist, app, auth) {
+module.exports = function (Tasklist, app, auth, database) {
 
     //app.get('/tasklist/example/anyone', function (req, res, next) {
     //    res.send('Anyone can access this');
@@ -53,4 +53,9 @@ module.exports = function (Tasklist, app, auth) {
     //        res.send(html);
     //    });
     //});
+
+    // Connection to socket
+    Tasklist.io.on('connection', function (socket) {
+        console.log('Connection from tasklist proof of concept');
+    });
 };

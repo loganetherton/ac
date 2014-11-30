@@ -11,7 +11,9 @@ var Tasklist = new Module('tasklist');
  * All MEAN packages require registration
  * Dependency injection is used to define required modules
  */
-Tasklist.register(function (app, auth, database) {
+Tasklist.register(function (app, auth, database, io) {
+    // Attach the socket to Tasklist
+    Tasklist.io = io;
 
     //We enable routing. By default the Package Object is passed to the routes
     Tasklist.routes(app, auth, database);

@@ -1,3 +1,4 @@
+/*global _:false */
 'use strict';
 
 var app = angular.module('mean.system');
@@ -28,7 +29,7 @@ function ($stateProvider, $urlRouterProvider) {
         url: '/auth',
         templateUrl: 'users/views/index.html',
         resolve: {
-            authorize: ['AuthorizationService', '$state', function (AuthorizationService, $state) {
+            authorize: ['AuthorizationService', '$state', function (AuthorizationService) {
                 return AuthorizationService.checkAuthStateAccess();
             }]
         },

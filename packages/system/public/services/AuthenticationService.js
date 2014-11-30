@@ -46,14 +46,18 @@ app.factory('AuthenticationService',
          * @param identity
          */
         authenticate: function(identity) {
+            var deferred = $q.defer();
             _identity = identity;
             _authenticated = !!identity;
             // Store on the user object (persists in session)
             if (identity) {
                 User.setIdentity(identity);
+                deferred.resolve(identity);
             } else {
                 User.setIdentity(null);
+                deferred.resolve();
             }
+            return deferred.promise;
         },
         /**
          * Retrieve the user's identity
@@ -78,13 +82,15 @@ app.factory('AuthenticationService',
             var self = this;
             // otherwise, retrieve the identity data from the server, update the identity object, and then resolve.
             $http.get('/users/me', {ignoreErrors: true}).success(function (data) {
-                self.authenticate(data);
-                deferred.resolve(data);
+                self.authenticate(data).then(function () {
+                    deferred.resolve(data);
+                });
             }).error(function () {
                 //_identity = null;
                 //_authenticated = false;
-                self.authenticate();
-                deferred.resolve(_identity);
+                self.authenticate().then(function () {
+                    deferred.resolve(_identity);
+                });
             });
 
             return deferred.promise;
@@ -103,7 +109,8 @@ function ($rootScope, $state, AuthenticationService, $q) {
         var deferred = $q.defer();
         var isAuthenticated = AuthenticationService.isAuthenticated();
         deferred.resolve(identity);
-        if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 &&
+        if ('toState' in $rootScope && 'data' in $rootScope.toState && $rootScope.toState.data.roles &&
+            $rootScope.toState.data.roles.length > 0 &&
             !AuthenticationService.isInAnyRole($rootScope.toState.data.roles)) {
             // user is signed in but not authorized for desired state
             if (isAuthenticated) {

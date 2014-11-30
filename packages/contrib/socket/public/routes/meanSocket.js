@@ -2,7 +2,7 @@
 
 angular.module('mean.socket').config(['$stateProvider',
     function($stateProvider) {
-        $stateProvider.state('Mean socket help page', {
+        $stateProvider.state('example_socket', {
             url: '/meansocket/help',
             templateUrl: 'socket/views/index.html'
         });

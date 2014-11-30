@@ -12,7 +12,7 @@ module.exports = function(MeanSocket, io) {
     io.on('connection', function(socket) {
 
         console.log('Chat - user connected');
-        
+
         /**
          * disconnect
          */

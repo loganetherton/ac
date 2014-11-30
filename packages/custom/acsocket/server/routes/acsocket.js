@@ -1,26 +1,87 @@
 'use strict';
 
 // The Package is past automatically as first parameter
-module.exports = function(Acsocket, app, auth, database) {
+module.exports = function(Acsocket, io) {
 
-  app.get('/acsocket/example/anyone', function(req, res, next) {
-    res.send('Anyone can access this');
-  });
+    var _ = require('lodash');
+    var moment = require('moment');
+    var socketController = require('../controllers/socketController');
 
-  app.get('/acsocket/example/auth', auth.requiresLogin, function(req, res, next) {
-    res.send('Only authenticated users can access this');
-  });
+    var channelWatchList = [];
 
-  app.get('/acsocket/example/admin', auth.requiresAdmin, function(req, res, next) {
-    res.send('Only users with Admin role can access this');
-  });
+    // Connection to socket
+    io.on('connection', function(socket) {
 
-  app.get('/acsocket/example/render', function(req, res, next) {
-    Acsocket.render('index', {
-      package: 'acsocket'
-    }, function(err, html) {
-      //Rendering a view from the Package server/views
-      res.send(html);
+        console.log('Chat - user connected');
+
+        /**
+         * disconnect
+         */
+        socket.on('disconnect', function() {
+            console.log('Chat - user disconnected');
+        });
+
+        /**
+         * user:joined
+         */
+        socket.on('user:joined', function(user) {
+            console.log(user.name + ' joined the room');
+            var message = user.name + ' joined the room';
+            io.emit('user:joined', {
+                message: message,
+                time: moment(),
+                expires: moment().add(10)
+            });
+        });
+
+        /**
+         * message:send
+         */
+        socket.on('message:send', function(message) {
+            console.log('message: ' + message);
+            console.log(JSON.stringify(message));
+
+            console.log('storing to set: messages:' + message.channel);
+
+            mycontroller.createFromSocket(message, function(cb) {
+                io.emit('message:channel:' + message.channel, cb);
+                console.log('emited: ' + cb);
+            });
+        });
+
+        /**
+         * channel:join
+         */
+        socket.on('channel:join', function(channelInfo) {
+            console.log('Channel joined - ', channelInfo.channel);
+            console.log(channelInfo);
+            console.log('Added to channels: ', channelInfo.channel);
+            console.log('messages:' + channelInfo.channel);
+
+            if (channelWatchList.indexOf(channelInfo.channel) === -1) {
+                channelWatchList.push(channelInfo.channel);
+            }
+
+            io.emit('user:channel:joined:' + channelInfo.channel, {
+                message: channelInfo,
+            });
+
+            mycontroller.getListOfChannels(function(channels) {
+                _.each(channels, function(c) {
+                    if (channelWatchList.indexOf(c) === -1) {
+                        channelWatchList.push(c);
+                    }
+                });
+                console.log('Emitting2', 'channels', channelWatchList);
+                socket.emit('channels', channelWatchList);
+            });
+
+            //Emit back any messages that havent expired yet.
+            mycontroller.getAllForSocket(channelInfo.channel, function(data) {
+                console.log('got messages');
+                socket.emit('messages:channel:' + channelInfo.channel, data);
+            });
+        });
+
     });
-  });
 };

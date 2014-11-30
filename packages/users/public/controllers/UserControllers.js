@@ -5,7 +5,7 @@
     var clientIdProperty = 'clientID',
     defaultPrefix = 'DEFAULT_';
 
-    var AuthCtrl = function ($scope, $rootScope, $http, $location, Global, AuthorizationService, $state) {
+    var AuthCtrl = function ($scope, $rootScope, $http, $location, Global, AuthorizationService, $state, User) {
         // This object will contain list of available social buttons to authorize
         $scope.socialButtons = {
             facebook: true, twitter: true, google: true
@@ -155,7 +155,7 @@
     };
 
 angular.module('mean.users')
-.controller('AuthCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', 'AuthorizationService', '$state', AuthCtrl])
+.controller('AuthCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', 'AuthorizationService', '$state', 'User', AuthCtrl])
 .controller('LoginCtrl', ['$scope', '$rootScope', 'Global', 'acLoginService', LoginCtrl])
 .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', 'Global', 'acRegisterService', RegisterCtrl])
 .controller('ForgotPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', ForgotPasswordCtrl])

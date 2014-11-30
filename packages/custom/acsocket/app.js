@@ -11,42 +11,16 @@ var Acsocket = new Module('acsocket');
  * All MEAN packages require registration
  * Dependency injection is used to define required modules
  */
-Acsocket.register(function(app, auth, database) {
+Acsocket.register(function (app, auth, database, http) {
 
-  //We enable routing. By default the Package Object is passed to the routes
-  Acsocket.routes(app, auth, database);
+    //var io = require('./server/config/socketConfig')(http);
+    var io = require('../../contrib/socket/server/config/socketio')(http);
+    // Expose IO on the acsocket registration
+    Acsocket.io = io;
 
-  //We are adding a link to the main menu for all authenticated users
-  Acsocket.menus.add({
-    title: 'acsocket example page',
-    link: 'acsocket example page',
-    roles: ['authenticated'],
-    menu: 'main'
-  });
-  
-  Acsocket.aggregateAsset('css', 'acsocket.css');
+    //We enable routing. By default the Package Object is passed to the routes
+    // Ok, the items available in routing via DI are all defined here
+    Acsocket.routes(io, app, auth, database);
 
-  /**
-    //Uncomment to use. Requires meanio@0.3.7 or above
-    // Save settings with callback
-    // Use this for saving data from administration pages
-    Acsocket.settings({
-        'someSetting': 'some value'
-    }, function(err, settings) {
-        //you now have the settings object
-    });
-
-    // Another save settings example this time with no callback
-    // This writes over the last settings.
-    Acsocket.settings({
-        'anotherSettings': 'some value'
-    });
-
-    // Get settings. Retrieves latest saved settigns
-    Acsocket.settings(function(err, settings) {
-        //you now have the settings object
-    });
-    */
-
-  return Acsocket;
+    return Acsocket;
 });

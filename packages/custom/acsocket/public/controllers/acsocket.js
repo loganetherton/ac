@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('mean.acsocket').controller('AcSocketController',
-['$scope', 'Global', 'AcSocketService', 'MeanSocket', function ($scope, Global, AcSocketService) {
+['$scope', 'Global', 'AcSocketService', function ($scope, Global, AcSocketService) {
     $scope.global = Global;
 
     // Clear the message input after sending the message

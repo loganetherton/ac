@@ -14,7 +14,7 @@ var Acsocket = new Module('acsocket');
 Acsocket.register(function (app, auth, database, http) {
 
     //var io = require('./server/config/socketConfig')(http);
-    var io = require('../../contrib/socket/server/config/socketio')(http);
+    var io = require('./server/config/socketConfig')(http);
     // Expose IO on the acsocket registration
     Acsocket.io = io;
 

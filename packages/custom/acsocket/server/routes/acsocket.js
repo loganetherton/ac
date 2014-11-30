@@ -10,78 +10,62 @@ module.exports = function(Acsocket, io) {
     var channelWatchList = [];
 
     // Connection to socket
-    io.on('connection', function(socket) {
+    io.on('connection', function (socket) {
+        console.log('User connected to socket');
 
-        console.log('Chat - user connected');
-
-        /**
-         * disconnect
-         */
-        socket.on('disconnect', function() {
-            console.log('Chat - user disconnected');
+        // Socket disconnect
+        socket.on('disconnect', function () {
+            console.log('Use disconnected from socket');
         });
 
-        /**
-         * user:joined
-         */
-        socket.on('user:joined', function(user) {
-            console.log(user.name + ' joined the room');
-            var message = user.name + ' joined the room';
+        // User joins this room
+        socket.on('user:joined', function (user) {
+            console.log(user.name + ' has joined');
             io.emit('user:joined', {
-                message: message,
+                message: user.name + ' has joined the room',
                 time: moment(),
                 expires: moment().add(10)
             });
         });
 
-        /**
-         * message:send
-         */
-        socket.on('message:send', function(message) {
-            console.log('message: ' + message);
-            console.log(JSON.stringify(message));
-
-            console.log('storing to set: messages:' + message.channel);
-
-            mycontroller.createFromSocket(message, function(cb) {
+        socket.on('message:send', function (message) {
+            socketController.createFromSocket(message, function (cb) {
                 io.emit('message:channel:' + message.channel, cb);
-                console.log('emited: ' + cb);
             });
         });
 
-        /**
-         * channel:join
-         */
-        socket.on('channel:join', function(channelInfo) {
-            console.log('Channel joined - ', channelInfo.channel);
+        // On joining the channel
+        socket.on('channel:join', function (channelInfo) {
+            console.log('Channel joined: ' + channelInfo.channel);
             console.log(channelInfo);
-            console.log('Added to channels: ', channelInfo.channel);
-            console.log('messages:' + channelInfo.channel);
-
-            if (channelWatchList.indexOf(channelInfo.channel) === -1) {
+            // Add this channel to the array of channels if necessary
+            if (channelWatchList.indexOf(channelInfo.channel) !== -1) {
                 channelWatchList.push(channelInfo.channel);
             }
 
+            // Emit the channel join with channelInfo
             io.emit('user:channel:joined:' + channelInfo.channel, {
-                message: channelInfo,
+                message: channelInfo
             });
 
-            mycontroller.getListOfChannels(function(channels) {
-                _.each(channels, function(c) {
-                    if (channelWatchList.indexOf(c) === -1) {
-                        channelWatchList.push(c);
+            // Get list of channels, update if new channel
+            socketController.getListOfChannels(function (channels) {
+                _.each(channels, function (chan) {
+                    // If the channel is not currently in the list of channels, add it
+                    if (channelWatchList.indexOf(chan) !== -1) {
+                        channelWatchList.push(chan);
                     }
                 });
-                console.log('Emitting2', 'channels', channelWatchList);
+
+                // Emit new list of channels
                 socket.emit('channels', channelWatchList);
             });
 
-            //Emit back any messages that havent expired yet.
-            mycontroller.getAllForSocket(channelInfo.channel, function(data) {
-                console.log('got messages');
+            // Get messages which haven't yet expired for this channel
+            socketController.getAllForSocket(channelInfo.channel, function (data) {
+                console.log('received messages');
                 socket.emit('messages:channel:' + channelInfo.channel, data);
-            });
+            })
         });
-
     });
 };

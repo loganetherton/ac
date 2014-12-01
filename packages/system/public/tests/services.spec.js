@@ -73,7 +73,7 @@ describe('AuthenticationService', function () {
             // Authenticate
             authenticationService.authenticate({_id: 1});
             // Verify user service identity set
-            expect(angular.equals(user.identity, {_id: 1})).toBe(true);
+            expect(angular.equals(user.getIdentity(), {_id: 1})).toBe(true);
             // Verify authenticationService identity set
             expect(authenticationService.isIdentityResolved()).toBe(true);
             expect(authenticationService.isAuthenticated()).toBe(true);

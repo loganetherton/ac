@@ -8,15 +8,14 @@ app.directive('tasklist', ['HasAuthorizationService', 'TasklistService', 'LogSer
     return {
         restrict: 'E',
         templateUrl: 'tasklist/views/directiveTemplates/tasklist-directive.html',
-        scope: {},
+        scope: {
+            tasks: '='
+        },
         replace: false,
-        controllerAs: 'tasklist',
-        controller: 'TasklistController',
-        link: function (scope, element, attrs, controller) {
-            scope.hasAuthorization = HasAuthorizationService;
+        link: function (scope, element, attrs) {
             // Get the initial tasklist
             TasklistService.init().then(function (data) {
-                controller.tasks = data;
+                scope.tasks = data;
             }, function (error) {
                 // log error to DB
                 // TODO Make robust

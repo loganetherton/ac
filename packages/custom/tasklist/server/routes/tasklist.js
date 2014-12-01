@@ -34,6 +34,7 @@ module.exports = function (Tasklist, app, auth, database) {
     // Retrieve a single task by ID
     app.route('/task/:taskId').
     get(auth.requiresLogin, taskList.singleTaskAsJson);
+    app.param('taskId', taskList.queryTaskById);
 
     // Retrieve tasks for the current user
     app.route('/tasks/user/:userId').

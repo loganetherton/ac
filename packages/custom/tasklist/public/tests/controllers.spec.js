@@ -16,18 +16,18 @@
             // Mock the tasklist service
             module('mean.tasklist', function ($provide) {
                 $provide.factory('TasklistService', MockTasklistService);
-                $provide.factory('SocketService', SocketMock);
+                $provide.factory('TasklistSocketService', SocketMock);
                 $provide.factory('User', UserMock);
             });
         });
 
         //mock the controller for the same reason and include $rootScope and $controller
-        beforeEach(inject(function($rootScope, $controller, $compile, $q, SocketService){
+        beforeEach(inject(function($rootScope, $controller, $compile, $q, TasklistSocketService){
             //create an empty scope
             scope = $rootScope.$new();
             element = '<tasklist></tasklist>';
             // Mocking the socket service
-            socketMock = SocketService;
+            socketMock = TasklistSocketService;
             // Controller is initialized by the directive
             element = $compile(element)(scope);
             scope.$digest();

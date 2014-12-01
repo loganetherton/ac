@@ -2,17 +2,16 @@
 
 var app = angular.module('mean.acsocket');
 
-app.directive('acSocket', ['AcSocketService', 'Global', 'User', function (AcSocketService, Global, User) {
+app.directive('sendMessage', ['AcSocketService', 'Global', 'User', function (AcSocketService, Global, User) {
     return {
         restrict: 'A',
-        replace: true,
+        //replace: true,
         scope: {
             message: '=',
             afterSend: '&'
         },
-        templateUrl: 'acsocket/views/directive.html',
+        template: '<button class="btn btn-info" data-ng-click="sendMessage(message)">Send</button>',
         link: function (scope, element, attr) {
-            console.log('acSocket ac-socket directive');
 
             scope.global = Global;
 
@@ -28,11 +27,11 @@ app.directive('acSocket', ['AcSocketService', 'Global', 'User', function (AcSock
                     user: scope.global.user,
                     channel: AcSocketService.activeChannel
                 });
-                // Not implemented?
-                scope.afterSend({
-                    message: message
-                });
-            }
+                scope.afterSend()(message);
+                //scope.afterSend({
+                //    message: message
+                //});
+            };
         }
     };
 }]);
@@ -44,11 +43,10 @@ app.directive('useAcSocket', ['Global', 'AcSocketService', function (Global, AcS
         scope: {
             joinToChannel: '=',
             afterJoin: '&',
-            meanSocketAfterGet: '&',
-            meanSocketAfterGetAllChannels: '&'
+            socketAfterGet: '&',
+            socketAfterGetAllChannels: '&'
         },
         link: function (scope, element, attr) {
-            console.log('acSocket use-ac-socket');
             scope.global = Global;
 
             scope.channel = {
@@ -59,7 +57,7 @@ app.directive('useAcSocket', ['Global', 'AcSocketService', function (Global, AcS
 
             // Listen for channels, set channels into scope
             AcSocketService.on('channels', function (channels) {
-                scope.meanSocketAfterGetAllChannels({
+                scope.socketAfterGetAllChannels({
                     channels: channels
                 });
             });
@@ -91,7 +89,7 @@ app.directive('useAcSocket', ['Global', 'AcSocketService', function (Global, AcS
                 // On channel message emit (single message)
                 AcSocketService.on('message:channel:' + channel, function (message) {
                     if (channel === AcSocketService.activeChannel) {
-                        scope.meanSocketAfterGet({
+                        scope.socketAfterGet({
                             message: message
                         });
                     }
@@ -105,7 +103,6 @@ app.directive('useAcSocket', ['Global', 'AcSocketService', function (Global, AcS
             // Channel join
             scope.joinChannel = function (channel) {
                 // Listen to channel
-                console.log('acSocket joinChannel(): ' + channel);
                 if (scope.listeningChannels.indexOf(channel) === -1) {
                     scope.listenChannel(channel);
                 }
@@ -120,7 +117,6 @@ app.directive('useAcSocket', ['Global', 'AcSocketService', function (Global, AcS
 
             // Watch joinToChannel
             scope.$watch('joinToChannel', function () {
-                console.log('scope.joinToChannel:', scope.joinToChannel);
                 if (scope.joinToChannel) {
                     scope.joinChannel(scope.joinToChannel);
                 }

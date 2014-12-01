@@ -2,33 +2,33 @@
 
 angular.module('mean.acsocket').controller('AcSocketController',
 ['$scope', 'Global', 'AcSocketService', function ($scope, Global, AcSocketService) {
-    $scope.global = Global;
+    var vm = this;
+    vm.global = Global;
 
     // Clear the message input after sending the message
-    $scope.socketAfterSend = function () {
-        $scope.message = {};
+    vm.socketAfterSend = function (message) {
+        console.log('socketAfterSend message: ' + message);
+        vm.message = {};
     };
 
     // After joining, set the active channel and get messages
-    $scope.socketAfterJoin = function (channel, messages) {
-        console.log('socketAfterJoin acSocket');
-        $scope.activeChannel = channel;
-        $scope.messages = messages;
+    vm.socketAfterJoin = function (channel, messages) {
+        vm.activeChannel = channel;
+        vm.messages = messages;
     };
 
     // After receiving a message, push it onto messages array
-    $scope.socketAfterGet = function (message) {
-        $scope.messages.push(message);
+    vm.socketAfterGet = function (message) {
+        vm.messages.push(message);
     };
 
-    $scope.socketAfterGetChannels = function (channels) {
-        $scope.channels = channels;
+    vm.socketAfterGetChannels = function (channels) {
+        vm.channels = channels;
     };
 
     // After creating a channel, join it and clear channel input
-    $scope.createNewChannel = function (channel) {
-        console.log('acSocket createNewChannel: ' + channel);
-        $scope.activeChannel = channel;
-        $scope.newChannel = '';
+    vm.createNewChannel = function (channel) {
+        vm.activeChannel = channel;
+        vm.newChannel = '';
     };
 }]);

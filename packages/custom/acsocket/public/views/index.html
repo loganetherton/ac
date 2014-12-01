@@ -1,17 +1,17 @@
-<div class="row" data-ng-controller="AcSocketController">
+<div class="row" data-ng-controller="AcSocketController as acSocketCtrl">
 
     <div class="col-lg-4 col-lg-offset-2">
 
         <h4>Channels</h4>
 
-        <use-ac-socket after-join="socketAfterJoin(channel, messages)"
-                         mean-socket-after-get="socketAfterGet(message)"
-                         mean-socket-after-get-all-channels="socketAfterGetChannels(channels)"
-                         join-to-channel="activeChannel"/>
+        <use-ac-socket after-join="acSocketCtrl.socketAfterJoin(channel, messages)"
+                         socket-after-get="acSocketCtrl.socketAfterGet(message)"
+                         socket-after-get-all-channels="acSocketCtrl.socketAfterGetChannels(channels)"
+                         join-to-channel="acSocketCtrl.activeChannel"/>
 
-        <form data-ng-submit="createNewChannel(newChannel)">
+        <form data-ng-submit="acSocketCtrl.createNewChannel(newChannel)">
             <div class="input-group">
-                <input type="text" class="form-control" data-ng-model="newChannel" placeholder="type here new channel"/>
+                <input type="text" class="form-control" data-ng-model="acSocketCtrl.newChannel" placeholder="type here new channel"/>
 				<span class="input-group-btn">
 					<button class="btn btn-info">Create</button>
 				</span>
@@ -20,10 +20,10 @@
 
         <hr />
         <ul class="nav nav-pills nav-stacked">
-            <li data-ng-repeat="channel in channels"
-                data-ng-click="createNewChannel(channel)"
-                data-ng-class="{active: channel === activeChannel}">
-                <a href="">{{channel}}</a>
+            <li data-ng-repeat="channel in acSocketCtrl.channels"
+                data-ng-click="acSocketCtrl.createNewChannel(channel)"
+                data-ng-class="{active: channel === acSocketCtrl.activeChannel}">
+                <a href="">{{acSocketCtrl.channel}}</a>
             </li>
         </ul>
 
@@ -34,17 +34,17 @@
         <h4>Messages:</h4>
 
         <div class="input-group">
-            <input class="form-control" type="text" data-ng-model="$parent.message.title" placeholder="type message here"/>
+            <input class="form-control" type="text" data-ng-model="acSocketCtrl.message.title" placeholder="type message here"/>
 			<span class="input-group-btn">
-			<div ac-socket
-                 message="{message:$parent.message.title, channel: activeChannel}"
-                 after-send="socketAfterSend(message)"></div>
+                <div send-message
+                     message="{message:acSocketCtrl.message.title, channel: acSocketCtrl.activeChannel}"
+                     after-send="acSocketCtrl.socketAfterSend"></div>
 			</span>
         </div>
 
         <hr />
 
-        <div data-ng-repeat="message in messages">
+        <div data-ng-repeat="message in acSocketCtrl.messages">
             <blockquote>
                 <div>
                     {{message.message}}

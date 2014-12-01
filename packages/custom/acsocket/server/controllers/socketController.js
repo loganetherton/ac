@@ -1,8 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    Message = mongoose.model('acMessage'),
-    _ = require('lodash');
+    Message = mongoose.model('acMessage');
 
 // Create a new message, queries it from the db and returned it with populated values
 // Todo this is badly inefficient, needs revision. No need for multiple queries...
@@ -35,5 +34,5 @@ exports.getAllForSocket = function (channel, cb) {
 exports.getListOfChannels = function (cb) {
     Message.distinct('channel', {}, function (err, channels) {
         return cb(channels);
-    })
+    });
 };

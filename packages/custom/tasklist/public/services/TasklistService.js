@@ -3,8 +3,8 @@
 var app = angular.module('mean.tasklist');
 
 // Favorite service for retrieving and creating tasks
-app.factory('TasklistService', ['$http', 'SocketService', 'Global', 'LogService', '$q', 'User',
-function ($http, SocketService, Global, LogService, $q, User) {
+app.factory('TasklistService', ['$http', 'TasklistSocketService', 'Global', 'LogService', '$q', 'User',
+function ($http, TasklistSocketService, Global, LogService, $q, User) {
 
     var _identity = User.getIdentity();
 
@@ -43,9 +43,9 @@ function ($http, SocketService, Global, LogService, $q, User) {
                 $http.post('/newTask', task).then(function (data) {
                     // Resolve and emit
                     deferred.resolve(task);
-                    //SocketService.emit('newTask', {
-                    //    data: task
-                    //});
+                    TasklistSocketService.emit('newTask', {
+                        data: task
+                    });
                 }, function () {
                     deferred.reject('Failed to save new task');
                     LogService.error({

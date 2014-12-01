@@ -55,7 +55,14 @@ module.exports = function (Tasklist, app, auth, database) {
     //});
 
     // Connection to socket
-    Tasklist.io.on('connection', function (socket) {
+    Tasklist.io.of('/task').on('connection', function (socket) {
         console.log('Connection from tasklist proof of concept');
+
+        socket.on('newTask', function(testData) {
+            //var message = user.name + ' joined the room';
+            Tasklist.io.of('/task').emit('newTask', {
+                data: testData.data
+            }, console.log('after emit'));
+        });
     });
 };

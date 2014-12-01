@@ -5,15 +5,17 @@
 
     // For controllerAs syntax, check out: http://toddmotto.com/digging-into-angulars-controller-as-syntax/
     app.controller('TasklistController',
-        ['$scope', '$location', 'SocketService',
-         function ($scope, $location, SocketService) {
+        ['$scope', '$location', 'TasklistSocketService',
+         function ($scope, $location, TasklistSocketService) {
 
              var vm = this;
 
-             //SocketService.on('newTask', function (data) {
-             //    if (typeof vm.tasks !== 'undefined' && angular.isArray(vm.tasks)) {
-             //        vm.tasks.unshift(data.data);
-             //    }
-             //});
+             TasklistSocketService.emit('fuck');
+
+             TasklistSocketService.on('newTask', function (data) {
+                 if (typeof vm.tasks !== 'undefined' && angular.isArray(vm.tasks)) {
+                     vm.tasks.unshift(data.data);
+                 }
+             });
          }]);
 })();

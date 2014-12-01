@@ -65,7 +65,7 @@ module.exports = function(Acsocket, io) {
             socketController.getAllForSocket(channelInfo.channel, function (data) {
                 console.log('received messages');
                 socket.emit('messages:channel:' + channelInfo.channel, data);
-            })
+            });
         });
     });
 };

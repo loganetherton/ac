@@ -25,7 +25,7 @@
         beforeEach(inject(function($rootScope, $controller, $compile, $q, TasklistSocketService){
             //create an empty scope
             scope = $rootScope.$new();
-            element = '<tasklist></tasklist>';
+            element = '<div data-ng-controller="TasklistController as tasklistCtrl"><tasklist tasks="tasklistCtrl.tasks"></tasklist></div>';
             // Mocking the socket service
             socketMock = TasklistSocketService;
             // Controller is initialized by the directive
@@ -45,7 +45,7 @@
 
             scope.$digest();
 
-            expect(element.isolateScope().tasklist.tasks).toEqual([{
+            expect(element.scope().tasklistCtrl.tasks).toEqual([{
                                              $$hashKey: 'object:42',
                                              user: '5434f0215d1bbcf87764b996',
                                              title: 'test emit title',

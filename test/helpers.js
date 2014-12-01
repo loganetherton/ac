@@ -1,5 +1,4 @@
-var login = require('./loginUser'),
-    _ = require('lodash');
+var _ = require('lodash');
 
 var Helpers = function () {
     /**

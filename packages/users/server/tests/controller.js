@@ -8,6 +8,8 @@ var mongoose = require('mongoose'),
     server = request.agent('http://localhost:3000'),
     should = require('should');
 
+var user;
+
 // Clear the users collection
 var clearUsers = function () {
     var deferred = q.defer();
@@ -32,6 +34,73 @@ var clearTeams = function () {
     return deferred.promise;
 };
 
+/**
+ * Ensures that only a single user exists in the database
+ *
+ * @param done
+ */
+var createUser = function (done) {
+    /**
+     * Clear the users collection and create a test user
+     *
+     * @returns {Promise.promise|*}
+     */
+    var initUsers = function () {
+        var deferred = q.defer();
+        // Create a user
+        user = new User({
+            name: 'Full name',
+            email: 'test@test.com',
+            password: 'password',
+            teams: [mongoose.Types.ObjectId()]
+        });
+        /**
+         * Clear the collection
+         */
+        clearUsers().then(function () {
+            user.save(function (err) {
+                if (err) {
+                    deferred.reject('Could not save user');
+                }
+                deferred.resolve('Saved user');
+            });
+        });
+        return deferred.promise;
+    };
+
+    /**
+     * Create user and task
+     */
+    initUsers().then(function () {
+        done();
+    }).fail(function (err) {
+        should.not.exist(err);
+    });
+};
+
+/**
+ * Successful login attempt
+ * @param done
+ */
+var loginUser = function (done) {
+    server
+    .post('/login')
+    .send({ email: user.email, password: user.password })
+    .expect(200)
+    .end(function (err, res) {
+        should.not.exist(err);
+        // Check the user
+        var user = res.body.user;
+        should.exist(user);
+        user.name.should.be.equal('Full name');
+        user.email.should.be.equal('test@test.com');
+        user.teams.length.should.be.equal(1);
+        user.roles[0].should.be.equal('authenticated');
+        // Check redirect
+        res.body.redirect.should.be.equal('site.tasklist');
+        done();
+    });
+};
 
 
 describe('User controller', function () {
@@ -171,67 +240,6 @@ describe('User controller', function () {
     });
 
     describe('login()', function () {
-        var user;
-        /**
-         * Ensures that only a single user and task exist in the database
-         *
-         * @param done
-         */
-        var createUser = function (done) {
-            /**
-             * Clear the users collection and create a test user
-             *
-             * @returns {Promise.promise|*}
-             */
-            var initUsers = function () {
-                var deferred = q.defer();
-                // Create a user
-                user = new User({
-                    name: 'Full name',
-                    email: 'test@test.com',
-                    password: 'password',
-                    teams: [mongoose.Types.ObjectId()]
-                });
-                /**
-                 * Clear the collection
-                 */
-                removeUsers().then(function () {
-                    user.save(function (err) {
-                        if (err) {
-                            deferred.reject('Could not save user');
-                        }
-                        deferred.resolve('Saved user');
-                    });
-                });
-                return deferred.promise;
-            };
-
-            /**
-             * Create user and task
-             */
-            initUsers().then(function () {
-                done();
-            }).fail(function (err) {
-                should.not.exist(err);
-            });
-        };
-
-        /**
-         * Clear the users collection
-         *
-         * @returns {Promise.promise|*}
-         */
-        var removeUsers = function () {
-            var deferred = q.defer();
-            User.remove({}, function (err) {
-                if (err) {
-                    deferred.reject('Could not clear users collection');
-                }
-            });
-            deferred.resolve('tasks cleared');
-            return deferred.promise;
-        };
-
         // Create user for login
         before(function (done) {
             createUser(done);
@@ -285,21 +293,28 @@ describe('User controller', function () {
         });
 
         it('should allow the user to login successfully', function (done) {
+            loginUser(done);
+        });
+    });
+
+    describe('me()', function () {
+        // Create a user
+        before(function (done) {
+            createUser();
+            loginUser(done);
+        });
+
+        it('should retrieve the current user', function (done) {
             server
-            .post('/login')
-            .send({ email: user.email, password: user.password })
-            .expect(400)
+            .get('/users/me')
+            .expect(200)
             .end(function (err, res) {
-                res.error.should.be.equal(false);
-                // Check the user
-                var user = res.body.user;
-                should.exist(user);
+                should.not.exist(err);
+                var user = res.body;
                 user.name.should.be.equal('Full name');
                 user.email.should.be.equal('test@test.com');
                 user.teams.length.should.be.equal(1);
-                user.roles[0].should.be.equal('authenticated');
-                // Check redirect
-                res.body.redirect.should.be.equal('site.tasklist');
+                server.saveCookies(res);
                 done();
             });
         });

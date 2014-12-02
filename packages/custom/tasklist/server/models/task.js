@@ -58,14 +58,21 @@ TaskSchema.path('user').validate(function (user) {
 TaskSchema.statics.load = function (id, cb) {
     this.findOne({
         _id: id
-    }).populate('user', 'name username').exec(cb);
+    }).populate('user', 'name').exec(cb);
 };
 
 // Query task by user ID
 TaskSchema.statics.loadByUserId = function (id, cb) {
     this.find({
         user: id
-    }).populate('user', 'name username').exec(cb);
+    }).populate('user', 'name').exec(cb);
+};
+
+// Query tasks by team ID
+TaskSchema.statics.loadByTeamId = function (id, cb) {
+    this.find({
+        team: id
+    }).populate('user', 'name').exec(cb);
 };
 
 mongoose.model('Task', TaskSchema);

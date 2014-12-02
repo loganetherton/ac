@@ -17,6 +17,15 @@ var checkValidObjectId = function (id) {
 };
 
 /**
+ * Check that the requested team is one in which the user is a member
+ */
+var checkTeam = function (teams, taskTeam) {
+    return _.find(teams, function (team) {
+        return team + '' === taskTeam + '';
+    });
+};
+
+/**
  * Create an article
  */
 exports.create = function(req, res) {
@@ -93,11 +102,8 @@ exports.singleTaskAsJson = function(req, res) {
         if (err || !task) {
             return res.send('Failed to load task ' + req.params.taskId);
         }
-        var checkTeam = _.find(req.user.teams, function (team) {
-            return team + '' === task.team + '';
-        });
         // Make sure the requested task is accessible to the requesting user
-        if (!checkTeam) {
+        if (!checkTeam(req.user.teams, task.team)) {
             return res.status(401).send('Unauthorized');
         }
         res.json(task);
@@ -135,7 +141,27 @@ exports.getTasksByUserId = function(req, res, next) {
  * Retrieve tasks for the requested team
  */
 exports.getTasksByTeamId = function (req, res, next) {
-
+    // Make sure a user ID was passed in
+    if (!req.params.hasOwnProperty('teamId')) {
+        return res.status(400).send('A team ID must be passed in to this query');
+    }
+    // Check for invalid object ID
+    if (!checkValidObjectId(req.params.teamId)) {
+        return res.status(400).send('Invalid object ID');
+    }
+    // Make sure the requesting user is on the team being requested
+    if (!checkTeam(req.user.teams, req.params.teamId)) {
+        return res.status(401).send('Unauthorized');
+    }
+    Task.loadByTeamId(req.params.teamId, function (err, tasks) {
+        if (err) {
+            return next(err);
+        }
+        if (!tasks) {
+            return next(new Error('Failed to load tasks for ' + req.params.teamId));
+        }
+        return res.json(tasks);
+    });
 };
 
 /**

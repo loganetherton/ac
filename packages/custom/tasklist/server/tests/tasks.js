@@ -480,8 +480,98 @@ describe('GET /task/user/:userId', function () {
     });
 });
 
-describe('GET /task/team/:teamId', function () {
+describe.only('GET /task/team/:teamId', function () {
+    before(function (done) {
+        createUserAndTask(done);
+    });
 
+    after(function (done) {
+        removeUserAndTask(done);
+    });
+    describe('unauthenticated user', function () {
+        it('should not allow unauthenticated users to query a teams tasks', function (done) {
+            // Make a request to /newTask
+            server
+            .get('/tasks/team/' + user.teams[0])
+            .send(task)
+            .expect(401)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.error.text.should.be.equal('User is not authorized');
+                return done();
+            });
+        });
+    });
+
+    describe('authenticated user', function () {
+        var firstTeamId;
+        describe('invalid team', function () {
+            before(function (done) {
+                loginUser('test@test.com', 'password', done);
+            });
+            it('should return an error for invalid team query', function (done) {
+                // Make a request to /newTask
+                server
+                .get('/tasks/team/badTeam')
+                .send(task)
+                .expect(400)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.error.text.should.be.equal('Invalid object ID');
+                    return done();
+                });
+            });
+        });
+        describe('on team being requested', function () {
+            it('should return an error for invalid team query', function (done) {
+                firstTeamId = user.teams[0];
+                // Make a request to /newTask
+                server
+                .get('/tasks/team/' + firstTeamId)
+                .send(task)
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    // One task returned in the array
+                    res.body.length.should.be.equal(1);
+                    var task = res.body[0];
+                    // Verify task
+                    task.title = 'Task Title';
+                    task.content = 'Task Content';
+                    return done();
+                });
+            });
+        });
+        describe('not on team being requested', function () {
+            before(function (done) {
+                createOtherUser(done);
+            });
+
+            before(function (done) {
+                loginUser('test2@test.com', 'password', done);
+            });
+
+            it('should not allow the user to query another teams tasks', function (done) {
+                server
+                .get('/tasks/team/' + firstTeamId)
+                .send(task)
+                .expect(401)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.error.text.should.be.equal('Unauthorized');
+                    return done();
+                });
+            });
+        });
+    });
 });
 
 describe('POST /newTask', function () {
@@ -496,7 +586,6 @@ describe('POST /newTask', function () {
     });
 
     describe('unauthenticated user', function () {
-
         before(function (done) {
             task = {
                 user: user._id,

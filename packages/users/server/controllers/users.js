@@ -112,10 +112,11 @@ exports.create = function (req, res, next) {
  * Send User
  */
 exports.me = function (req, res) {
+    var user = null;
     // Save the users teams into the session
     if (req.user) {
         req.session.teams = req.user.teams;
-        var user = req.user;
+        user = req.user;
     }
     res.json(user);
 };

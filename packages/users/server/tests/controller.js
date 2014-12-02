@@ -311,8 +311,10 @@ describe('User controller', function () {
             .end(function (err, res) {
                 should.not.exist(err);
                 var user = res.body;
+                // Name and email
                 user.name.should.be.equal('Full name');
                 user.email.should.be.equal('test@test.com');
+                // Teams
                 user.teams.length.should.be.equal(1);
                 server.saveCookies(res);
                 done();

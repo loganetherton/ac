@@ -2,7 +2,8 @@
 
 var user = {
     _id: 1,
-    name: 'Baron von Bullshit'
+    name: 'Baron von Bullshit',
+    teams: ['111']
 };
 
 describe('LoginService', function () {
@@ -160,5 +161,11 @@ describe('User', function () {
     it('should set identity on rootScope when identity is set as a setter', inject(function ($rootScope, User) {
         User.setIdentity(user);
         expect($rootScope.user).toBe(user);
+    }));
+
+    it('should expose the users team on the User service', inject(function (User) {
+        User.setIdentity(user);
+        expect(User.getIdentity().teams.length).toEqual(1);
+        expect(User.getIdentity().teams[0]).toEqual('111');
     }));
 });

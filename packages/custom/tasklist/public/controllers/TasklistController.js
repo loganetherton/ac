@@ -10,8 +10,6 @@
 
              var vm = this;
 
-             TasklistSocketService.emit('fuck');
-
              TasklistSocketService.on('newTask', function (data) {
                  if (typeof vm.tasks !== 'undefined' && angular.isArray(vm.tasks)) {
                      vm.tasks.unshift(data.data);

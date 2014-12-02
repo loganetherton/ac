@@ -13,17 +13,6 @@ var taskList = require('../controllers/tasklist');
 // The Package is passed automatically as first parameter
 module.exports = function (Tasklist, app, auth, database) {
 
-    //app.get('/tasklist/example/anyone', function (req, res, next) {
-    //    res.send('Anyone can access this');
-    //});
-    //
-    //app.get('/tasklist/example/auth',
-    //    auth.requiresLogin,
-    //    function (req, res, next) {
-    //        res.send('Only authenticated users can access this');
-    //    }
-    //);
-
     app.route('/tasklist').
     get(auth.requiresLogin, taskList.all);
 
@@ -40,29 +29,25 @@ module.exports = function (Tasklist, app, auth, database) {
     app.route('/tasks/user/:userId').
     get(auth.requiresLogin, taskList.getTasksByUserId);
 
-    //app.get('/tasklist/example/admin',
-    //    auth.requiresAdmin,
-    //    function (req, res, next) {
-    //        res.send('Only users with Admin role can access this');
-    //});
-
-    //app.get('/tasklist/example/render', function (req, res, next) {
-    //    Tasklist.render('index', {
-    //        package: 'tasklist'
-    //    }, function (err, html) {
-    //        //Rendering a view from the Package server/views
-    //        res.send(html);
-    //    });
-    //});
+    // Set teams for access in socket
+    app.use(function (req, res, next) {
+        var currentTeam = app.get('teams');
+        if (typeof currentTeam === 'undefined' || !currentTeam.length) {
+            app.set('teams', req.session.teams || null);
+        }
+        next();
+    });
 
     // Connection to socket
     Tasklist.io.of('/task').on('connection', function (socket) {
-        console.log('Connection from tasklist proof of concept');
+        var teamRoom = 'team:' + app.get('teams');
+        // Join the socket for this team
+        socket.join(teamRoom);
 
-        socket.on('newTask', function(testData) {
-            //var message = user.name + ' joined the room';
-            Tasklist.io.of('/task').emit('newTask', {
-                data: testData.data
+        // Emit the new task to all team members
+        socket.on('newTask', function(taskData) {
+            Tasklist.io.of('/task').in(teamRoom).emit('newTask', {
+                data: taskData.data
             }, console.log('after emit'));
         });
     });

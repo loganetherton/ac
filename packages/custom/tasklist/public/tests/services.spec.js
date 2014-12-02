@@ -90,13 +90,7 @@
             var deferred;
             beforeEach(function () {
                 deferred = q.defer();
-                httpBackend.whenGET(/tasks\/user.*/).respond(deferred.promise);
-                // Set a basic user identity
-                user.identity = {
-                    _id: 1,
-                    name: 'Some bullshit',
-                    email: 'some@bullshit.com'
-                };
+                httpBackend.whenGET(/tasks\/team\/.*/).respond(deferred.promise);
             });
 
             it('should return an initial listing of tasks: init()', function () {
@@ -134,7 +128,6 @@
                     // Make fake post
                     httpBackend.whenPOST('/newTask').respond('ok');
                     task = {
-                        user: 1,
                         title: 'title',
                         content: 'content'
                     };

@@ -19,7 +19,7 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
                 deferred.reject({data: {error: 'User ID is not defined'}});
                 return deferred.promise;
             }
-            $http.get('/tasks/user/' + _identity._id).then(function (response) {
+            $http.get('/tasks/team/' + _identity.teams[0]).then(function (response) {
                 deferred.resolve(response.data);
                 //return response.data;
             }, function (error) {

@@ -3,7 +3,8 @@ var UserMock = function ($rootScope) {
         _id: '1',
         name: 'Testy Tester',
         email: 'test@test.com',
-        roles: ['authenticated']
+        roles: ['authenticated'],
+        teams: [1]
     };
     identity.authenticated = true;
     identity.isAdmin = false;

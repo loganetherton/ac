@@ -72,7 +72,9 @@ TaskSchema.statics.loadByUserId = function (id, cb) {
 TaskSchema.statics.loadByTeamId = function (id, cb) {
     this.find({
         team: id
-    }).populate('user', 'name').exec(cb);
+    },
+    null,
+    {sort: {_id: -1}}).populate('user', 'name').exec(cb);
 };
 
 mongoose.model('Task', TaskSchema);

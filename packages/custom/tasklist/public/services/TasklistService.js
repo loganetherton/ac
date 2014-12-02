@@ -15,8 +15,8 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
             _identity = _identity || User.getIdentity();
             var deferred = $q.defer();
             // If the user ID is not set correctly, don't make the request
-            if (!_identity || !_identity.hasOwnProperty('_id') || typeof _identity._id === 'undefined') {
-                deferred.reject({data: {error: 'User ID is not defined'}});
+            if (!_identity || !_identity.hasOwnProperty('teams') || typeof _identity.teams !== 'object') {
+                deferred.reject({data: {error: 'Team ID is not defined'}});
                 return deferred.promise;
             }
             $http.get('/tasks/team/' + _identity.teams[0]).then(function (response) {

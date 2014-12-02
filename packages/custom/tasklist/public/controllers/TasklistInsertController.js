@@ -1,26 +1,28 @@
-'use strict';
+(function () {
+    'use strict';
 
-var app = angular.module('mean.tasklist');
+    var app = angular.module('mean.tasklist');
 
-app.controller('TasklistInsertController',
-// Tasklist here is referring to the Mongo model
-['$scope', 'Global', 'TasklistService', function ($scope, Global, TasklistService) {
-     var vm = this;
-     this.strings = Global.tasklist.strings;
+    app.controller('TasklistInsertController',
+    // Tasklist here is referring to the Mongo model
+    ['Global', 'TasklistService', function (Global, TasklistService) {
+        var vm = this;
+        this.strings = Global.tasklist.strings;
 
-     /**
-      * Create a new task
-      * @param valid
-      */
-     this.create = function (valid) {
-         var defer = TasklistService.create(valid, vm.title, vm.content);
+        /**
+         * Create a new task
+         * @param valid
+         */
+        this.create = function (valid) {
+            var defer = TasklistService.create(valid, vm.title, vm.content);
 
-         defer.then(function (data) {
-             vm.title = '';
-             vm.content = '';
-         }, function (error) {
-             console.log('error: ' + error);
-             // TODO Display error to user
-         });
-     };
- }]);
+            defer.then(function (data) {
+                vm.title = '';
+                vm.content = '';
+            }, function (error) {
+                console.log('error: ' + error);
+                // TODO Display error to user
+            });
+        };
+    }]);
+})();

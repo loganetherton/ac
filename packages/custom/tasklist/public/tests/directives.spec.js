@@ -23,7 +23,6 @@
 
         it('should immediately call Tasklist.init() and add the return to $scope.tasks', function () {
             // I've placed this call onto the directive
-            //console.log(element.isolateScope().tasks);
             expect(element.scope().tasklistCtrl.tasks).toEqual([{
                                                                     __v: 0,
                                                                     _id: '5458888a70b39cf36ca711e7',

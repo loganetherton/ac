@@ -571,7 +571,7 @@ describe('GET /task/team/:teamId', function () {
     });
 });
 
-describe.only('POST /newTask', function () {
+describe('POST /newTask', function () {
     var task;
 
     before(function (done) {

@@ -79,6 +79,13 @@ app.factory('AuthenticationService',
                 return deferred.promise;
             }
 
+            // For users that aren't just logging on, when window.user is already populated
+            if (window.user && window.user.authenticated && window.user.hasOwnProperty('teams') &&
+                typeof window.has.teams === 'object') {
+                deferred.resolve(window.user);
+                return deferred.promise;
+            }
+
             var self = this;
             // otherwise, retrieve the identity data from the server, update the identity object, and then resolve.
             $http.get('/users/me', {ignoreErrors: true}).success(function (data) {

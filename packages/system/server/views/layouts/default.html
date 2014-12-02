@@ -16,9 +16,6 @@
         <div data-ng-include="'/mean-admin/views/index.html'"></div>
     </section>
     {% endif %}
-    <section class="tasklist-details" data-ng-if="global.authenticated">
-        <div data-ng-include="'/tasklist/views/partials/right-pane.html'"></div>
-    </section>
     <section class="content">
         <section class="container">
             {% block content %}{% endblock %}

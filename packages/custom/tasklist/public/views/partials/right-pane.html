@@ -1,3 +1,4 @@
 <div class="tasklist-details" ng-cloak data-ng-controller="TasklistController as tasklistCtrl">
-    <tasklist tasks="tasklistCtrl.tasks"></tasklist>
+    <tasklist tasks="tasklistCtrl.tasks"
+              has-task-authorization="tasklistCtrl.hasAuthTask(teamId)"></tasklist>
 </div>

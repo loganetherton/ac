@@ -14,7 +14,7 @@ function ($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.when('', '/tasklist');
 
     $stateProvider.state('site', {
-        template: '<div ui-view></div>',
+        templateUrl: 'system/views/site_layout.html',
         resolve: {
             authorize: ['AuthorizationService', function (AuthorizationService) {
                 return AuthorizationService.authorize();

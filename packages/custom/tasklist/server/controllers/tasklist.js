@@ -8,6 +8,15 @@ Task = mongoose.model('Task'),
 _ = require('lodash');
 
 /**
+ * Verify that a param expecting an Object ID is indeed a valid Object ID
+ * @param id
+ * @returns {*}
+ */
+var checkValidObjectId = function (id) {
+    return mongoose.Types.ObjectId.isValid(id);
+};
+
+/**
  * Create an article
  */
 exports.create = function(req, res) {
@@ -72,6 +81,14 @@ exports.destroy = function(req, res) {
  * Get a single task
  */
 exports.singleTaskAsJson = function(req, res) {
+    // Make sure a user ID was passed in
+    if (!req.params.hasOwnProperty('taskId')) {
+        return res.status(400).send('A task ID must be passed in to this query');
+    }
+    // Check for invalid object ID
+    if (!checkValidObjectId(req.params.taskId)) {
+        return res.status(400).send('Invalid object ID');
+    }
     Task.load(req.params.taskId, function (err, task) {
         if (err || !task) {
             return res.send('Failed to load task ' + req.params.taskId);
@@ -93,7 +110,15 @@ exports.singleTaskAsJson = function(req, res) {
 exports.getTasksByUserId = function(req, res, next) {
     // Make sure a user ID was passed in
     if (!req.params.hasOwnProperty('userId')) {
-        return next(new Error('A user ID must be passed in to this query'));
+        return res.status(400).send('A user ID must be passed in to this query');
+    }
+    // Check for invalid object ID
+    if (!checkValidObjectId(req.params.userId)) {
+        return res.status(400).send('Invalid object ID');
+    }
+    // Only allow the user to query their own tasks
+    if (req.user._id + '' !== req.params.userId + '') {
+        return res.status(400).send('Unauthorized');
     }
     Task.loadByUserId(req.params.userId, function (err, task) {
         if (err) {

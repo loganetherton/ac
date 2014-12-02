@@ -291,7 +291,6 @@ describe('GET /tasklist API', function () {
 });
 
 describe('GET /task/:taskId API', function () {
-
     // Find a single task
     var findTask = function () {
         var defer = q.defer();
@@ -336,6 +335,18 @@ describe('GET /task/:taskId API', function () {
         describe('on team that created task', function () {
             before(function (done) {
                 loginUser('test@test.com', 'password', done);
+            });
+            it('should prevent invalid object IDs from being passed in', function (done) {
+                server
+                .get('/task/badID')
+                .expect(400)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.text.should.be.equal('Invalid object ID');
+                    done();
+                });
             });
             it('should allow an authenticated user to retrieve a task', function (done) {
                 // Get the single task ID in the database
@@ -386,6 +397,8 @@ describe('GET /task/:taskId API', function () {
 });
 
 describe('GET /task/user/:userId', function () {
+    var firstUserId;
+
     before(function (done) {
         createUserAndTask(done);
     });
@@ -410,11 +423,13 @@ describe('GET /task/user/:userId', function () {
         });
     });
 
-    describe('authenticated user', function () {
+    describe('authenticated user, own tasks', function () {
         before(function (done) {
             loginUser('test@test.com', 'password', done);
         });
         it('should prevent the user from querying a non-existant user ID', function (done) {
+            // Save a reference to the first user
+            firstUserId = user._id;
             server
             .get('/tasks/user/badID')
             .expect(400)
@@ -422,18 +437,45 @@ describe('GET /task/user/:userId', function () {
                 if (err) {
                     return done(err);
                 }
-                res.status.should.equal(401);
-                res.text.should.be.equal('The requested team does not exist in the database');
+                res.text.should.be.equal('Invalid object ID');
                 done();
             });
         });
 
-        it('should deny users that arent on the requested team', function (done) {
-            done();
+        it('should allow users to retrieve their own tasks', function (done) {
+            server
+            .get('/tasks/user/' + user._id)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                var task = res.body[0];
+                task.title.should.be.equal('Task Title');
+                task.content.should.be.equal('Task Content');
+                done();
+            });
         });
+    });
 
-        it('should allow users on the queried team to retrieve tasks', function (done) {
-            done();
+    describe('authenticated user, others tasks', function () {
+        before(function (done) {
+            createOtherUser(done);
+        });
+        before(function (done) {
+            loginUser('test2@test.com', 'password', done);
+        });
+        it('should prevent users from querying the tasklists of others', function (done) {
+            server
+            .get('/tasks/user/' + firstUserId)
+            .expect(400)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.text.should.be.equal('Unauthorized');
+                done();
+            });
         });
     });
 });

@@ -2,14 +2,6 @@
 
 var taskList = require('../controllers/tasklist');
 
-// Article authorization helpers
-//var hasAuthorization = function (req, res, next) {
-//    if (!req.user.isAdmin && req.article.user.id !== req.user.id) {
-//        return res.send(401, 'User is not authorized');
-//    }
-//    next();
-//};
-
 // The Package is passed automatically as first parameter
 module.exports = function (Tasklist, app, auth, database) {
 
@@ -29,10 +21,11 @@ module.exports = function (Tasklist, app, auth, database) {
 
     // Retrieve tasks for the current user
     app.route('/tasks/user/:userId').
-    get(auth.requiresLogin, taskList.getTasksByUserId);
+    all(auth.requiresLogin).
+    get(taskList.getTasksByUserId);
 
     // Retrieve tasks for the requested team
-    app.route('/tasks/user/:userId').
+    app.route('/tasks/team/:teamId').
     get(auth.requiresLogin, taskList.getTasksByTeamId);
 
 

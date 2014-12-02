@@ -32,7 +32,7 @@ module.exports = function (Tasklist, app, auth, database) {
     // Set teams for access in socket
     app.use(function (req, res, next) {
         var currentTeam = app.get('teams');
-        if (typeof currentTeam === 'undefined' || !currentTeam.length) {
+        if (typeof currentTeam === 'undefined' || !currentTeam || !currentTeam.length) {
             app.set('teams', req.session.teams || null);
         }
         next();

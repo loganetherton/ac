@@ -304,6 +304,14 @@ describe('User controller', function () {
             loginUser(done);
         });
 
+        // Remove the user
+        after(function (done) {
+            user.remove(function (err, res) {
+                should.not.exist(err);
+                done();
+            });
+        });
+
         it('should retrieve the current user', function (done) {
             server
             .get('/users/me')

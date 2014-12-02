@@ -31,11 +31,11 @@ describe('Create task', function () {
      * @param taskNumber
      */
     var evaluateTask = function (taskNumber) {
-        element(by.repeater('task in tasklist.tasks').row(0).column('task.title')).getText().then(function (text) {
+        element(by.repeater('task in tasks').row(0).column('task.title')).getText().then(function (text) {
             expect(text).toBe('fake ass title ' + taskNumber);
         });
 
-        element(by.repeater('task in tasklist.tasks').row(0).column('task.content')).getText().then(function (text) {
+        element(by.repeater('task in tasks').row(0).column('task.content')).getText().then(function (text) {
             expect(text).toBe('fake ass content ' + taskNumber);
         });
     };

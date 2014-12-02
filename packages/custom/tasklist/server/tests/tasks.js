@@ -480,7 +480,7 @@ describe('GET /task/user/:userId', function () {
     });
 });
 
-describe.only('GET /task/team/:teamId', function () {
+describe('GET /task/team/:teamId', function () {
     before(function (done) {
         createUserAndTask(done);
     });
@@ -490,7 +490,6 @@ describe.only('GET /task/team/:teamId', function () {
     });
     describe('unauthenticated user', function () {
         it('should not allow unauthenticated users to query a teams tasks', function (done) {
-            // Make a request to /newTask
             server
             .get('/tasks/team/' + user.teams[0])
             .send(task)
@@ -512,7 +511,6 @@ describe.only('GET /task/team/:teamId', function () {
                 loginUser('test@test.com', 'password', done);
             });
             it('should return an error for invalid team query', function (done) {
-                // Make a request to /newTask
                 server
                 .get('/tasks/team/badTeam')
                 .send(task)
@@ -529,7 +527,6 @@ describe.only('GET /task/team/:teamId', function () {
         describe('on team being requested', function () {
             it('should return an error for invalid team query', function (done) {
                 firstTeamId = user.teams[0];
-                // Make a request to /newTask
                 server
                 .get('/tasks/team/' + firstTeamId)
                 .send(task)
@@ -574,7 +571,7 @@ describe.only('GET /task/team/:teamId', function () {
     });
 });
 
-describe('POST /newTask', function () {
+describe.only('POST /newTask', function () {
     var task;
 
     before(function (done) {
@@ -588,8 +585,6 @@ describe('POST /newTask', function () {
     describe('unauthenticated user', function () {
         before(function (done) {
             task = {
-                user: user._id,
-                team: user.teams[0],
                 title: 'new task',
                 content: 'new content'
             };

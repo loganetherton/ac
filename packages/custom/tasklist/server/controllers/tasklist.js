@@ -31,11 +31,12 @@ var checkTeam = function (teams, taskTeam) {
 exports.create = function(req, res) {
     var task = new Task(req.body);
     task.user = req.user;
+    // Set the team for this task
+    task.team = req.user.teams[0];
 
     task.validate(function (error) {
         if (typeof error !== 'undefined') {
             console.log(error);
-            console.log(1);
         }
     });
 

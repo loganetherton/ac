@@ -7,23 +7,6 @@ var mongoose = require('mongoose'),
 Task = mongoose.model('Task'),
 _ = require('lodash');
 
-
-/**
- * Find task by id
- */
-exports.queryTaskById = function(req, res, next, id) {
-    Task.load(id, function (err, task) {
-        if (err) {
-            return next(err);
-        }
-        if (!task) {
-            return next(new Error('Failed to load task ' + id));
-        }
-        req.task = task;
-        next();
-    });
-};
-
 /**
  * Create an article
  */
@@ -86,10 +69,22 @@ exports.destroy = function(req, res) {
 };
 
 /**
- * Show a task
+ * Get a single task
  */
 exports.singleTaskAsJson = function(req, res) {
-    res.json(req.task);
+    Task.load(req.params.taskId, function (err, task) {
+        if (err || !task) {
+            return res.send('Failed to load task ' + req.params.taskId);
+        }
+        var checkTeam = _.find(req.user.teams, function (team) {
+            return team + '' === task.team + '';
+        });
+        // Make sure the requested task is accessible to the requesting user
+        if (!checkTeam) {
+            return res.status(401).send('Unauthorized');
+        }
+        res.json(task);
+    });
 };
 
 /**
@@ -109,6 +104,13 @@ exports.getTasksByUserId = function(req, res, next) {
         }
         return res.json(task);
     });
+};
+
+/**
+ * Retrieve tasks for the requested team
+ */
+exports.getTasksByTeamId = function (req, res, next) {
+
 };
 
 /**

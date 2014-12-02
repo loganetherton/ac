@@ -94,7 +94,8 @@ var createUserAndTask = function (done) {
         task = new Task({
             title: 'Task Title',
             content: 'Task Content',
-            user: user
+            user: user,
+            team: user.teams[0]
         });
         removeTasks().then(function () {
             task.save(function (err) {
@@ -118,12 +119,46 @@ var createUserAndTask = function (done) {
     });
 };
 
+/**
+ * Create another user
+ */
+var createOtherUser = function (done) {
+    // Create a user
+    user = new User({
+        name: 'Full name',
+        email: 'test2@test.com',
+        password: 'password',
+        teams: [mongoose.Types.ObjectId()]
+    });
+    /**
+     * Clear the collection
+     */
+    removeUsers().then(function () {
+        user.save(function (err) {
+            if (err) {
+                throw new Error('Could not create other user');
+            }
+            done();
+        });
+    });
+};
+
+/**
+ * Cleanup the user and task
+ * @param done
+ */
 var removeUserAndTask = function (done) {
     q.all(user.remove(), task.remove()).then(function () {
         done();
     });
 };
 
+/**
+ * Log the user in
+ * @param email
+ * @param password
+ * @param done
+ */
 var loginUser = function (email, password, done) {
     server
     .post('/login')
@@ -177,7 +212,16 @@ describe('Task model', function () {
         });
 
         it('should be able to show an error when try to save without user', function (done) {
-            task.user = {};
+            task.user = null;
+
+            return task.save(function (err) {
+                should.exist(err);
+                done();
+            });
+        });
+
+        it('should be able to show an error when trying to save without a team', function (done) {
+            task.team = null;
 
             return task.save(function (err) {
                 should.exist(err);
@@ -192,7 +236,6 @@ describe('Task model', function () {
 });
 
 describe('GET /tasklist API', function () {
-
     // Create user and task only once
     before(function (done) {
         createUserAndTask(done);
@@ -290,56 +333,136 @@ describe('GET /task/:taskId API', function () {
     });
 
     describe('retrieve a single a task (authenticated)', function () {
-        before(function (done) {
-            loginUser('test@test.com', 'password', done);
+        describe('on team that created task', function () {
+            before(function (done) {
+                loginUser('test@test.com', 'password', done);
+            });
+            it('should allow an authenticated user to retrieve a task', function (done) {
+                // Get the single task ID in the database
+                findTask().then(function (taskId) {
+                    server
+                    .get('/task/' + taskId)
+                    .expect(200)
+                    .end(function (err, res) {
+                        if (err) {
+                            return done(err);
+                        }
+                        res.status.should.equal(200);
+                        // Convert to object and get first task
+                        var tasks = JSON.parse(res.text);
+                        tasks._id.should.be.ok;
+                        tasks.title.should.be.equal('Task Title');
+                        tasks.content.should.be.equal('Task Content');
+                        tasks.user.name.should.be.equal('Full name');
+                        done();
+                    });
+                });
+            });
         });
-        it('should allow an authenticated user to retrieve a task', function (done) {
-            // Get the single task ID in the database
-            findTask().then(function (taskId) {
-                server
-                .get('/task/' + taskId)
-                .expect(200)
-                .end(function (err, res) {
-                    if (err) {
-                        return done(err);
-                    }
-                    res.status.should.equal(200);
-                    // Convert to object and get first task
-                    var tasks = JSON.parse(res.text);
-                    tasks._id.should.be.ok;
-                    tasks.title.should.be.equal('Task Title');
-                    tasks.content.should.be.equal('Task Content');
-                    tasks.user.name.should.be.equal('Full name');
-                    done();
+
+        describe('not on team that created task', function () {
+            before(function (done) {
+                createOtherUser(done);
+            });
+            before(function (done) {
+                loginUser('test2@test.com', 'password', done);
+            });
+            it('should deny a user that is not on the team that created the task', function (done) {
+                findTask().then(function (taskId) {
+                    server
+                    .get('/task/' + taskId)
+                    .expect(401)
+                    .end(function (err, res) {
+                        if (err) {
+                            return done(err);
+                        }
+                        res.text.should.be.equal('Unauthorized');
+                        done();
+                    });
                 });
             });
         });
     });
 });
 
-describe('POST /newTask', function () {
-    var userId;
+describe('GET /task/user/:userId', function () {
+    before(function (done) {
+        createUserAndTask(done);
+    });
 
-    var task = {
-        user: userId,
-        title: 'new task',
-        content: 'new content'
-    };
+    after(function (done) {
+        removeUserAndTask(done);
+    });
 
     describe('unauthenticated user', function () {
-        before(function (done) {
-            createUserAndTask(done);
-        });
-
-        before(function (done) {
-            User.find({}, function (err, data) {
+        it('should deny unauthenticated users from retrieving tasks', function (done) {
+            server
+            .get('/tasks/user/' + user._id)
+            .expect(401)
+            .end(function (err, res) {
                 if (err) {
-                    should.not.exist(err);
+                    return done(err);
                 }
-                userId = data[0]._id;
-                userId.should.be.ok;
+                res.status.should.equal(401);
+                res.text.should.be.equal('User is not authorized');
                 done();
             });
+        });
+    });
+
+    describe('authenticated user', function () {
+        before(function (done) {
+            loginUser('test@test.com', 'password', done);
+        });
+        it('should prevent the user from querying a non-existant user ID', function (done) {
+            server
+            .get('/tasks/user/badID')
+            .expect(400)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(401);
+                res.text.should.be.equal('The requested team does not exist in the database');
+                done();
+            });
+        });
+
+        it('should deny users that arent on the requested team', function (done) {
+            done();
+        });
+
+        it('should allow users on the queried team to retrieve tasks', function (done) {
+            done();
+        });
+    });
+});
+
+describe('GET /task/team/:teamId', function () {
+
+});
+
+describe('POST /newTask', function () {
+    var task;
+
+    before(function (done) {
+        createUserAndTask(done);
+    });
+
+    after(function (done) {
+        removeUserAndTask(done);
+    });
+
+    describe('unauthenticated user', function () {
+
+        before(function (done) {
+            task = {
+                user: user._id,
+                team: user.teams[0],
+                title: 'new task',
+                content: 'new content'
+            };
+            done();
         });
 
         it('should not allow unauthenticated users to create a task', function (done) {
@@ -374,15 +497,11 @@ describe('POST /newTask', function () {
                     return done(err);
                 }
                 // Cast to string
-                res.body.user.should.be.equal(userId + '');
+                res.body.user.should.be.equal(user._id + '');
                 res.body.title.should.be.equal('new task');
                 res.body.content.should.be.equal('new content');
                 return done();
             });
         });
-    });
-
-    after(function (done) {
-        removeUserAndTask(done);
     });
 });

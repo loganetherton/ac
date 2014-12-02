@@ -22,12 +22,20 @@ module.exports = function (Tasklist, app, auth, database) {
 
     // Retrieve a single task by ID
     app.route('/task/:taskId').
-    get(auth.requiresLogin, taskList.singleTaskAsJson);
-    app.param('taskId', taskList.queryTaskById);
+    all(auth.requiresLogin).
+    get(taskList.singleTaskAsJson);
+    // OK, so, if I set the param, it goes before the auth check. Bad.
+    //app.param('taskId', taskList.queryTaskById);
 
     // Retrieve tasks for the current user
     app.route('/tasks/user/:userId').
     get(auth.requiresLogin, taskList.getTasksByUserId);
+
+    // Retrieve tasks for the requested team
+    app.route('/tasks/user/:userId').
+    get(auth.requiresLogin, taskList.getTasksByTeamId);
+
+
 
     // Set teams for access in socket
     app.use(function (req, res, next) {

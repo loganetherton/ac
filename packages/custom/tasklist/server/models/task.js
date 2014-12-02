@@ -13,17 +13,26 @@ var TaskSchema = new Schema({
     created: {
         type: Date,
         default: Date.now
-    }, title: {
+    },
+    title: {
         type: String,
         required: true,
         trim: true
-    }, content: {
+    },
+    content: {
         type: String,
         required: true,
         trim: true
-    }, user: {
+    },
+    user: {
         type: Schema.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
+    },
+    team: {
+        type: Schema.ObjectId,
+        ref: 'Team',
+        required: true
     }
 });
 
@@ -37,6 +46,10 @@ TaskSchema.path('title').validate(function (title) {
 TaskSchema.path('content').validate(function (content) {
     return !!content;
 }, 'Content cannot be blank');
+
+TaskSchema.path('user').validate(function (user) {
+
+});
 
 /**
  * Statics

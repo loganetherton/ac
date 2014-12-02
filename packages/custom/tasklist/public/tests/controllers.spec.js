@@ -61,6 +61,7 @@
                                                  name: 'Logan Etherton',
                                                  username: 'loganetherton'
                                              },
+                                             team: 1,
                                              $$hashKey: 'object:12'
                                          }, {
                                              __v: 0,
@@ -73,6 +74,7 @@
                                                  name: 'Logan Etherton',
                                                  username: 'loganetherton'
                                              },
+                                             team: 2,
                                              $$hashKey: 'object:13'
                                          }]);
 

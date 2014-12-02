@@ -52,6 +52,7 @@ var MockTasklistService = function ($q) {
                 name: "Logan Etherton",
                 username: "loganetherton"
             },
+            team: 1,
             $$hashKey: 'object:12'
         },
         {
@@ -65,6 +66,7 @@ var MockTasklistService = function ($q) {
                 name: "Logan Etherton",
                 username: "loganetherton"
             },
+            team: 2,
             $$hashKey: 'object:13'
         }
     ];

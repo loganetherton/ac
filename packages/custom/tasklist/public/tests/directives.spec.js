@@ -1,6 +1,6 @@
 (function () {
     describe('directive: tasklist', function () {
-        var scope, element, TasklistService;
+        var scope, element, elementWithCtrl, TasklistService;
         beforeEach(function () {
             module('mean');
             module('mean.system');
@@ -14,16 +14,16 @@
 
         beforeEach(inject(function ($rootScope, $compile) {
             scope = $rootScope.$new();
-            element = '<div data-ng-controller="TasklistController as tasklistCtrl"><tasklist tasks="tasklistCtrl.tasks"></tasklist></div>';
+            elementWithCtrl = '<div data-ng-controller="TasklistController as tasklistCtrl"><tasklist tasks="tasklistCtrl.tasks"></tasklist></div>';
 
             // Compile element and digest
-            element = $compile(element)(scope);
+            elementWithCtrl = $compile(elementWithCtrl)(scope);
             scope.$digest();
         }));
 
         it('should immediately call Tasklist.init() and add the return to $scope.tasks', function () {
             // I've placed this call onto the directive
-            expect(element.scope().tasklistCtrl.tasks).toEqual([{
+            expect(elementWithCtrl.scope().tasklistCtrl.tasks).toEqual([{
                                                                     __v: 0,
                                                                     _id: '5458888a70b39cf36ca711e7',
                                                                     content: 'testContent',
@@ -34,6 +34,7 @@
                                                                         name: 'Logan Etherton',
                                                                         username: 'loganetherton'
                                                                     },
+                                                                    team: 1,
                                                                     $$hashKey: 'object:12'
                                                                 }, {
                                                                     __v: 0,
@@ -46,8 +47,13 @@
                                                                         name: 'Logan Etherton',
                                                                         username: 'loganetherton'
                                                                     },
+                                                                    team: 2,
                                                                     $$hashKey: 'object:13'
                                                                 }]);
+        });
+
+        it('should call hasAuthTask for the tasks', function () {
+            expect(elementWithCtrl.html().match(/<span data-ng-if="hasAuthTask\(task.team\)"/).length).toEqual(1);
         });
     });
 })();

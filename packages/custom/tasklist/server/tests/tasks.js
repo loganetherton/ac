@@ -25,9 +25,10 @@ var task;
  */
 describe('Task model', function () {
     beforeEach(function (done) {
-        var userTask = userInit.createUserAndTask(done);
-        user = userTask['user'];
-        task = userTask['task'];
+        userInit.createUserAndTask(done).then(function (userTask) {
+            user = userTask['user'];
+            task = userTask['task'];
+        });
     });
 
     describe('Task model save', function () {
@@ -80,16 +81,17 @@ describe('Task model', function () {
     });
 
     afterEach(function (done) {
-        userInit.removeUserAndTask(done, user, task);
+        userInit.removeUsersAndTasks(done, user, task);
     });
 });
 
 describe('GET /tasklist API', function () {
     // Create user and task only once
     before(function (done) {
-        var userTask = userInit.createUserAndTask(done);
-        user = userTask['user'];
-        task = userTask['task'];
+        userInit.createUserAndTask(done).then(function (userTask) {
+            user = userTask['user'];
+            task = userTask['task'];
+        });
     });
     // Remove user and task at the end
     after(function (done) {
@@ -157,13 +159,14 @@ describe('GET /task/:taskId API', function () {
 
     // Create user and task only once
     before(function (done) {
-        var userTask = userInit.createUserAndTask(done);
-        user = userTask['user'];
-        task = userTask['task'];
+        userInit.createUserAndTask(done).then(function (userTask) {
+            user = userTask['user'];
+            task = userTask['task'];
+        });
     });
     // Remove user and task at the end
     after(function (done) {
-        userInit.removeUserAndTask(done, user, task);
+        userInit.removeUsersAndTasks(done, user, task);
     });
 
     describe('retrieve a single a task (unauthenticated)', function () {
@@ -253,13 +256,14 @@ describe('GET /task/user/:userId', function () {
     var firstUserId;
 
     before(function (done) {
-        var userTask = userInit.createUserAndTask(done);
-        user = userTask['user'];
-        task = userTask['task'];
+        userInit.createUserAndTask(done).then(function (userTask) {
+            user = userTask['user'];
+            task = userTask['task'];
+        });
     });
 
     after(function (done) {
-        userInit.removeUserAndTask(done, user, task);
+        userInit.removeUsersAndTasks(done, user, task);
     });
 
     describe('unauthenticated user', function () {
@@ -337,13 +341,14 @@ describe('GET /task/user/:userId', function () {
 
 describe('GET /task/team/:teamId', function () {
     before(function (done) {
-        var userTask = userInit.createUserAndTask(done);
-        user = userTask['user'];
-        task = userTask['task'];
+        userInit.createUserAndTask(done).then(function (userTask) {
+            user = userTask['user'];
+            task = userTask['task'];
+        });
     });
 
     after(function (done) {
-        userInit.removeUserAndTask(done, user, task);
+        userInit.removeUsersAndTasks(done, user, task);
     });
     describe('unauthenticated user', function () {
         it('should not allow unauthenticated users to query a teams tasks', function (done) {
@@ -429,15 +434,15 @@ describe('GET /task/team/:teamId', function () {
 });
 
 describe('POST /newTask', function () {
-
     before(function (done) {
-        var userTask = userInit.createUserAndTask(done);
-        user = userTask['user'];
-        task = userTask['task'];
+        userInit.createUserAndTask(done).then(function (userTask) {
+            user = userTask['user'];
+            task = userTask['task'];
+        });
     });
 
     after(function (done) {
-        userInit.removeUserAndTask(done, user, task);
+        userInit.removeUsersAndTasks(done, user, task);
     });
 
     describe('unauthenticated user', function () {

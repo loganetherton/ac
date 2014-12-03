@@ -52,13 +52,11 @@ exports.createOtherUser = function (done) {
     /**
      * Clear the collection
      */
-    removeUsers().then(function () {
-        user.save(function (err) {
-            if (err) {
-                throw new Error('Could not create other user');
-            }
-            done();
-        });
+    user.save(function (err) {
+        if (err) {
+            throw new Error('Could not create other user');
+        }
+        done();
     });
     return user;
 };
@@ -69,6 +67,7 @@ exports.createOtherUser = function (done) {
  * @param done
  */
 exports.createUserAndTask = function (done) {
+    var deferred = q.defer();
     /**
      * Clear the users collection and create a test user
      *
@@ -86,13 +85,11 @@ exports.createUserAndTask = function (done) {
         /**
          * Clear the collection
          */
-        removeUsers().then(function () {
-            user.save(function (err) {
-                if (err) {
-                    deferred.reject('Could not save user');
-                }
-                deferred.resolve('Saved user');
-            });
+        user.save(function (err) {
+            if (err) {
+                deferred.reject('Could not save user');
+            }
+            deferred.resolve('Saved user');
         });
         return deferred.promise;
     };
@@ -110,39 +107,44 @@ exports.createUserAndTask = function (done) {
             user: user,
             team: user.teams[0]
         });
-        removeTasks().then(function () {
-            task.save(function (err) {
-                if (err) {
-                    deferred.reject('Failed to save task');
-                }
-                deferred.resolve('Saved task');
-            });
+        task.save(function (err) {
+            if (err) {
+                deferred.reject('Failed to save task');
+            }
+            deferred.resolve('Saved task');
         });
         return deferred.promise;
     };
 
-    /**
-     * Create user and task
-     */
-    q.all([initUsers(), initTasks()]).then(function () {
-        done();
-    }).fail(function (err) {
-        console.log(err);
-        should.not.exist(err);
+    removeUsersAndTasks().then(function () {
+        /**
+         * Create user and task
+         */
+        q.all([initUsers(), initTasks()]).then(function () {
+            done();
+            deferred.resolve({
+                user: user,
+                task: task
+            });
+        }).fail(function (err) {
+            console.log(err);
+            should.not.exist(err);
+        });
     });
-
-    return {
-        user: user,
-        task: task
-    }
+    return deferred.promise;
 };
 
 /**
  * Cleanup the user and task
  * @param done
  */
-exports.removeUserAndTask = function (done, user, task) {
-    q.all(user.remove(), task.remove()).then(function () {
-        done();
+var removeUsersAndTasks = exports.removeUsersAndTasks = function (done) {
+    var deferred = q.defer();
+    q.all(removeUsers(), removeTasks()).then(function () {
+        deferred.resolve();
+        if (typeof done !== 'undefined') {
+            done();
+        }
     });
+    return deferred.promise;
 };

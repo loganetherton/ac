@@ -4,13 +4,13 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+Schema = mongoose.Schema;
 
 /**
- * Article Schema
+ * Task Schema
  */
 var TaskSchema = new Schema({
-    created: {
+    modified: {
         type: Date,
         default: Date.now
     },
@@ -54,7 +54,7 @@ TaskSchema.path('user').validate(function (user) {
 /**
  * Statics
  */
-// Query task by ID
+    // Query task by ID
 TaskSchema.statics.load = function (id, cb) {
     this.findOne({
         _id: id
@@ -76,5 +76,13 @@ TaskSchema.statics.loadByTeamId = function (id, cb) {
     null,
     {sort: {_id: -1}}).populate('user', 'name').exec(cb);
 };
+
+/**
+ * Update modified time on save
+ */
+TaskSchema.pre('save', function (next) {
+    this.modified = new Date();
+    next();
+});
 
 mongoose.model('Task', TaskSchema);

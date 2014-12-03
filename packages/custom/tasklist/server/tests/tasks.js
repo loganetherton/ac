@@ -38,7 +38,7 @@ describe('Task model', function () {
                 task.title.should.equal('Task Title');
                 task.content.should.equal('Task Content');
                 task.user.should.not.have.length(0);
-                task.created.should.not.have.length(0);
+                task.modified.should.not.have.length(0);
                 done();
             });
         });
@@ -75,6 +75,17 @@ describe('Task model', function () {
 
             return task.save(function (err) {
                 should.exist(err);
+                done();
+            });
+        });
+
+        it('should modify the modified time on saving the task', function (done) {
+            // Get original time
+            var originalModified = task.modified;
+            // Check against new time
+            task.save(function (err) {
+                should.not.exist(err);
+                originalModified.should.not.be.equal(task.modified);
                 done();
             });
         });

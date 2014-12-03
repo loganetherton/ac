@@ -62,6 +62,50 @@ exports.createOtherUser = function (done) {
 };
 
 /**
+ * Create a task
+ *
+ * @returns {Promise.promise|*}
+ */
+var createTask = exports.createTask = function (taskCount, thisUser) {
+    var deferred = q.defer();
+    var taskTitle = 'Task Title',
+        taskContent = 'Task Content';
+
+    var makeSingleTask = function () {
+        // Set the user
+        if (typeof thisUser !== 'undefined') {
+            user = thisUser;
+        }
+        task = new Task({
+            title: taskTitle,
+            content: taskContent,
+            user: user,
+            team: user.teams[0]
+        });
+        task.save(function (err) {
+            if (err) {
+                deferred.reject('Failed to save task');
+            }
+            deferred.resolve('Saved task');
+        });
+    };
+
+    // For iteration
+    if (typeof taskCount !== 'undefined') {
+        for (var i = 0; i < taskCount; i++) {
+            taskTitle = 'Task Title' + i;
+            taskContent = 'Task Content' + i;
+            makeSingleTask();
+        }
+    // Make single task
+    } else {
+        makeSingleTask();
+    }
+
+    return deferred.promise;
+};
+
+/**
  * Ensures that only a single user and task exist in the database
  *
  * @param done
@@ -94,33 +138,11 @@ exports.createUserAndTask = function (done) {
         return deferred.promise;
     };
 
-    /**
-     * Clear the tasks collection and create a test task
-     *
-     * @returns {Promise.promise|*}
-     */
-    var initTasks = function () {
-        var deferred = q.defer();
-        task = new Task({
-            title: 'Task Title',
-            content: 'Task Content',
-            user: user,
-            team: user.teams[0]
-        });
-        task.save(function (err) {
-            if (err) {
-                deferred.reject('Failed to save task');
-            }
-            deferred.resolve('Saved task');
-        });
-        return deferred.promise;
-    };
-
     removeUsersAndTasks().then(function () {
         /**
          * Create user and task
          */
-        q.all([initUsers(), initTasks()]).then(function () {
+        q.all([initUsers(), createTask()]).then(function () {
             done();
             deferred.resolve({
                 user: user,

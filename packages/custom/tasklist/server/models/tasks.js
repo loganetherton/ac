@@ -77,6 +77,15 @@ TaskSchema.statics.loadByTeamId = function (id, cb) {
     {sort: {_id: -1}}).populate('user', 'name').exec(cb);
 };
 
+// Get most recent tasks for the requested user
+TaskSchema.statics.getMostRecent = function (userId, count, callback) {
+    this.find({
+        user: userId
+    },
+    null,
+    {sort: {_id: -1}}).limit(count).populate('user', 'name').exec(callback);
+};
+
 /**
  * Update modified time on save
  */

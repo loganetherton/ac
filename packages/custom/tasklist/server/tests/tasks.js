@@ -11,7 +11,7 @@ var request = require('supertest');
 var server = request.agent('http://localhost:3000');
 
 // Helpers
-var userInit = require('../../../../../test/mochaHelpers/initUserAndTasks'),
+var userTaskHelper = require('../../../../../test/mochaHelpers/initUserAndTasks'),
     loginUser = require('../../../../../test/mochaHelpers/loginUser');
 
 /**
@@ -25,7 +25,7 @@ var task;
  */
 describe('Task model', function () {
     beforeEach(function (done) {
-        userInit.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask(done).then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
         });
@@ -82,24 +82,44 @@ describe('Task model', function () {
         it('should modify the modified time on saving the task', function (done) {
             // Get original time
             var originalModified = task.modified;
-            // Check against new time
-            task.save(function (err) {
-                should.not.exist(err);
-                originalModified.should.not.be.equal(task.modified);
-                done();
+            // Delay things by a second
+            var wasteSomeTime = function () {
+                var deferred = q.defer();
+                setTimeout(function () {
+                    deferred.resolve();
+                }, 1000);
+                return deferred.promise;
+            };
+            wasteSomeTime().then(function () {
+                // Check against new time to make sure it's been modified
+                task.save(function (err) {
+                    should.not.exist(err);
+                    originalModified.toString().should.not.be.equal(task.modified.toString());
+                    done();
+                });
+            });
+        });
+
+        it('should be able to retrieve the most recent tasks for a user', function (done) {
+            userTaskHelper.createTask(5, user).then(function () {
+                Task.getMostRecent(user._id, 5, function (err, tasks) {
+                    tasks.length.should.be.equal(5);
+                    console.log(tasks);
+                    done();
+                })
             });
         });
     });
 
     afterEach(function (done) {
-        userInit.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks(done, user, task);
     });
 });
 
 describe('GET /tasklist API', function () {
     // Create user and task only once
     before(function (done) {
-        userInit.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask(done).then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
         });
@@ -170,14 +190,14 @@ describe('GET /task/:taskId API', function () {
 
     // Create user and task only once
     before(function (done) {
-        userInit.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask(done).then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
         });
     });
     // Remove user and task at the end
     after(function (done) {
-        userInit.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks(done, user, task);
     });
 
     describe('retrieve a single a task (unauthenticated)', function () {
@@ -240,7 +260,7 @@ describe('GET /task/:taskId API', function () {
 
         describe('not on team that created task', function () {
             before(function (done) {
-                user = userInit.createOtherUser(done);
+                user = userTaskHelper.createOtherUser(done);
             });
             before(function (done) {
                 loginUser(server, 'test2@test.com', 'password', done);
@@ -267,14 +287,14 @@ describe('GET /task/user/:userId', function () {
     var firstUserId;
 
     before(function (done) {
-        userInit.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask(done).then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
         });
     });
 
     after(function (done) {
-        userInit.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks(done, user, task);
     });
 
     describe('unauthenticated user', function () {
@@ -330,7 +350,7 @@ describe('GET /task/user/:userId', function () {
 
     describe('authenticated user, others tasks', function () {
         before(function (done) {
-            user = userInit.createOtherUser(done);
+            user = userTaskHelper.createOtherUser(done);
         });
         before(function (done) {
             loginUser(server, 'test2@test.com', 'password', done);
@@ -352,14 +372,14 @@ describe('GET /task/user/:userId', function () {
 
 describe('GET /task/team/:teamId', function () {
     before(function (done) {
-        userInit.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask(done).then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
         });
     });
 
     after(function (done) {
-        userInit.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks(done, user, task);
     });
     describe('unauthenticated user', function () {
         it('should not allow unauthenticated users to query a teams tasks', function (done) {
@@ -420,7 +440,7 @@ describe('GET /task/team/:teamId', function () {
         });
         describe('not on team being requested', function () {
             before(function (done) {
-                user = userInit.createOtherUser(done);
+                user = userTaskHelper.createOtherUser(done);
             });
 
             before(function (done) {
@@ -446,14 +466,14 @@ describe('GET /task/team/:teamId', function () {
 
 describe('POST /newTask', function () {
     before(function (done) {
-        userInit.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask(done).then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
         });
     });
 
     after(function (done) {
-        userInit.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks(done, user, task);
     });
 
     describe('unauthenticated user', function () {

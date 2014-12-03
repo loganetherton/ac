@@ -1,8 +1,9 @@
 <div class="project-context hidden-xs dropdown">
 
     <span class="label">Projects:</span>
-    <span class="project-selector dropdown-toggle">Recent projects<i ng-if="recentProjectsCtrl.projects.length"
-                                                                     class="fa fa-angle-down"></i></span>
+    <span class="project-selector dropdown-toggle">
+        Recent projects<i ng-if="recentProjectsCtrl.projects.length" class="fa fa-angle-down"></i>
+    </span>
 
     <ul class="dropdown-menu" ng-if="recentProjectsCtrl.projects.length">
         <li ng-repeat="project in recentProjectsCtrl.projects">

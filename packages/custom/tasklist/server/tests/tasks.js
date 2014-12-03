@@ -1,184 +1,33 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
 var should = require('should'),
     mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Task = mongoose.model('Task'),
     q = require('q');
 
+// Superagent
 var request = require('supertest');
 var server = request.agent('http://localhost:3000');
 
+// Helpers
+var userInit = require('../../../../../test/mochaHelpers/initUserAndTasks'),
+    loginUser = require('../../../../../test/mochaHelpers/loginUser');
+
 /**
- * Globals
+ * Global user and task model
  */
 var user;
 var task;
-
-/**
- * Clear the tasks collection
- *
- * @returns {Promise.promise|*}
- */
-var removeTasks = function () {
-    var deferred = q.defer();
-    Task.remove({}, function (err) {
-        if (err) {
-            deferred.reject('Could not clear tasks collection');
-        }
-    });
-    deferred.resolve('tasks cleared');
-    return deferred.promise;
-};
-
-/**
- * Clear the users collection
- *
- * @returns {Promise.promise|*}
- */
-var removeUsers = function () {
-    var deferred = q.defer();
-    User.remove({}, function (err) {
-        if (err) {
-            deferred.reject('Could not clear users collection');
-        }
-    });
-    deferred.resolve('tasks cleared');
-    return deferred.promise;
-};
-
-/**
- * Ensures that only a single user and task exist in the database
- *
- * @param done
- */
-var createUserAndTask = function (done) {
-    /**
-     * Clear the users collection and create a test user
-     *
-     * @returns {Promise.promise|*}
-     */
-    var initUsers = function () {
-        var deferred = q.defer();
-        // Create a user
-        user = new User({
-            name: 'Full name',
-            email: 'test@test.com',
-            password: 'password',
-            teams: [mongoose.Types.ObjectId()]
-        });
-        /**
-         * Clear the collection
-         */
-        removeUsers().then(function () {
-            user.save(function (err) {
-                if (err) {
-                    deferred.reject('Could not save user');
-                }
-                deferred.resolve('Saved user');
-            });
-        });
-        return deferred.promise;
-    };
-
-    /**
-     * Clear the tasks collection and create a test task
-     *
-     * @returns {Promise.promise|*}
-     */
-    var initTasks = function () {
-        var deferred = q.defer();
-        task = new Task({
-            title: 'Task Title',
-            content: 'Task Content',
-            user: user,
-            team: user.teams[0]
-        });
-        removeTasks().then(function () {
-            task.save(function (err) {
-                if (err) {
-                    deferred.reject('Failed to save task');
-                }
-                deferred.resolve('Saved task');
-            });
-        });
-        return deferred.promise;
-    };
-
-    /**
-     * Create user and task
-     */
-    q.all([initUsers(), initTasks()]).then(function () {
-        done();
-    }).fail(function (err) {
-        console.log(err);
-        should.not.exist(err);
-    });
-};
-
-/**
- * Create another user
- */
-var createOtherUser = function (done) {
-    // Create a user
-    user = new User({
-        name: 'Full name',
-        email: 'test2@test.com',
-        password: 'password',
-        teams: [mongoose.Types.ObjectId()]
-    });
-    /**
-     * Clear the collection
-     */
-    removeUsers().then(function () {
-        user.save(function (err) {
-            if (err) {
-                throw new Error('Could not create other user');
-            }
-            done();
-        });
-    });
-};
-
-/**
- * Cleanup the user and task
- * @param done
- */
-var removeUserAndTask = function (done) {
-    q.all(user.remove(), task.remove()).then(function () {
-        done();
-    });
-};
-
-/**
- * Log the user in
- * @param email
- * @param password
- * @param done
- */
-var loginUser = function (email, password, done) {
-    server
-    .post('/login')
-    .send({ email: email, password: password })
-    .expect(200)
-    .end(function (err, res) {
-        if (err) {
-            return done(err);
-        }
-        res.body.user._id.should.be.ok;
-        return done();
-    });
-};
 
 /**
  * Test Suites
  */
 describe('Task model', function () {
     beforeEach(function (done) {
-        createUserAndTask(done);
+        var userTask = userInit.createUserAndTask(done);
+        user = userTask['user'];
+        task = userTask['task'];
     });
 
     describe('Task model save', function () {
@@ -231,14 +80,16 @@ describe('Task model', function () {
     });
 
     afterEach(function (done) {
-        removeUserAndTask(done);
+        userInit.removeUserAndTask(done, user, task);
     });
 });
 
 describe('GET /tasklist API', function () {
     // Create user and task only once
     before(function (done) {
-        createUserAndTask(done);
+        var userTask = userInit.createUserAndTask(done);
+        user = userTask['user'];
+        task = userTask['task'];
     });
     // Remove user and task at the end
     after(function (done) {
@@ -266,7 +117,7 @@ describe('GET /tasklist API', function () {
     describe('GET /tasklist authenticated', function () {
 
         before(function (done) {
-            loginUser('test@test.com', 'password', done);
+            loginUser(server, 'test@test.com', 'password', done);
         });
 
         it('should allow authenticated requests to /tasklist and return the tasklist', function (done) {
@@ -306,11 +157,13 @@ describe('GET /task/:taskId API', function () {
 
     // Create user and task only once
     before(function (done) {
-        createUserAndTask(done);
+        var userTask = userInit.createUserAndTask(done);
+        user = userTask['user'];
+        task = userTask['task'];
     });
     // Remove user and task at the end
     after(function (done) {
-        removeUserAndTask(done);
+        userInit.removeUserAndTask(done, user, task);
     });
 
     describe('retrieve a single a task (unauthenticated)', function () {
@@ -334,7 +187,7 @@ describe('GET /task/:taskId API', function () {
     describe('retrieve a single a task (authenticated)', function () {
         describe('on team that created task', function () {
             before(function (done) {
-                loginUser('test@test.com', 'password', done);
+                loginUser(server, 'test@test.com', 'password', done);
             });
             it('should prevent invalid object IDs from being passed in', function (done) {
                 server
@@ -373,10 +226,10 @@ describe('GET /task/:taskId API', function () {
 
         describe('not on team that created task', function () {
             before(function (done) {
-                createOtherUser(done);
+                user = userInit.createOtherUser(done);
             });
             before(function (done) {
-                loginUser('test2@test.com', 'password', done);
+                loginUser(server, 'test2@test.com', 'password', done);
             });
             it('should deny a user that is not on the team that created the task', function (done) {
                 findTask().then(function (taskId) {
@@ -400,11 +253,13 @@ describe('GET /task/user/:userId', function () {
     var firstUserId;
 
     before(function (done) {
-        createUserAndTask(done);
+        var userTask = userInit.createUserAndTask(done);
+        user = userTask['user'];
+        task = userTask['task'];
     });
 
     after(function (done) {
-        removeUserAndTask(done);
+        userInit.removeUserAndTask(done, user, task);
     });
 
     describe('unauthenticated user', function () {
@@ -425,7 +280,7 @@ describe('GET /task/user/:userId', function () {
 
     describe('authenticated user, own tasks', function () {
         before(function (done) {
-            loginUser('test@test.com', 'password', done);
+            loginUser(server, 'test@test.com', 'password', done);
         });
         it('should prevent the user from querying a non-existant user ID', function (done) {
             // Save a reference to the first user
@@ -460,10 +315,10 @@ describe('GET /task/user/:userId', function () {
 
     describe('authenticated user, others tasks', function () {
         before(function (done) {
-            createOtherUser(done);
+            user = userInit.createOtherUser(done);
         });
         before(function (done) {
-            loginUser('test2@test.com', 'password', done);
+            loginUser(server, 'test2@test.com', 'password', done);
         });
         it('should prevent users from querying the tasklists of others', function (done) {
             server
@@ -482,11 +337,13 @@ describe('GET /task/user/:userId', function () {
 
 describe('GET /task/team/:teamId', function () {
     before(function (done) {
-        createUserAndTask(done);
+        var userTask = userInit.createUserAndTask(done);
+        user = userTask['user'];
+        task = userTask['task'];
     });
 
     after(function (done) {
-        removeUserAndTask(done);
+        userInit.removeUserAndTask(done, user, task);
     });
     describe('unauthenticated user', function () {
         it('should not allow unauthenticated users to query a teams tasks', function (done) {
@@ -508,7 +365,7 @@ describe('GET /task/team/:teamId', function () {
         var firstTeamId;
         describe('invalid team', function () {
             before(function (done) {
-                loginUser('test@test.com', 'password', done);
+                loginUser(server, 'test@test.com', 'password', done);
             });
             it('should return an error for invalid team query', function (done) {
                 server
@@ -547,11 +404,11 @@ describe('GET /task/team/:teamId', function () {
         });
         describe('not on team being requested', function () {
             before(function (done) {
-                createOtherUser(done);
+                user = userInit.createOtherUser(done);
             });
 
             before(function (done) {
-                loginUser('test2@test.com', 'password', done);
+                loginUser(server, 'test2@test.com', 'password', done);
             });
 
             it('should not allow the user to query another teams tasks', function (done) {
@@ -572,17 +429,19 @@ describe('GET /task/team/:teamId', function () {
 });
 
 describe('POST /newTask', function () {
-    var task;
 
     before(function (done) {
-        createUserAndTask(done);
+        var userTask = userInit.createUserAndTask(done);
+        user = userTask['user'];
+        task = userTask['task'];
     });
 
     after(function (done) {
-        removeUserAndTask(done);
+        userInit.removeUserAndTask(done, user, task);
     });
 
     describe('unauthenticated user', function () {
+        var task;
         before(function (done) {
             task = {
                 title: 'new task',
@@ -608,8 +467,16 @@ describe('POST /newTask', function () {
     });
 
     describe('authenticated user', function () {
+        var task;
         before(function (done) {
-            loginUser('test@test.com', 'password', done);
+            task = {
+                title: 'new task',
+                content: 'new content'
+            };
+            done();
+        });
+        before(function (done) {
+            loginUser(server, 'test@test.com', 'password', done);
         });
 
         it('should allow authenticated users to create tasks', function (done) {

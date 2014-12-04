@@ -11,7 +11,7 @@ var user, task;
  *
  * @returns {Promise.promise|*}
  */
-var removeTasks = function () {
+var removeTasks = exports.removeTasks = function () {
     var deferred = q.defer();
     Task.remove({}, function (err) {
         if (err) {
@@ -143,11 +143,13 @@ exports.createUserAndTask = function (done) {
          * Create user and task
          */
         q.all([initUsers(), createTask()]).then(function () {
-            done();
             deferred.resolve({
                 user: user,
                 task: task
             });
+            if (typeof done === 'function') {
+                done();
+            }
         }).fail(function (err) {
             console.log(err);
             should.not.exist(err);

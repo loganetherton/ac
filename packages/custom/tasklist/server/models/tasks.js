@@ -78,12 +78,29 @@ TaskSchema.statics.loadByTeamId = function (id, cb) {
 };
 
 // Get most recent tasks for the requested user
-TaskSchema.statics.getMostRecent = function (userId, count, callback) {
+TaskSchema.statics.getMostRecent = function (userId, count, page, callback) {
+    // Set page to 1 if not set
+    page = page || 1;
+    var args = Array.prototype.slice.call(arguments);
+    // For calls without page or count specified
+    if (typeof args[args.length - 1] !== 'function') {
+        for (var thisArg in args) {
+            if (args.hasOwnProperty(thisArg) && typeof args[thisArg] === 'function') {
+                callback = args[thisArg];
+            }
+        }
+    } else {
+        callback = args[args.length - 1];
+    }
+    // Pagination
+    page = args.length < 4 ? 1 : page;
+    page = (page - 1) * 5;
+    // Default count
+    count = args.length < 3 ? 5 : count;
+    // Find the requested tasks
     this.find({
         user: userId
-    },
-    null,
-    {sort: {_id: -1}}).limit(count).populate('user', 'name').exec(callback);
+    }, null, {sort: {_id: -1}}).skip(page).limit(count).populate('user', 'name').exec(callback);
 };
 
 /**

@@ -104,7 +104,6 @@ describe('Task model', function () {
             userTaskHelper.createTask(5, user).then(function () {
                 Task.getMostRecent(user._id, 5, function (err, tasks) {
                     tasks.length.should.be.equal(5);
-                    console.log(tasks);
                     done();
                 })
             });

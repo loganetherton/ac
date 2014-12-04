@@ -6,6 +6,8 @@ var fs = require('fs-extra'),
 // The Package is past automatically as first parameter
 module.exports = function (Recentprojects, app, auth, database) {
 
+    var recentTaskCtrl = require('../controllers/controllers');
+
     app.route('/projects/projects.json').get(auth.requiresLogin, function (req, res, next) {
         var activityTestJson = path.resolve(__dirname, '../data/projects.json');
         // Make sure we're dealing with an actual file
@@ -23,4 +25,13 @@ module.exports = function (Recentprojects, app, auth, database) {
             });
         });
     });
+
+    // Find most recent tasks
+    app.route('/recentTasks')
+    .all(auth.requiresLogin)
+    .get(recentTaskCtrl.findMostRecent);
+    // Find most recent tasks with pagination
+    app.route('/recentTasks/:page')
+    .all(auth.requiresLogin)
+    .get(recentTaskCtrl.findMostRecent);
 };

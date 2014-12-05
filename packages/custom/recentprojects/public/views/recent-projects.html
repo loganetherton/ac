@@ -5,9 +5,9 @@
         Recent projects
     </span>
 
-    <ul class="dropdown-menu" ng-if="recentProjectsCtrl.projects.length">
-        <li ng-repeat="project in recentProjectsCtrl.projects">
-            <a href="{{project.href}}">{{project.title}}</a>
+    <ul class="dropdown-menu" ng-if="recentProjectsCtrl.tasks.length">
+        <li ng-repeat="task in recentProjectsCtrl.tasks">
+            <a href="{{task.href}}">{{task.title}}</a>
         </li>
         <li class="divider"></li>
         <li>

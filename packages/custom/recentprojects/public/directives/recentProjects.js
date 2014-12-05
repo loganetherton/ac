@@ -24,15 +24,15 @@ app.directive('recentProjects', [function () {
                     var elemClass = this.getAttribute('class');
                     // Go back a page
                     if (elemClass === 'prevPage') {
-                        scope.recentProjectsCtrl.loadMoreTasks('prev');
+                        scope.recentProjectsCtrl.loadTasks('prev');
                     // Go forward a page
                     } else if (elemClass === 'nextPage') {
-                        scope.recentProjectsCtrl.loadMoreTasks('next');
+                        scope.recentProjectsCtrl.loadTasks('next');
                     }
                 });
                 // Recheck the first page to get any updates to that
                 if (closed && scope.recentProjectsCtrl.page === 1) {
-                    scope.recentProjectsCtrl.getRecentProjects();
+                    scope.recentProjectsCtrl.loadTasks();
                 }
                 closed = !closed;
             });

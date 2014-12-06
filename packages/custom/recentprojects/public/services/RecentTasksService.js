@@ -2,11 +2,17 @@
 
 var app = angular.module('mean.recentprojects');
 
-app.factory('RecentTasksService', ['$http', function ($http) {
+app.factory('RecentTasksService', ['$http', '$q', function ($http, $q) {
     return {
         // Load tasks by page
         loadTasks: function (page) {
-            return $http.get('/recentTasks/' + page);
+            var deferred = $q.defer();
+            $http.get('/recentTasks/' + page).then(function (data) {
+                deferred.resolve(data.data);
+            }, function (err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
         }
     };
 }]);

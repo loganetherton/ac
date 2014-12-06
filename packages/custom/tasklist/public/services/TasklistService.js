@@ -11,7 +11,6 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
     return {
         // Get an initial listing of tasks, return promise
         init: function(){
-            // TODO _identity is sometimes not being set. Need to determine why
             _identity = _identity || User.getIdentity();
             var deferred = $q.defer();
             // If the user ID is not set correctly, don't make the request

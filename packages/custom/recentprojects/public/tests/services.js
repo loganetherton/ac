@@ -1,4 +1,4 @@
-ddescribe('recentTaskService', function () {
+describe('recentTaskService', function () {
     var recentTasksService, httpBackend, recentTasks;
     beforeEach(function () {
         module('mean');

@@ -15,7 +15,7 @@ var generateTasks = function (start, count) {
     }
 };
 
-ddescribe('RecentprojectsController', function () {
+describe('RecentprojectsController', function () {
     var scope, controller, projectService;
 
     beforeEach(function () {
@@ -43,7 +43,7 @@ ddescribe('RecentprojectsController', function () {
         var i, total = 0;
         // Make sure we don't have any untested
         for (i=0; i<keys.length; i++) {
-            if (typeof controller[keys[i]] === 'function') {
+            if (_.isFunction(controller[keys[i]])) {
                 total = total + 1;
             }
         }

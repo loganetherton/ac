@@ -37,12 +37,12 @@ module.exports = function(config) {
       //'node_modules/karma-ng-html2js-preprocessor/lib/index.js'
     ]),
 
-    // list of files to exclude
-    exclude: [],
+      // list of files to exclude
+      exclude: [],
 
-    // test results reporter to use
-    // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress', 'coverage'],
+      // test results reporter to use
+      // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
+      reporters: ['progress', 'coverage'],
 
       // coverage
       preprocessors: {
@@ -54,27 +54,32 @@ module.exports = function(config) {
 
 
           // This is a direct call, only for debugging
-          'packages/custom/tasklist/public/views/directiveTemplates/tasklist-directive.html': ['ng-html2js']
+          'packages/custom/**/public/views/**/*.html': ['ng-html2js']
+          //'packages/custom/recentprojects/public/views/directiveTemplates/recent-projects.html': ['ng-html2js']
           //'packages/**/public/views/directiveTemplates/*.js': ['ng-html2js']
           //'packages/**/*.html': ['ng-html2js']
       },
 
+      /**********************************************************
+       * Until the pull request is accepted, this will only with with my repo version of karma-ng-html2js
+       * https://github.com/loganetherton/karma-ng-html2js-preprocessor-1
+       **********************************************************/
       ngHtml2JsPreprocessor: {
           // If your build process changes the path to your templates,
           // use stripPrefix and prependPrefix to adjust it.
           // Actual: packages/custom/tasklist/public/views/...
           // Served: /tasklist/views/directiveTemplates/tasklist-directive.html
-          stripPrefix: 'packages/custom/tasklist/public/views/directiveTemplates/',
-          prependPrefix: 'tasklist/views/directiveTemplates/',
+          stripPrefix: '.*/(.*)/public/views/directiveTemplates/',
+          prependPrefix: '{$1}/views/directiveTemplates/',
 
           // the name of the Angular module to create
           moduleName: 'mean.templates'
       },
 
-    coverageReporter: {
-      type: 'html',
-      dir: 'test/coverage/'
-    },
+      coverageReporter: {
+          type: 'html',
+          dir: 'test/coverage/'
+      },
 
     // web server port
     port: 9876,

@@ -2,18 +2,17 @@
 
 var app = angular.module('mean.recentprojects');
 
-app.directive('recentProjects', [function () {
+app.directive('recentTasks', [function () {
     return {
         restrict: 'EA',
-        templateUrl: 'recentprojects/views/recent-projects.html',
+        templateUrl: 'recentprojects/views/directiveTemplates/recent-projects.html',
         controller: 'RecentprojectsController',
         controllerAs: 'recentProjectsCtrl',
         scope: {
 
         },
         link: function(scope, element, attrs){
-            var closed = true;
-            scope.recentProjectsCtrl.page = 1;
+            scope.closed = true;
             // On open, make sure the list is up to date
             element.on('click', function () {
                 // Change page
@@ -31,10 +30,10 @@ app.directive('recentProjects', [function () {
                     }
                 });
                 // Recheck the first page to get any updates to that
-                if (closed && scope.recentProjectsCtrl.page === 1) {
+                if (scope.closed && scope.recentProjectsCtrl.page === 1) {
                     scope.recentProjectsCtrl.loadTasks();
                 }
-                closed = !closed;
+                scope.closed = !scope.closed;
             });
         }
     };

@@ -1,5 +1,5 @@
 describe('directive:recentProjects', function () {
-    var scope, element, ProjectService, controller;
+    var scope, element;
     beforeEach(function () {
         module('mean');
         module('mean.system');
@@ -7,7 +7,7 @@ describe('directive:recentProjects', function () {
         module("mean.templates");
         module('mean.recentprojects', function ($provide) {
             $provide.factory('User', UserMock);
-            $provide.factory('ProjectService', ProjectServiceMock);
+            $provide.factory('RecentTasksService', ProjectServiceMock);
         });
     });
 

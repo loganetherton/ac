@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('mean.recentprojects').controller('RecentprojectsController',
-['$scope', 'ProjectService', '$rootScope', 'User', function ($scope, ProjectService, $rootScope, User) {
+['$scope', 'RecentTasksService', '$rootScope', 'User', function ($scope, RecentTasksService, $rootScope, User) {
     var vm = this;
     vm.page = 1;
 
@@ -25,7 +25,7 @@ angular.module('mean.recentprojects').controller('RecentprojectsController',
             vm.page = vm.page + 1;
         }
         // Load tasks from the project service
-        ProjectService.loadTasks(vm.page).then(function(response){
+        RecentTasksService.loadTasks(vm.page).then(function(response){
             // Load more data
             if (response.data.length) {
                 vm.tasks = response.data;

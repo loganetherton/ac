@@ -16,23 +16,23 @@ var generateTasks = function (start, count) {
 };
 
 describe('RecentprojectsController', function () {
-    var scope, controller, projectService;
+    var scope, controller, recentTasksService;
 
     beforeEach(function () {
         module('mean');
         module('mean.system');
         module('mean.recentprojects', function ($provide) {
             $provide.factory('User', UserMock);
-            $provide.factory('ProjectService', ProjectServiceMock);
+            $provide.factory('RecentTasksService', ProjectServiceMock);
         });
     });
 
-    beforeEach(inject(function ($rootScope, $controller, ProjectService) {
+    beforeEach(inject(function ($rootScope, $controller, RecentTasksService) {
         tasks = [];
         scope = $rootScope.$new();
-        // Spy on the projectService
-        projectService = ProjectService;
-        spyOn(projectService, 'loadTasks').andCallThrough();
+        // Spy on the RecentTasksService
+        recentTasksService = RecentTasksService;
+        spyOn(recentTasksService, 'loadTasks').andCallThrough();
         controller = $controller('RecentprojectsController', {$scope: scope});
         scope.$digest();
     }));
@@ -55,7 +55,7 @@ describe('RecentprojectsController', function () {
     });
 
     it('should call getRecentProjects immediately and populate the tasks array', function () {
-        expect(projectService.loadTasks).toHaveBeenCalled();
+        expect(recentTasksService.loadTasks).toHaveBeenCalled();
         // First five tasks
         generateTasks(0, 5);
         expect(angular.equals(controller.tasks, tasks)).toEqual(true);
@@ -69,7 +69,7 @@ describe('RecentprojectsController', function () {
         controller.loadTasks('next');
         scope.$digest();
         // Make sure page 2 was requested
-        expect(projectService.loadTasks).toHaveBeenCalledWith(nextPage);
+        expect(recentTasksService.loadTasks).toHaveBeenCalledWith(nextPage);
         generateTasks(5, 5);
         // Make sure we're getting page 2
         expect(angular.equals(controller.tasks, tasks)).toEqual(true);
@@ -82,7 +82,7 @@ describe('RecentprojectsController', function () {
         controller.loadTasks('next');
         scope.$digest();
         // Make sure page 3 was requested
-        expect(projectService.loadTasks).toHaveBeenCalledWith(nextPage);
+        expect(recentTasksService.loadTasks).toHaveBeenCalledWith(nextPage);
         // Only two tasks on page 3
         generateTasks(10, 2);
         // Make sure we're getting page 3
@@ -98,7 +98,7 @@ describe('RecentprojectsController', function () {
         controller.loadTasks('next');
         scope.$digest();
         // Make sure the service was indeed called, but nothing changed on the tasks
-        expect(projectService.loadTasks).toHaveBeenCalledWith(nextPage);
+        expect(recentTasksService.loadTasks).toHaveBeenCalledWith(nextPage);
         expect(angular.equals(startTasks, controller.tasks)).toBeTruthy();
         // Make sure we're still on page 3
         expect(controller.page).toEqual(currentPage);
@@ -111,7 +111,7 @@ describe('RecentprojectsController', function () {
         controller.loadTasks('prev');
         scope.$digest();
         // Shouldn't get to the service
-        expect(projectService.loadTasks.callCount).toEqual(1);
+        expect(recentTasksService.loadTasks.callCount).toEqual(1);
         // Make sure we haven't changed pages
         expect(controller.page).toEqual(currentPage);
     });
@@ -119,6 +119,6 @@ describe('RecentprojectsController', function () {
     it('should call getRecentTasks() on loggedin emit', inject(function ($rootScope) {
         $rootScope.$emit('loggedin');
         scope.$digest();
-        expect(projectService.loadTasks.callCount).toEqual(2);
+        expect(recentTasksService.loadTasks.callCount).toEqual(2);
     }));
 });

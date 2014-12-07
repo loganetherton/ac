@@ -27,8 +27,8 @@ angular.module('mean.recentprojects').controller('RecentprojectsController',
         // Load tasks from the project service
         RecentTasksService.loadTasks(vm.page).then(function(response){
             // Load more data
-            if (response.data.length) {
-                vm.tasks = response.data;
+            if (response.length) {
+                vm.tasks = response;
             // Don't go beyond the last page
             } else if (vm.page > 1) {
                 vm.page = vm.page - 1;

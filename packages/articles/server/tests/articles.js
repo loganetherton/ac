@@ -2,6 +2,8 @@
 // Trying out emit when server starts
 var mean = require('meanio');
 
+var userTaskHelper = require('../../../../test/mochaHelpers/initUserAndTasks');
+
 describe('server setup', function () {
     var serverUp = false;
     before(function (done) {
@@ -11,8 +13,11 @@ describe('server setup', function () {
         });
     });
 
+    after(function (done) {
+        userTaskHelper.removeUsersAndTasks(done);
+    });
+
     it('should run the tests only after the server has been started', function () {
-        console.log('server started');
         serverUp.should.be.ok;
     });
 });

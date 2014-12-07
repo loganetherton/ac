@@ -16,8 +16,6 @@ module.exports = function (Tasklist, app, auth, database) {
     app.route('/task/:taskId').
     all(auth.requiresLogin).
     get(taskList.singleTaskAsJson);
-    // OK, so, if I set the param, it goes before the auth check. Bad.
-    //app.param('taskId', taskList.queryTaskById);
 
     // Retrieve tasks for the current user
     app.route('/tasks/user/:userId').

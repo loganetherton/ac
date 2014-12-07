@@ -140,17 +140,6 @@
                     });
                 });
 
-                it('should return the newly submitted task on success', inject(function ($rootScope) {
-                    var responsePromise = tasklistService.create(true, task.title, task.content);
-                    // Handle response
-                    responsePromise.then(function (data) {
-                        expect(data).toEqual({ user : '1', title : 'title', content : 'content' });
-                    }, function (error) {
-
-                    });
-                    httpBackend.flush();
-                }));
-
                 it('should emit the newly submitted task on success', function () {
                     spyOn(socketService, 'emit');
                     tasklistService.create(true, task.title, task.content).then(function () {

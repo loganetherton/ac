@@ -10,8 +10,7 @@ var ProjectServiceMock = function ($q, $rootScope) {
     return {
         loadTasks: function (page) {
             var deferred = $q.defer();
-            var tasksToReturn = {};
-            tasksToReturn.data = data.slice((page - 1)*5, page * 5);
+            var tasksToReturn = data.slice((page - 1)*5, page * 5);
 
             // Return a list of tasks
             deferred.resolve(tasksToReturn);

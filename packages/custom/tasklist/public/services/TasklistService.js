@@ -41,7 +41,7 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
                 };
                 $http.post('/newTask', task).then(function (data) {
                     // Resolve and emit
-                    deferred.resolve(data.data);
+                    deferred.resolve();
                     TasklistSocketService.emit('newTask', {
                         data: data.data
                     });

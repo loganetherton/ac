@@ -1,3 +1,4 @@
+/*global _:false */
 'use strict';
 
 angular.module('mean.recentprojects').controller('RecentprojectsController',
@@ -26,8 +27,8 @@ angular.module('mean.recentprojects').controller('RecentprojectsController',
         }
         // Load tasks from the project service
         RecentTasksService.loadTasks(vm.page).then(function(response){
-            // Load more data
-            if (response.length) {
+            // If there are tasks, input them
+            if (!_.isUndefined(response) && response.length) {
                 vm.tasks = response;
             // Don't go beyond the last page
             } else if (vm.page > 1) {

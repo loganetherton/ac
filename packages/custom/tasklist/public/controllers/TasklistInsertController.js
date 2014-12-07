@@ -16,7 +16,7 @@
         this.create = function (valid) {
             var defer = TasklistService.create(valid, vm.title, vm.content);
 
-            defer.then(function (data) {
+            defer.then(function () {
                 vm.title = '';
                 vm.content = '';
             }, function (error) {

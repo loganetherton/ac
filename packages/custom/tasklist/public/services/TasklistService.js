@@ -41,9 +41,9 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
                 };
                 $http.post('/newTask', task).then(function (data) {
                     // Resolve and emit
-                    deferred.resolve(task);
+                    deferred.resolve(data.data);
                     TasklistSocketService.emit('newTask', {
-                        data: task
+                        data: data.data
                     });
                 }, function () {
                     deferred.reject('Failed to save new task');

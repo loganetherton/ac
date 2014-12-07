@@ -12,11 +12,6 @@ module.exports = function (Tasklist, app, auth, database) {
     app.route('/newTask').
     post(auth.requiresLogin, taskList.create);
 
-    // Retrieve a single task by ID
-    app.route('/task/:taskId').
-    all(auth.requiresLogin).
-    get(taskList.singleTaskAsJson);
-
     // Retrieve tasks for the current user
     app.route('/tasks/user/:userId').
     all(auth.requiresLogin).
@@ -25,8 +20,6 @@ module.exports = function (Tasklist, app, auth, database) {
     // Retrieve tasks for the requested team
     app.route('/tasks/team/:teamId').
     get(auth.requiresLogin, taskList.getTasksByTeamId);
-
-
 
     // Set teams for access in socket
     app.use(function (req, res, next) {

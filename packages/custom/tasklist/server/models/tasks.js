@@ -4,7 +4,8 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-Schema = mongoose.Schema;
+Schema = mongoose.Schema,
+_ = require('lodash');
 
 /**
  * Task Schema
@@ -83,12 +84,14 @@ TaskSchema.statics.getMostRecent = function (userId, count, page, callback) {
     page = page || 1;
     var args = Array.prototype.slice.call(arguments);
     // For calls without page or count specified
-    if (typeof args[args.length - 1] !== 'function') {
-        for (var thisArg in args) {
-            if (args.hasOwnProperty(thisArg) && typeof args[thisArg] === 'function') {
-                callback = args[thisArg];
-            }
+    if (!_.isFunction(callback)) {
+        var filteredArgs = args.filter(function (val) {
+            return _.isFunction(val);
+        });
+        if (filteredArgs.length !== 1) {
+            throw new Error('A single callback must be passed to TaskSchema.getMostRecent');
         }
+        callback = filteredArgs[0];
     } else {
         callback = args[args.length - 1];
     }

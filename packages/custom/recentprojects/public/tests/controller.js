@@ -7,12 +7,12 @@ var tasks;
  * @param count
  */
 var generateTasks = function (start, count) {
-    for (var i = start; i<start+count; i++) {
+    _.range(start, start+count).map(function (currentVal) {
         tasks.push({
-            title: 'Fake title ' + i,
-            content: 'Fake content ' + i
+            title: 'Fake title ' + currentVal,
+            content: 'Fake content ' + currentVal
         });
-    }
+    });
 };
 
 describe('RecentprojectsController', function () {
@@ -39,15 +39,11 @@ describe('RecentprojectsController', function () {
 
     it('should have all methods', function () {
         expect(typeof controller.loadTasks).toEqual('function');
-        var keys = Object.keys(controller);
-        var i, total = 0;
-        // Make sure we don't have any untested
-        for (i=0; i<keys.length; i++) {
-            if (_.isFunction(controller[keys[i]])) {
-                total = total + 1;
-            }
-        }
-        expect(total).toEqual(1);
+        // Determine the number of functions on the controller
+        var ctrlFuncs = Object.keys(controller).filter(function (value) {
+            return _.isFunction(controller[value]);
+        });
+        expect(ctrlFuncs.length).toEqual(1);
     });
 
     it('should start on page one', function () {

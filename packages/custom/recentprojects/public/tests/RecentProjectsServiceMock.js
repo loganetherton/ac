@@ -1,12 +1,11 @@
-var ProjectServiceMock = function ($q, $rootScope) {
+var ProjectServiceMock = function ($q) {
     var data = [];
-    // Return some fake tasks
-    for (var i = 0; i<12; i++) {
+    _.range(0, 12).map(function (curVal) {
         data.push({
-            title: 'Fake title ' + i,
-            content: 'Fake content ' + i
+            title: 'Fake title ' + curVal,
+            content: 'Fake content ' + curVal
         });
-    }
+    });
     return {
         loadTasks: function (page) {
             var deferred = $q.defer();

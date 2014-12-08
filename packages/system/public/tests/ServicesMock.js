@@ -50,15 +50,14 @@ var AuthenticationServiceMock = function ($http, SocketService, Global, LogServi
             return _identity.roles.indexOf(role) !== -1;
         },
         isInAnyRole: function (roles) {
+            var that = this;
             if (!_authenticated || !_identity.roles) {
                 return false;
             }
-            for (var i = 0; i < roles.length; i = i + 1) {
-                if (this.isInRole(roles[i])) {
-                    return true;
-                }
-            }
-            return false;
+            // Find if the user is in one of the rows
+            return roles.some(function (value) {
+                return that.isInRole(value);
+            });
         },
         authenticate: function (identity) {
             _identity = identity;

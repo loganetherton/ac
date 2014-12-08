@@ -1,6 +1,7 @@
 'use strict';
 
-var crypto = require('crypto');
+var crypto = require('crypto'),
+    _ = require('lodash');
 
 /**
  * Create a random hex string of specific length and
@@ -104,13 +105,11 @@ describe('Model User:', function () {
         it('should require at least one team to save', function (done) {
             var userWithoutTeam = {};
             // Create a copy of user1 without teams set
-            for (var attr in user1) {
-                if (user1.hasOwnProperty(attr)) {
-                    if (attr !== 'teams') {
-                        userWithoutTeam[attr] = user1[attr];
-                    }
+            _.forOwn(user1, function (val, key) {
+                if (key !== 'teams') {
+                    userWithoutTeam[key] = val;
                 }
-            }
+            });
             // Create new user
             var _user = new User(userWithoutTeam);
             _user.save(function (err) {

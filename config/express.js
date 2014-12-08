@@ -16,7 +16,8 @@ var mean = require('meanio'),
     mongoStore = require('connect-mongo')(session),
     helpers = require('view-helpers'),
     flash = require('connect-flash'),
-    config = mean.loadConfig();
+    config = mean.loadConfig(),
+    _ = require('lodash');
 
 module.exports = function (app, passport, db) {
 
@@ -94,6 +95,17 @@ module.exports = function (app, passport, db) {
 
     //mean middleware from modules before routes
     app.use(mean.chainware.before);
+
+    // Set teams for access in socket
+    app.use(function (req, res, next) {
+        var currentTeam = app.get('teams');
+        if (typeof currentTeam === 'undefined' || !currentTeam || !currentTeam.length) {
+            if (_.isObject(req.session) && _.isArray(req.session.teams)) {
+                app.set('teams', req.session.teams || null);
+            }
+        }
+        next();
+    });
 
     // Connect flash for flash messages
     app.use(flash());

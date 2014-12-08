@@ -1,6 +1,7 @@
 'use strict';
 
-var taskList = require('../controllers/tasklist');
+var taskList = require('../controllers/tasklist'),
+    _ = require('lodash');
 
 // The Package is passed automatically as first parameter
 module.exports = function (Tasklist, app, auth, database) {
@@ -21,17 +22,11 @@ module.exports = function (Tasklist, app, auth, database) {
     app.route('/tasks/team/:teamId').
     get(auth.requiresLogin, taskList.getTasksByTeamId);
 
-    // Set teams for access in socket
-    app.use(function (req, res, next) {
-        var currentTeam = app.get('teams');
-        if (typeof currentTeam === 'undefined' || !currentTeam || !currentTeam.length) {
-            app.set('teams', req.session.teams || null);
-        }
-        next();
-    });
-
     // Connection to socket
     Tasklist.io.of('/task').on('connection', function (socket) {
+        if (_.isUndefined(app.get('teams'))) {
+            return;
+        }
         var teamRoom = 'team:' + app.get('teams');
         // Join the socket for this team
         socket.join(teamRoom);

@@ -101,4 +101,8 @@ describe('Recent tasks', function () {
     it('should stay on page 3 if a non-existent page is requested', function () {
         examineTasks(10, 'next', 3);
     });
+
+    it('should allow the user to logout', function () {
+        helpers.logoutUser();
+    });
 });

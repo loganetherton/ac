@@ -82,6 +82,12 @@ var Helpers = function () {
             });
         },
         /**
+         * Logout the current user
+         */
+        logoutUser: function () {
+            browser.get('/logout');
+        },
+        /**
          * Create a user
          */
         createUser: function (email, password, name) {

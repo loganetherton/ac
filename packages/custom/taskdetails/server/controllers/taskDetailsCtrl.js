@@ -31,6 +31,17 @@ exports.singleTaskAsJson = function(req, res) {
 };
 
 /**
+ * Check if any updates have been made to the task
+ * @param req
+ * @param task
+ * @returns {*}
+ */
+var taskUpdated = function (req, task) {
+    return _.isEqual(req.user._id, task.user._id) && _.isEqual(task.title, req.body.title) &&
+           _.isEqual(task.content, req.body.content)
+};
+
+/**
  * Update a single task
  * @param req
  * @param res
@@ -48,13 +59,12 @@ exports.updateTask = function (req, res) {
         if (!serverCtrlHelpers.checkTeam(req.user.teams, task.team)) {
             return res.status(401).send('Unauthorized');
         }
-        // Create a snapshot of this point
-        var oldTask = serverCtrlHelpers.createTaskHistory(task);
         // if nothing changes, do nothing
-        if (_.isEqual(req.user._id, task.user._id) && _.isEqual(task.title, req.body.title) &&
-            _.isEqual(task.content, req.body.content)) {
+        if (taskUpdated(req, task)) {
             return res.json(task);
         }
+        // Create a snapshot of this point
+        var oldTask = serverCtrlHelpers.createTaskHistory(task);
         // Update title
         if (_.isString(req.body.title)) {
             task.title = req.body.title;

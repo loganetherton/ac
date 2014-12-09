@@ -14,6 +14,19 @@ var request = require('supertest'),
 var userTaskHelper = require('../../../../../test/mochaHelpers/initUserAndTasks'),
     loginUser = require('../../../../../test/mochaHelpers/loginUser');
 
+// Find a single task
+var findMostRecentTask = function () {
+    var defer = q.defer();
+    Task.find({}, function (err, data) {
+        if (err) {
+            should.not.exist(err);
+            defer.reject('Could not find task ID');
+        }
+        defer.resolve(data[0]._id);
+    });
+    return defer.promise;
+};
+
 /**
  * Global user and task model
  */
@@ -21,19 +34,6 @@ var user;
 var task;
 
 describe('GET /task/:taskId API', function () {
-    // Find a single task
-    var findTask = function () {
-        var defer = q.defer();
-        Task.find({}, function (err, data) {
-            if (err) {
-                should.not.exist(err);
-                defer.reject('Could not find task ID');
-            }
-            defer.resolve(data[0]._id);
-        });
-        return defer.promise;
-    };
-
     // Create user and task only once
     before(function (done) {
         userTaskHelper.createUserAndTask(done).then(function (userTask) {
@@ -48,7 +48,7 @@ describe('GET /task/:taskId API', function () {
 
     describe('retrieve a single a task (unauthenticated)', function () {
         it('should deny an unauthenticated user to retrieve a task', function (done) {
-            findTask().then(function (taskId) {
+            findMostRecentTask().then(function (taskId) {
                 server
                 .get('/task/' + taskId)
                 .expect(401)
@@ -83,7 +83,7 @@ describe('GET /task/:taskId API', function () {
             });
             it('should allow an authenticated user to retrieve a task', function (done) {
                 // Get the single task ID in the database
-                findTask().then(function (taskId) {
+                findMostRecentTask().then(function (taskId) {
                     server
                     .get('/task/' + taskId)
                     .expect(200)
@@ -112,7 +112,7 @@ describe('GET /task/:taskId API', function () {
                 loginUser(server, 'test2@test.com', 'password', done);
             });
             it('should deny a user that is not on the team that created the task', function (done) {
-                findTask().then(function (taskId) {
+                findMostRecentTask().then(function (taskId) {
                     server
                     .get('/task/' + taskId)
                     .expect(401)
@@ -123,6 +123,146 @@ describe('GET /task/:taskId API', function () {
                         res.text.should.be.equal('Unauthorized');
                         done();
                     });
+                });
+            });
+        });
+    });
+});
+
+describe.only('POST /task/:taskId', function () {
+    // Create user and task only once
+    before(function (done) {
+        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+            user = userTask['user'];
+            task = userTask['task'];
+        });
+    });
+    // Remove user and task at the end
+    after(function (done) {
+        userTaskHelper.removeUsersAndTasks(done, user, task);
+    });
+
+    describe('unauthenticated', function () {
+        it('should deny the user access to update the task', function (done) {
+            findMostRecentTask().then(function (taskId) {
+                server
+                .post('/task/' + taskId)
+                .send({title: 'New Title', content: 'New Content'})
+                .expect(401)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(401);
+                    res.text.should.be.equal('User is not authorized');
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('not on the team that owns the tasks', function () {
+        before(function (done) {
+            user = userTaskHelper.createOtherUser(done);
+        });
+        before(function (done) {
+            loginUser(server, 'test2@test.com', 'password', done);
+        });
+        it('should deny the user access to edit the task', function (done) {
+            findMostRecentTask().then(function (taskId) {
+                server
+                .post('/task/' + taskId)
+                .send({title: 'New Title', content: 'New Content'})
+                .expect(401)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(401);
+                    res.text.should.be.equal('Unauthorized');
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('on the team that owns the task', function () {
+        before(function (done) {
+            loginUser(server, 'test@test.com', 'password', done);
+        });
+        it('should return an error if an invalid taskId is requested', function (done) {
+            // Create 24 1s, it will match a valid object ID when a snowball rules hell
+            var badId = Array.apply(null, Array(24)).map(function(){return 1}).join('');
+            server
+            .post('/task/' + badId)
+            .send({title: 'New Title', content: 'New Content'})
+            .expect(400)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(400);
+                res.text.should.be.equal('Failed to load task ' + badId);
+                done();
+            });
+        });
+
+        it('should be able to update the title of the task, then return the new task', function (done) {
+            findMostRecentTask().then(function (taskId) {
+                server
+                .post('/task/' + taskId)
+                .send({title: 'New Title'})
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(200);
+                    var tasks = res.body;
+                    tasks._id.should.be.ok;
+                    tasks.title.should.be.equal('New Title');
+                    tasks.content.should.be.equal('Task Content');
+                    done();
+                });
+            });
+        });
+
+        it('should be able to update the content of the task, then return the new task', function (done) {
+            findMostRecentTask().then(function (taskId) {
+                server
+                .post('/task/' + taskId)
+                .send({content: 'New Content'})
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(200);
+                    var tasks = res.body;
+                    tasks._id.should.be.ok;
+                    tasks.title.should.be.equal('New Title');
+                    tasks.content.should.be.equal('New Content');
+                    done();
+                });
+            });
+        });
+
+        it('should be able to update the title and content, then return the new task', function (done) {
+            findMostRecentTask().then(function (taskId) {
+                server
+                .post('/task/' + taskId)
+                .send({content: 'Better Content', title: 'Better Title'})
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(200);
+                    var tasks = res.body;
+                    tasks._id.should.be.ok;
+                    tasks.title.should.be.equal('Better Title');
+                    tasks.content.should.be.equal('Better Content');
+                    done();
                 });
             });
         });

@@ -1,7 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    Task = mongoose.model('Task');
+    Task = mongoose.model('Task'),
+    _ = require('lodash');
 
 var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
 
@@ -26,5 +27,41 @@ exports.singleTaskAsJson = function(req, res) {
             return res.status(401).send('Unauthorized');
         }
         res.json(task);
+    });
+};
+
+/**
+ * Update a single task
+ * @param req
+ * @param res
+ * @returns {*}
+ */
+exports.updateTask = function (req, res) {
+    if (_.isUndefined(req.params.taskId) || !serverCtrlHelpers.checkValidObjectId(req.params.taskId)) {
+        return res.status(400).send('A valid task ID must be passed in to this query');
+    }
+    Task.load(req.params.taskId, function (err, task) {
+        if (err || !task) {
+            return res.status(400).send('Failed to load task ' + req.params.taskId);
+        }
+        // Make sure the requested task is accessible to the requesting user
+        if (!serverCtrlHelpers.checkTeam(req.user.teams, task.team)) {
+            return res.status(401).send('Unauthorized');
+        }
+        // Update title
+        if (_.isString(req.body.title)) {
+            task.title = req.body.title;
+        }
+        // Update content
+        if (_.isString(req.body.content)) {
+            task.content = req.body.content;
+        }
+        // Save the new task
+        task.save(function (err) {
+            if (err) {
+                return res.status(400).send('Failed to update task ' + req.params.taskId);
+            }
+            res.json(task);
+        });
     });
 };

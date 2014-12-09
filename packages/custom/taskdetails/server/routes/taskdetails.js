@@ -7,6 +7,7 @@ module.exports = function(Taskdetails, app, auth, database) {
     // Retrieve a single task by ID
     app.route('/task/:taskId').
     all(auth.requiresLogin).
+    post(taskDetails.updateTask).
     get(taskDetails.singleTaskAsJson);
 
     // Connection to socket

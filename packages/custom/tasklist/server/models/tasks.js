@@ -10,6 +10,27 @@ _ = require('lodash');
 /**
  * Task Schema
  */
+var TaskHistorySchema = new Schema({
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    content: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    user: {
+        type: Schema.ObjectId,
+        ref: 'User',
+        required: true
+    }
+});
+
+/**
+ * Task Schema
+ */
 var TaskSchema = new Schema({
     modified: {
         type: Date,
@@ -34,7 +55,8 @@ var TaskSchema = new Schema({
         type: Schema.ObjectId,
         ref: 'Team',
         required: true
-    }
+    },
+    history: [TaskHistorySchema]
 });
 
 /**

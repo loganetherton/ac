@@ -19,3 +19,19 @@ exports.checkTeam = function (teams, taskTeam) {
         return team + '' === taskTeam + '';
     });
 };
+
+/**
+ * Create a copy of the original task to save as history
+ * @param task
+ * @returns {{}}
+ */
+exports.createTaskHistory = function (task) {
+    // Create a snapshot of the task
+    var oldTask = {};
+    _.forOwn(task._doc, function (value, key) {
+        if (key === 'content' || key === 'title' || key === 'user') {
+            oldTask[key] = value;
+        }
+    });
+    return oldTask;
+};

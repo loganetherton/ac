@@ -17,12 +17,13 @@ var userTaskHelper = require('../../../../../test/mochaHelpers/initUserAndTasks'
 // Find a single task
 var findMostRecentTask = function () {
     var defer = q.defer();
-    Task.find({}, function (err, data) {
+    Task.findOne({}, function (err, data) {
         if (err) {
             should.not.exist(err);
             defer.reject('Could not find task ID');
         }
-        defer.resolve(data[0]._id);
+        task = data;
+        defer.resolve(data._id);
     });
     return defer.promise;
 };
@@ -129,7 +130,7 @@ describe('GET /task/:taskId API', function () {
     });
 });
 
-describe.only('POST /task/:taskId', function () {
+describe('POST /task/:taskId', function () {
     // Create user and task only once
     before(function (done) {
         userTaskHelper.createUserAndTask(done).then(function (userTask) {
@@ -207,6 +208,28 @@ describe.only('POST /task/:taskId', function () {
             });
         });
 
+        it('should not do anything if neither title or content is updates', function (done) {
+            findMostRecentTask().then(function (taskId) {
+                server
+                .post('/task/' + taskId)
+                .send({title: task.title, content: task.content})
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(200);
+                    var tasks = res.body;
+                    tasks._id.should.be.ok;
+                    tasks.title.should.be.equal(task.title);
+                    tasks.content.should.be.equal(task.content);
+                    // No history shows no update
+                    tasks.history.length.should.be.equal(0);
+                    done();
+                });
+            });
+        });
+
         it('should be able to update the title of the task, then return the new task', function (done) {
             findMostRecentTask().then(function (taskId) {
                 server
@@ -262,6 +285,26 @@ describe.only('POST /task/:taskId', function () {
                     tasks._id.should.be.ok;
                     tasks.title.should.be.equal('Better Title');
                     tasks.content.should.be.equal('Better Content');
+                    done();
+                });
+            });
+        });
+
+        it('should have history written to the task for each update', function (done) {
+            findMostRecentTask().then(function (taskId) {
+                server
+                .get('/task/' + taskId)
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.status.should.equal(200);
+                    var tasks = res.body;
+                    tasks._id.should.be.ok;
+                    tasks.title.should.be.equal('Better Title');
+                    tasks.content.should.be.equal('Better Content');
+                    tasks.history.length.should.be.equal(3);
                     done();
                 });
             });

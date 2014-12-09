@@ -48,6 +48,13 @@ exports.updateTask = function (req, res) {
         if (!serverCtrlHelpers.checkTeam(req.user.teams, task.team)) {
             return res.status(401).send('Unauthorized');
         }
+        // Create a snapshot of this point
+        var oldTask = serverCtrlHelpers.createTaskHistory(task);
+        // if nothing changes, do nothing
+        if (_.isEqual(req.user._id, task.user._id) && _.isEqual(task.title, req.body.title) &&
+            _.isEqual(task.content, req.body.content)) {
+            return res.json(task);
+        }
         // Update title
         if (_.isString(req.body.title)) {
             task.title = req.body.title;
@@ -56,6 +63,8 @@ exports.updateTask = function (req, res) {
         if (_.isString(req.body.content)) {
             task.content = req.body.content;
         }
+        // Insert the history item
+        task.history.push(oldTask);
         // Save the new task
         task.save(function (err) {
             if (err) {

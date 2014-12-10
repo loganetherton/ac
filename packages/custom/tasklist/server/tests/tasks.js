@@ -426,72 +426,72 @@ describe('POST /newTask', function () {
     });
 });
 
-describe.only('Tasklist socket', function () {
-    var io = require('socket.io-client');
-    var options ={
-        transports: ['websocket'],
-        'force new connection': true
-    };
-    //var socketURL = 'http://0.0.0.0:3000/task';
-    var socketURL = 'http://localhost:3000/task';
-    var client1;
-    beforeEach(function (done) {
-        setTimeout(function () {
-            done();
-        }, 1800);
-    });
-    beforeEach(function () {
-        //client1 = io.connect(socketURL, options);
-        var client1 = io.connect('http://localhost:3000/task');
-        console.log('*******************CLIENT.IO***************');
-        console.log(client1);
-    });
-    // Create user and task only once
-    before(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
-            user = userTask['user'];
-            task = userTask['task'];
-        });
-    });
-    // Remove user and task at the end
-    after(function (done) {
-        userTaskHelper.removeUsersAndTasks(done, user, task);
-    });
-
-    describe('emit new task', function () {
-        it('should be able to connect to the socket', function (done) {
-
-            client1.on('connect', function(data){
-                console.log(data);
-                console.log('client connected');
-                //client1.emit('connection name', chatUser1);
-                //
-                ///* Since first client is connected, we connect
-                // the second client. */
-                //var client2 = io.connect(socketURL, options);
-                //
-                //client2.on('connect', function(data){
-                //    client2.emit('connection name', chatUser2);
-                //});
-                //
-                //client2.on('new user', function(usersName){
-                //    usersName.should.equal(chatUser2.name + " has joined.");
-                //    client2.disconnect();
-                //});
-                done();
-            });
-
-            //var numUsers = 0;
-            //client1.on('new user', function(usersName){
-            //    numUsers += 1;
-            //
-            //    if(numUsers === 2){
-            //        usersName.should.equal(chatUser2.name + " has joined.");
-            //        client1.disconnect();
-            //        done();
-            //    }
-            //});
-            //done();
-        });
-    });
-});
+//describe.only('Tasklist socket', function () {
+//    var io = require('socket.io-client');
+//    var options ={
+//        transports: ['websocket'],
+//        'force new connection': true
+//    };
+//    //var socketURL = 'http://0.0.0.0:3000/task';
+//    var socketURL = 'http://localhost:3000/task';
+//    var client1;
+//    beforeEach(function (done) {
+//        setTimeout(function () {
+//            done();
+//        }, 1800);
+//    });
+//    beforeEach(function () {
+//        //client1 = io.connect(socketURL, options);
+//        var client1 = io.connect('http://localhost:3000/task');
+//        console.log('*******************CLIENT.IO***************');
+//        console.log(client1);
+//    });
+//    // Create user and task only once
+//    before(function (done) {
+//        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+//            user = userTask['user'];
+//            task = userTask['task'];
+//        });
+//    });
+//    // Remove user and task at the end
+//    after(function (done) {
+//        userTaskHelper.removeUsersAndTasks(done, user, task);
+//    });
+//
+//    describe('emit new task', function () {
+//        it('should be able to connect to the socket', function (done) {
+//
+//            client1.on('connect', function(data){
+//                console.log(data);
+//                console.log('client connected');
+//                //client1.emit('connection name', chatUser1);
+//                //
+//                ///* Since first client is connected, we connect
+//                // the second client. */
+//                //var client2 = io.connect(socketURL, options);
+//                //
+//                //client2.on('connect', function(data){
+//                //    client2.emit('connection name', chatUser2);
+//                //});
+//                //
+//                //client2.on('new user', function(usersName){
+//                //    usersName.should.equal(chatUser2.name + " has joined.");
+//                //    client2.disconnect();
+//                //});
+//                done();
+//            });
+//
+//            //var numUsers = 0;
+//            //client1.on('new user', function(usersName){
+//            //    numUsers += 1;
+//            //
+//            //    if(numUsers === 2){
+//            //        usersName.should.equal(chatUser2.name + " has joined.");
+//            //        client1.disconnect();
+//            //        done();
+//            //    }
+//            //});
+//            //done();
+//        });
+//    });
+//});

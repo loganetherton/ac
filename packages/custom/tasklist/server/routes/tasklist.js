@@ -23,11 +23,7 @@ module.exports = function (Tasklist, app, auth, database) {
     get(auth.requiresLogin, taskList.getTasksByTeamId);
 
     // Connection to socket
-    //console.log('*****************TASKLIST IO****************');
-    //console.log(Tasklist.io);
-    //Tasklist.io.of('/task').on('connection', function (socket) {
-    Tasklist.io.on('connection', function (socket) {
-        console.log('*************SOCKET IN TASKLIST ROUTE***************');
+    Tasklist.io.of('/task').on('connection', function (socket) {
         //console.log(socket);
         if (_.isUndefined(app.get('teams'))) {
             return;

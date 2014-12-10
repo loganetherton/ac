@@ -84,3 +84,17 @@ exports.updateTask = function (req, res) {
         });
     });
 };
+
+/**
+ * Simply for checking the validity of the object ID being passed in
+ * @param req
+ * @param res
+ * @returns {*}
+ */
+exports.checkValidMongoId = function (req, res) {
+    console.log(req.body.id);
+    if (!serverCtrlHelpers.checkValidObjectId(req.body.id)) {
+        return res.status(400).send('Invalid object ID');
+    }
+    return res.status(200).send('Valid');
+};

@@ -38,7 +38,7 @@ exports.singleTaskAsJson = function(req, res) {
  */
 var taskUpdated = function (req, task) {
     return _.isEqual(req.user._id, task.user._id) && _.isEqual(task.title, req.body.title) &&
-           _.isEqual(task.content, req.body.content)
+           _.isEqual(task.content, req.body.content);
 };
 
 /**

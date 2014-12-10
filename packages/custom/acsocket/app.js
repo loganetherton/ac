@@ -15,7 +15,6 @@ var mean = require('meanio');
  */
 Acsocket.register(function (app, auth, database, http) {
 
-    //var io = require('./server/config/socketConfig')(http);
     var io = require('./server/config/socketConfig')(http);
     // Expose IO on the acsocket registration
     Acsocket.io = io;

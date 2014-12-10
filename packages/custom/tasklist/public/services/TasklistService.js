@@ -19,12 +19,14 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
                 return deferred.promise;
             }
             $http.get('/tasks/team/' + _identity.teams[0]).then(function (response) {
-                deferred.resolve(response.data);
-                //return response.data;
+                if (response.status === 200) {
+                    deferred.resolve(response.data);
+                }
+                deferred.reject();
             }, function (error) {
                 deferred.reject({
                     data: {
-                        error: 'Could not resolve get requests for user tasklist'
+                        error: 'Could not get tasklist'
                     }
                 });
             });

@@ -91,8 +91,7 @@ exports.updateTask = function (req, res) {
  * @param res
  * @returns {*}
  */
-exports.checkValidMongoId = function (req, res) {
-    console.log(req.body.id);
+exports.checkValidObjectId = function (req, res) {
     if (!serverCtrlHelpers.checkValidObjectId(req.body.id)) {
         return res.status(400).send('Invalid object ID');
     }

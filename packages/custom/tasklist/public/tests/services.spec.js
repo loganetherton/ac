@@ -87,14 +87,8 @@
         });
 
         describe('init()', function () {
-            var deferred;
-            beforeEach(function () {
-                deferred = q.defer();
-                httpBackend.whenGET(/tasks\/team\/.*/).respond(deferred.promise);
-            });
-
             it('should return an initial listing of tasks: init()', function () {
-                deferred.resolve({data: 'data'});
+                httpBackend.whenGET(/tasks\/team\/.*/).respond({data: 'data'});
                 var responsePromise = tasklistService.init();
                 httpBackend.flush();
                 responsePromise.then(function (data) {
@@ -106,15 +100,14 @@
             });
 
             it('should return an error message if failing to retrieve initial tasklist: init()', function () {
+                httpBackend.whenGET(/tasks\/team\/.*/).respond(400, {data: 'failed'});
                 spyOn(logService, 'error');
-                var deferred = q.defer();
-                deferred.reject({data: 'failed'});
                 var responsePromise = tasklistService.init();
                 httpBackend.flush();
                 responsePromise.then(function (data) {
-
+                    expect(data).not.toBeDefined();
                 }, function (error) {
-                    expect(error).toEqual({data: 'failed'});
+                    expect(angular.equals(error, {data:{error:"Could not get tasklist"}})).toBe(true);
                 });
             });
         });

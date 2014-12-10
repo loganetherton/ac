@@ -312,11 +312,11 @@ describe('POST /task/:taskId', function () {
     });
 });
 
-describe('POST /checkValidMongoId', function () {
+describe('POST /checkValidObjectId', function () {
     it('should return an error if an ID is invalid', function (done) {
         var badId = Array.apply(null, Array(23)).map(function(){return 1}).join('');
         server
-        .post('/checkValidMongoId')
+        .post('/checkValidObjectId')
         .send({id: badId})
         .expect(400)
         .end(function (err, res) {
@@ -331,7 +331,7 @@ describe('POST /checkValidMongoId', function () {
     it('should return success on a valid object ID', function (done) {
         var goodId = Array.apply(null, Array(24)).map(function(){return 1}).join('');
         server
-        .post('/checkValidMongoId')
+        .post('/checkValidObjectId')
         .send({id: goodId})
         .expect(200)
         .end(function (err, res) {

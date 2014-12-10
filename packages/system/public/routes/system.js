@@ -64,6 +64,19 @@ function ($stateProvider, $urlRouterProvider) {
     })
 
     /**
+     * Task
+     */
+    .state('site.task', {
+        /* jshint ignore:start */
+        url: '/task/{taskId:[a-f0-9]{24}}',
+        /* jshint ignore:end */
+        template: '<div data-ng-controller="TaskdetailsController"></div>',
+        data: {
+            roles: ['authenticated']
+        }
+    })
+
+    /**
      * Team
      */
     .state('team', {

@@ -1,5 +1,5 @@
 describe('TaskService', function () {
-    var taskService, location, httpBackend, rootScope, q, deferred;;
+    var taskService, location, httpBackend, rootScope;
     beforeEach(function () {
         module('mean');
         module('mean.system');
@@ -8,12 +8,11 @@ describe('TaskService', function () {
         });
     });
 
-    beforeEach(inject(function (TaskService, $location, $httpBackend, $rootScope, $q) {
+    beforeEach(inject(function (TaskService, $location, $httpBackend, $rootScope) {
         taskService = TaskService;
         location = $location;
         httpBackend = $httpBackend;
         rootScope = $rootScope;
-        q = $q;
     }));
 
     // Make sure no expectGET etc calls were missed

@@ -17,14 +17,14 @@ Teams.register(function(app, auth, database) {
   Teams.routes(app, auth, database);
 
   //We are adding a link to the main menu for all authenticated users
-  Teams.menus.add({
-    title: 'teams example page',
-    link: 'teams example page',
-    roles: ['authenticated'],
-    menu: 'main'
-  });
-  
-  Teams.aggregateAsset('css', 'teams.css');
+  //Teams.menus.add({
+  //  title: 'teams example page',
+  //  link: 'teams example page',
+  //  roles: ['authenticated'],
+  //  menu: 'main'
+  //});
+  //
+  //Teams.aggregateAsset('css', 'teams.css');
 
   /**
     //Uncomment to use. Requires meanio@0.3.7 or above

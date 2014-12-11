@@ -17,14 +17,14 @@ Header.register(function(app, auth, database) {
   Header.routes(app, auth, database);
 
   //We are adding a link to the main menu for all authenticated users
-  Header.menus.add({
-    title: 'header example page',
-    link: 'header example page',
-    roles: ['authenticated'],
-    menu: 'main'
-  });
-  
-  Header.aggregateAsset('css', 'header.css');
+  //Header.menus.add({
+  //  title: 'header example page',
+  //  link: 'header example page',
+  //  roles: ['authenticated'],
+  //  menu: 'main'
+  //});
+  //
+  //Header.aggregateAsset('css', 'header.css');
 
   /**
     //Uncomment to use. Requires meanio@0.3.7 or above

@@ -17,14 +17,14 @@ Navigation.register(function(app, auth, database) {
   Navigation.routes(app, auth, database);
 
   //We are adding a link to the main menu for all authenticated users
-  Navigation.menus.add({
-    title: 'navigation example page',
-    link: 'navigation example page',
-    roles: ['authenticated'],
-    menu: 'main'
-  });
-  
-  Navigation.aggregateAsset('css', 'navigation.css');
+  //Navigation.menus.add({
+  //  title: 'navigation example page',
+  //  link: 'navigation example page',
+  //  roles: ['authenticated'],
+  //  menu: 'main'
+  //});
+  //
+  //Navigation.aggregateAsset('css', 'navigation.css');
 
   /**
     //Uncomment to use. Requires meanio@0.3.7 or above

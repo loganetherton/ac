@@ -29,7 +29,7 @@ MeanUser.register(function(app, auth, passport, database) {
   //     menu: 'main'
   // });
 
-  MeanUser.aggregateAsset('js', 'meanUser.js');
+  //MeanUser.aggregateAsset('js', 'meanUser.js');
 
   /**
     //Uncomment to use. Requires meanio@0.3.7 or above

@@ -29,6 +29,8 @@ system.register(function (app, auth, database) {
     //system.aggregateAsset('css', 'fixes.css');
     //system.aggregateAsset('css', 'your_style.css');
 
+    system.aggregateAsset('css', 'flat.css');
+
     // The middleware in config/express will run before this code
 
     // Set views path, template engine and default layout

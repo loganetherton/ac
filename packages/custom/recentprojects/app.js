@@ -17,14 +17,14 @@ Recentprojects.register(function(app, auth, database) {
   Recentprojects.routes(app, auth, database);
 
   //We are adding a link to the main menu for all authenticated users
-  Recentprojects.menus.add({
-    title: 'recentprojects example page',
-    link: 'recentprojects example page',
-    roles: ['authenticated'],
-    menu: 'main'
-  });
-  
-  Recentprojects.aggregateAsset('css', 'recentprojects.css');
+  //Recentprojects.menus.add({
+  //  title: 'recentprojects example page',
+  //  link: 'recentprojects example page',
+  //  roles: ['authenticated'],
+  //  menu: 'main'
+  //});
+  //
+  //Recentprojects.aggregateAsset('css', 'recentprojects.css');
 
   /**
     //Uncomment to use. Requires meanio@0.3.7 or above

@@ -17,14 +17,14 @@ Activities.register(function(app, auth, database) {
   Activities.routes(app, auth, database);
 
   //We are adding a link to the main menu for all authenticated users
-  Activities.menus.add({
-    title: 'activities example page',
-    link: 'activities example page',
-    roles: ['authenticated'],
-    menu: 'main'
-  });
-  
-  Activities.aggregateAsset('css', 'activities.css');
+  //Activities.menus.add({
+  //  title: 'activities example page',
+  //  link: 'activities example page',
+  //  roles: ['authenticated'],
+  //  menu: 'main'
+  //});
+  //
+  //Activities.aggregateAsset('css', 'activities.css');
 
   /**
     //Uncomment to use. Requires meanio@0.3.7 or above

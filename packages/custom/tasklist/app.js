@@ -18,7 +18,7 @@ Tasklist.register(function (app, auth, database, io) {
     //We enable routing. By default the Package Object is passed to the routes
     Tasklist.routes(app, auth, database);
 
-    Tasklist.aggregateAsset('css', 'tasklist.css');
+    //Tasklist.aggregateAsset('css', 'tasklist.css');
 
     return Tasklist;
 });

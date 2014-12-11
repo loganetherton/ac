@@ -18,7 +18,7 @@ Taskdetails.register(function (app, auth, database, io) {
     //We enable routing. By default the Package Object is passed to the routes
     Taskdetails.routes(app, auth, database);
 
-    Taskdetails.aggregateAsset('css', 'taskdetails.css');
+    //Taskdetails.aggregateAsset('css', 'taskdetails.css');
 
     return Taskdetails;
 });

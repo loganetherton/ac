@@ -2,6 +2,8 @@
     "core": {
         "css": {
             "bower_components/build/css/dist.min.css": [
+                "bower_components/font-awesome/css/font-awesome.min.css",
+                "bower_components/weather-icons/css/weather-icons.min.css"
             ]
         }, "js": {
             "bower_components/build/js/dist.min.js": [

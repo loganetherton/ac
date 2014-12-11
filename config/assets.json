@@ -9,7 +9,7 @@
             "bower_components/build/js/dist.min.js": [
                 "bower_components/jquery/jquery.min.js",
                 "bower_components/jquery-ui/jquery-ui.min.js",
-                "bower_components/underscore/underscore.js",
+                "bower_components/lodash/dist/lodash.min.js",
                 "bower_components/underscore.string/dist/underscore.string.min.js",
                 "bower_components/bootstrap/dist/js/bootstrap.min.js",
                 "bower_components/stacktrace-js/stacktrace.js",

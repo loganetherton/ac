@@ -3,13 +3,26 @@
       itemtype="http://schema.org/Product" class="no-js">
 {% include '../includes/head.html' %}
 
-<body data-ng-controller="ThemeController" ng-cloak class="ng-cloak" ng-class="global.currentState" data-device-detect
-      data-fast-click data-smart-layout data-smart-page-title="SmartAdmin AngularJS">
+<body data-ng-controller="ThemeController" ng-cloak class="ng-cloak" data-custom-background data-off-canvas-nav>
     <!--<div class="navbar navbar-inverse navbar-fixed-top" data-ng-include="'/system/views/header.html'" data-role="navigation"></div>-->
 
-    <div data-smart-include="header/views/header.html" class="placeholder-header"></div>
+    <!--<div data-smart-include="header/views/header.html" class="placeholder-header"></div>-->
 
-    <div data-smart-include="navigation/views/navigation.html" class="placeholder-left-panel"></div>
+    <!--<div data-smart-include="navigation/views/navigation.html" class="placeholder-left-panel"></div>-->
+
+    <div data-ng-controller="IndexController">
+        <div data-ng-hide="isSpecificPage()" data-ng-cloak>
+            <section data-ng-include=" 'system/views/flat_header.html' "
+                     id="header" class="top-header"></section>
+
+            <aside data-ng-include=" 'system/views/flat_nav.html' "
+                   id="nav-container"></aside>
+        </div>
+
+        <div class="view-container">
+            <section data-ng-view id="content" class="animate-fade-up"></section>
+        </div>
+    </div>
 
     {% if adminEnabled %}
     <section class="admin-menu">

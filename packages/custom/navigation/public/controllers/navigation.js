@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('mean.navigation').controller('NavigationController',
-['$scope', 'Global', 'Navigation', '$rootScope', 'taskStorage', 'filterFilter',
-function ($scope, Global, Navigation, $rootScope, taskStorage, filterFilter) {
+['$scope', 'Global', 'Navigation', '$rootScope', 'TaskStorageService', 'filterFilter',
+function ($scope, Global, Navigation, $rootScope, TaskStorageService, filterFilter) {
     var vm = this;
     vm.global = Global;
 
@@ -12,7 +12,7 @@ function ($scope, Global, Navigation, $rootScope, taskStorage, filterFilter) {
     });
 
     var tasks;
-    tasks = $scope.tasks = taskStorage.get();
+    tasks = $scope.tasks = TaskStorageService.get();
     $scope.taskRemainingCount = filterFilter(tasks, {
         completed: false
     }).length;

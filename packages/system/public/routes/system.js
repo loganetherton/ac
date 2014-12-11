@@ -92,14 +92,6 @@ function ($stateProvider, $urlRouterProvider) {
     })
 
     /**
-     * Placeholder
-     */
-    .state('placeholder', {
-        url: '/placeholder',
-        template: '<div ui-view></div>'
-    })
-
-    /**
      * Socket
      */
     .state('acsocket', {

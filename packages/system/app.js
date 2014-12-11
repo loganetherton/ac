@@ -17,17 +17,16 @@ system.register(function (app, auth, database) {
     //We enable routing. By default the Package Object is passed to the routes
     system.routes(app, auth, database);
 
-    system.aggregateAsset('css', 'common.css');
-    //system.aggregateAsset('css', 'bootstrap.css');
+    //system.aggregateAsset('css', 'common.css');
 
-    system.aggregateAsset('css', 'demo.min.css');
-    system.aggregateAsset('css', 'font-awesome.min.css');
-    system.aggregateAsset('css', 'invoice.css');
-    system.aggregateAsset('css', 'lockscreen.min.css');
-    system.aggregateAsset('css', 'smartadmin-production-plugins.min.css');
-    system.aggregateAsset('css', 'smartadmin-production.min.css');
-    system.aggregateAsset('css', 'smartadmin-skins.min.css');
-    system.aggregateAsset('css', 'fixes.css');
+    //system.aggregateAsset('css', 'demo.min.css');
+    //system.aggregateAsset('css', 'font-awesome.min.css');
+    //system.aggregateAsset('css', 'invoice.css');
+    //system.aggregateAsset('css', 'lockscreen.min.css');
+    //system.aggregateAsset('css', 'smartadmin-production-plugins.min.css');
+    //system.aggregateAsset('css', 'smartadmin-production.min.css');
+    //system.aggregateAsset('css', 'smartadmin-skins.min.css');
+    //system.aggregateAsset('css', 'fixes.css');
     //system.aggregateAsset('css', 'your_style.css');
 
     // The middleware in config/express will run before this code

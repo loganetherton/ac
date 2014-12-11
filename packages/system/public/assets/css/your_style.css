@@ -35,3 +35,15 @@ nav {
 .fixed-navigation nav {
     height: auto;
 }
+
+.row.no-border {
+    border: 0;
+}
+
+.row.push-left {
+    margin-left: -5%;
+}
+
+fieldset.transparent {
+    background-color: transparent;
+}

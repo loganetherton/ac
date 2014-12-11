@@ -1,0 +1,20 @@
+<fieldset class="transparent smart-form">
+    <div class="row no-border push-left">
+        <section class="col col-5">
+            <h3>Title</h3>
+            <label class="input">
+                <!--<i class="icon-prepend fa fa-pencil"></i>-->
+                <!--<input type="text" name="title" ng-model="task.title" ng-cloak>-->
+                <div class="task-title" ng-cloak ng-click="clickToEdit({task: task})">{{task.title}}</div>
+            </label>
+        </section>
+        <section class="col col-5">
+            <h3>Content</h3>
+            <label class="input">
+                <!--<i class="icon-prepend fa fa-pencil"></i>-->
+                <!--<input type="text" name="content" ng-model="task.content" ng-cloak>-->
+                <div class="task-content" ng-cloak>{{task.content}}</div>
+            </label>
+        </section>
+    </div>
+</fieldset>

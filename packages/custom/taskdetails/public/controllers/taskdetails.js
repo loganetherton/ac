@@ -9,7 +9,13 @@ app.controller('TaskdetailsController',
     // Get the initial task
     TaskService.getTask(vm.taskId).then(function (task) {
         vm.task = task;
+        console.log(vm.task.title);
     }, function (error) {
         vm.error = error;
     });
+
+    vm.edit = function (task) {
+        console.log('edit called from controller');
+        console.log(task);
+    };
 }]);

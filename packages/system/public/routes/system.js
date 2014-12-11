@@ -70,7 +70,7 @@ function ($stateProvider, $urlRouterProvider) {
         /* jshint ignore:start */
         url: '/task/{taskId:[a-f0-9]{24}}',
         /* jshint ignore:end */
-        template: '<div data-ng-controller="TaskdetailsController"></div>',
+        templateUrl: 'taskdetails/views/taskDetails.html',
         data: {
             roles: ['authenticated']
         }

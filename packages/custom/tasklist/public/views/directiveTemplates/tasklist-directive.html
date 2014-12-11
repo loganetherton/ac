@@ -1,12 +1,28 @@
 <div data-ng-repeat="task in tasks track by $index">
-    <a data-ng-href="#!/task/{{task._id}}">{{task.title}}</a>
-        <span data-ng-if="hasAuthTask(task.team)">
-            <a class="btn" href="/#!/task/{{task._id}}/edit">
-                <i class="glyphicon glyphicon-edit"></i>
-            </a>
-            <a class="btn" data-ng-click="remove(task);">
-                <i class="glyphicon glyphicon-trash"></i>
-            </a>
-        </span>
-    <div>{{task.content}}</div>
+    <div class="row no-border">
+        <div class="col-md-2">
+            <section data-ng-if="hasAuthTask(task.team)">
+                <a class="btn no-padding" href="/#!/task/{{task._id}}">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+                <a class="btn no-padding" data-ng-click="remove(task);">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </a>
+            </section>
+        </div>
+        <div class="col-md-4">
+            <a data-ng-href="#!/task/{{task._id}}">{{task.title}}</a>
+            <div>{{task.content}}</div>
+        </div>
+    </div>
+    <!--<span data-ng-if="hasAuthTask(task.team)">-->
+        <!--<a class="btn" href="/#!/task/{{task._id}}">-->
+            <!--<i class="glyphicon glyphicon-edit"></i>-->
+        <!--</a><br>-->
+        <!--<a class="btn" data-ng-click="remove(task);">-->
+            <!--<i class="glyphicon glyphicon-trash"></i>-->
+        <!--</a>-->
+    <!--</span>-->
+    <!--<a data-ng-href="#!/task/{{task._id}}">{{task.title}}</a>-->
+    <!--<div>{{task.content}}</div>-->
 </div>

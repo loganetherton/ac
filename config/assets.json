@@ -3,7 +3,10 @@
         "css": {
             "bower_components/build/css/dist.min.css": [
                 "bower_components/font-awesome/css/font-awesome.min.css",
-                "bower_components/weather-icons/css/weather-icons.min.css"
+                "bower_components/weather-icons/css/weather-icons.min.css",
+                "bower_components/angular-wizard/dist/angular-wizard.min.css",
+                "bower_components/angular-loading-bar/build/loading-bar.min.css",
+                "bower_components/toastr/toastr.min.css"
             ]
         }, "js": {
             "bower_components/build/js/dist.min.js": [
@@ -18,7 +21,7 @@
                 "bower_components/angular-cookies/angular-cookies.js",
                 "bower_components/angular-resource/angular-resource.js",
                 "bower_components/angular-sanitize/angular-sanitize.min.js",
-                "bower_components/angular-animate/angular-animate.min.js",
+                "bower_components/angular-animate/angular-animate.js",
                 "bower_components/angular-ui-router/release/angular-ui-router.js",
                 "bower_components/angular-google-maps/dist/angular-google-maps.min.js",
                 "bower_components/angular-bootstrap/ui-bootstrap.js",
@@ -38,7 +41,7 @@
                 "bower_components/moment/min/moment-with-locales.min.js",
                 "bower_components/moment-timezone/builds/moment-timezone.min.js",
                 "bower_components/relayfoods-jquery.sparkline/dist/jquery.sparkline.js",
-                "bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js",
+                "bower_components/jquery.easy-pie-chart/dist/angular.easypiechart.min.js",
                 "bower_components/flot/jquery.flot.js",
                 "bower_components/flot/jquery.flot.resize.js",
                 "bower_components/flot/jquery.flot.fillbetween.js",
@@ -50,7 +53,11 @@
                 "bower_components/morris.js/morris.min.js",
                 "bower_components/dygraphs/dygraphs-combined.js",
                 "bower_components/socket.io-client/socket.io.js",
-                "bower_components/jquery.slimscroll/jquery.slimscroll.min.js"
+                "bower_components/jquery.slimscroll/jquery.slimscroll.min.js",
+                "bower_components/angular-wizard/dist/angular-wizard.min.js",
+                "bower_components/textAngular/dist/textAngular.min.js",
+                "bower_components/angular-loading-bar/build/loading-bar.min.js",
+                "bower_components/toastr/toastr.min.js"
             ]
         }
     }

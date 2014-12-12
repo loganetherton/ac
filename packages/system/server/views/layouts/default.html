@@ -3,15 +3,15 @@
       itemtype="http://schema.org/Product" class="no-js">
 {% include '../includes/head.html' %}
 
-<body data-ng-controller="ThemeController" ng-cloak class="ng-cloak" data-custom-background data-off-canvas-nav>
+<body data-ng-controller="IndexController as indexCtrl" ng-cloak class="ng-cloak" data-custom-background data-off-canvas-nav>
     <!--<div class="navbar navbar-inverse navbar-fixed-top" data-ng-include="'/system/views/header.html'" data-role="navigation"></div>-->
 
     <!--<div data-smart-include="header/views/header.html" class="placeholder-header"></div>-->
 
     <!--<div data-smart-include="navigation/views/navigation.html" class="placeholder-left-panel"></div>-->
 
-    <div data-ng-controller="IndexController">
-        <div data-ng-hide="isSpecificPage()" data-ng-cloak>
+    <div>
+        <div data-ng-hide="indexCtrl.isSpecificPage()" data-ng-cloak>
             <section data-ng-include=" 'system/views/flat_header.html' "
                      id="header" class="top-header"></section>
 
@@ -20,7 +20,8 @@
         </div>
 
         <div class="view-container">
-            <section data-ng-view id="content" class="animate-fade-up"></section>
+            {% block content %}{% endblock %}
+            <!--<section data-ng-view id="content" class="animate-fade-up"></section>-->
         </div>
     </div>
 
@@ -29,11 +30,14 @@
         <div data-ng-include="'/mean-admin/views/index.html'"></div>
     </section>
     {% endif %}
-    <section class="content">
-        <section class="container">
-            {% block content %}{% endblock %}
-        </section>
-    </section>
+    <!--<div class="view-container">-->
+        <!--{% block content %}{% endblock %}-->
+    <!--</div>-->
+    <!--<section class="content">-->
+        <!--<section class="container">-->
+            <!--{% block content %}{% endblock %}-->
+        <!--</section>-->
+    <!--</section>-->
     {% include '../includes/foot.html' %}
 </body>
 

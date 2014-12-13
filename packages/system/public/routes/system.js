@@ -57,7 +57,7 @@ function ($stateProvider, $urlRouterProvider) {
     */
     .state('site.tasklist', {
         url: '/tasklist',
-        templateUrl: 'tasklist/views/index.html',
+        templateUrl: 'tasklist/views/table.html',
         data: {
             roles: ['authenticated']
         }

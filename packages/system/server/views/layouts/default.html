@@ -30,11 +30,11 @@
         <div class="view-container">
             <!--<section class="animate-fade-up">-->
                 <!--<section data-ui-view ></section>-->
-                <section data-ui-view class="animate-fade-up"></section>
-                <script type="text/javascript">
-                    window.user = {{user|json|safe}};
-                    window.modules = {{modules|json|safe}};
-                </script>
+            <section id="content" data-ui-view class="animate-fade-up"></section>
+            <script type="text/javascript">
+                window.user = {{user|json|safe}};
+                window.modules = {{modules|json|safe}};
+            </script>
             <!--</section>-->
             <!--<section data-ng-view id="content" class="animate-fade-up"></section>-->
         </div>

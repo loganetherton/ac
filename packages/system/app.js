@@ -30,6 +30,7 @@ system.register(function (app, auth, database) {
     //system.aggregateAsset('css', 'your_style.css');
 
     system.aggregateAsset('css', 'flat.css');
+    system.aggregateAsset('css', 'flat_modified.css');
 
     // The middleware in config/express will run before this code
 

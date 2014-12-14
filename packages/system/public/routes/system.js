@@ -77,26 +77,26 @@ function ($stateProvider, $urlRouterProvider) {
     })
     .state('site.insertTask', {
         url: '/insert-task',
-        templateUrl: 'taskdetails/views/taskDetails.html',
+        templateUrl: 'taskinsert/views/index.html',
         data: {
             roles: ['authenticated']
         }
     })
 
-    /**
-     * Team
-     */
-    .state('team', {
-        url: '/team',
-        template: '<div ui-view></div>',
-        data: {
-            roles: ['authenticated']
-        }
-    })
-    .state('team.messages', {
-        url: '/messages',
-        templateUrl: 'tasklist/views/index.html'
-    })
+    ///**
+    // * Team
+    // */
+    //.state('team', {
+    //    url: '/team',
+    //    template: '<div ui-view></div>',
+    //    data: {
+    //        roles: ['authenticated']
+    //    }
+    //})
+    //.state('team.messages', {
+    //    url: '/messages',
+    //    templateUrl: 'tasklist/views/index.html'
+    //})
 
     /**
      * Socket

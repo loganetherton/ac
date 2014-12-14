@@ -1,27 +1,69 @@
-<div class="" data-ng-controller="TaskinsertController">
-  <h1>Example view from your new awesome package</h1>
-  <h2>Package: {{package.name}}</h2>
-  <ol>
-    <li>
-      <a href="taskinsert/example/anyone">Server route that anyone can access</a>
-    </li>
-    <li>
-      <a href="taskinsert/example/auth">Server route that requires authentication</a>
-    </li>
-    <li>
-      <a href="taskinsert/example/admin">Server route that requires admin user</a>
-    </li>
-    <li>
-      <a href="taskinsert/example/render">Raw Html rendering example from using swig</a>
-    </li>
-  </ol>
-  <h3><img src="/taskinsert/assets/img/logo.png" /></h3>
-  </br>
-  <p class="alert alert-info">You can find your package in /packages/taskinsert</p>
-  </br>
-  <p class="alert alert-warning">MEAN versions prior to 0.3.2 will be in /node_modules/taskinsert</p>
-  </br>
-  <h3><a href="http://www.mean.io/#!/docs">Documentation</a></h3>
-  </br>
-</div>
+<div class="col-lg-6" data-ng-controller="TasklistInsertController as tasklistInsert" ng-cloak>
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Task Title</strong></div>
+        <div class="panel-body">
+            <form class="form-horizontal" data-ng-submit="tasklistInsert.create(taskForm.$valid)" novalidate>
+                <div class="form-group">
+                    <label for="" class="col-sm-2">Task Title</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" placeholder="Task title">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-sm-2">Assign To</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon">@</span>
+                            <input type="text" class="form-control" placeholder="Username">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-sm-2">Estimate</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon">hrs</span>
+                            <input type="text" class="form-control" placeholder="1.5">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-sm-2">Dependencies</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control input-info">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-sm-2">Content</label>
+                    <div class="panel-body">
+                        <div text-angular ta-toolbar="[['bold', 'quote', 'italics', 'underline', 'insertImage', 'insertLink', 'ol', 'ul'], ['undo', 'redo']]" ng-model="mailContent" class="ui-editor"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
 
+
+    <div class="row no-border">
+        <form name="taskForm" class="form-horizontal" role="form"
+              data-ng-submit="tasklistInsert.create(taskForm.$valid)" novalidate>
+            <div class="input-group col-md-9">
+                <span class="input-group-addon task-input-label">Title</span>
+                <input name="title" type="text" class="form-control" data-ng-model="tasklistInsert.title" id="title"
+                       placeholder="Title" required>
+            </div>
+            <div class="input-group col-md-9">
+                <span class="input-group-addon task-input-label">Content</span>
+                <input name="content" type="text" class="form-control" data-ng-model="tasklistInsert.content"
+                       id="content" placeholder="Content" required>
+            </div>
+            <br>
+
+            <div class="form-group">
+                <div class="col-md-9">
+                    <button type="submit" class="btn btn-info">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

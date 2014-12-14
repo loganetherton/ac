@@ -57,7 +57,8 @@
                 "bower_components/angular-wizard/dist/angular-wizard.min.js",
                 "bower_components/textAngular/dist/textAngular.min.js",
                 "bower_components/angular-loading-bar/build/loading-bar.min.js",
-                "bower_components/toastr/toastr.min.js"
+                "bower_components/toastr/toastr.min.js",
+                "bower_components/angular-truncate/src/truncate.js"
             ]
         }
     }

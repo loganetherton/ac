@@ -1,4 +1,4 @@
-<div class="page page-table col-md-4" data-ng-controller="tableCtrl">
+<div class="page page-table col-md-4" data-ng-controller="TasklistController as taskListCtrl">
 
     <section class="panel panel-default table-dynamic">
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Tasks</strong></div>
@@ -14,9 +14,9 @@
                                data-ng-keyup="search()">
                     </form>
                 </div>
-                <div class="col-sm-3 col-xs-6 filter-result-info">
+                <div class="col-sm-4 col-xs-6 filter-result-info">
                     <span>
-                        Showing {{filteredStores.length}}/{{stores.length}} entries
+                        Showing {{taskListCtrl.filteredTasks.length}}/{{taskListCtrl.tasks.length}} entries
                     </span>
                 </div>
             </div>
@@ -26,7 +26,7 @@
             <thead>
             <tr>
                 <th><div class="th">
-                    Store Name
+                    Task
                         <span class="fa fa-angle-up"
                               data-ng-click=" order('name') "
                               data-ng-class="{active: row == 'name'}"></span>
@@ -35,7 +35,7 @@
                               data-ng-class="{active: row == '-name'}"></span>
                 </div></th>
                 <th><div class="th">
-                    Price
+                    Owner
                         <span class="fa fa-angle-up"
                               data-ng-click=" order('price') "
                               data-ng-class="{active: row == 'price'}"></span>
@@ -44,7 +44,7 @@
                               data-ng-class="{active: row == '-price'}"></span>
                 </div></th>
                 <th><div class="th">
-                    Sales (in 7 days)
+                    Estimate
                         <span class="fa fa-angle-up"
                               data-ng-click=" order('sales') "
                               data-ng-class="{active: row == 'sales'}"></span>
@@ -53,7 +53,7 @@
                               data-ng-class="{active: row == '-sales'}"></span>
                 </div></th>
                 <th><div class="th">
-                    Rating
+                    Dependencies
                         <span class="fa fa-angle-up"
                               data-ng-click=" order('rating') "
                               data-ng-class="{active: row == 'rating'}"></span>
@@ -64,11 +64,11 @@
             </tr>
             </thead>
             <tbody>
-            <tr data-ng-repeat="store in currentPageStores">
-                <td>{{store.name}}</td>
-                <td>{{store.price}}</td>
-                <td>{{store.sales}}</td>
-                <td>{{store.rating}}</td>
+            <tr data-ng-repeat="task in taskListCtrl.tasks">
+                <td><p class="text-primary">{{task.title | characters:20}}</p></td>
+                <td>{{task.user.name | characters:20}}</td>
+                <td><p class="text-muted">{{task.estimate || 'none' | characters:15}}</p></td>
+                <td>{{task.dependencies || 'none' | characters:20}}</td>
             </tr>
             </tbody>
         </table>

@@ -4,7 +4,7 @@
 var app = angular.module('mean.system',
 ['ui.bootstrap', 'easypiechart', 'mgo-angular-wizard', 'textAngular', 'angular-loading-bar',
  'app.ui.ctrls', 'app.ui.directives', 'app.ui.services', 'app.form.validation',
- 'app.ui.form.ctrls', 'app.ui.form.directives', 'app.tables','app.chart.ctrls',
+ 'app.ui.form.ctrls', 'app.ui.form.directives', 'mean.tasklist','app.chart.ctrls',
  'app.chart.directives', 'ngAnimate']);
 
 app.controller('IndexController', ['$scope', 'Global', '$location', function ($scope, Global, $location) {

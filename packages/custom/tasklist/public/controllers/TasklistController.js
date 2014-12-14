@@ -4,14 +4,17 @@
 var app = angular.module('mean.tasklist');
 
 // For controllerAs syntax, check out: http://toddmotto.com/digging-into-angulars-controller-as-syntax/
-app.controller('TasklistController', ['TasklistSocketService', 'TasklistService', 'LogService', '$scope', 'TaskStorageService', 'filterFilter', '$rootScope', 'logger',
-function (TasklistSocketService, TasklistService, LogService, $scope, TaskStorageService, filterFilter, $rootScope, logger) {
+app.controller('TasklistController',
+['TasklistSocketService', 'TasklistService', 'LogService', '$scope', 'TaskStorageService', 'filterFilter',
+ '$rootScope', 'logger', '$filter', function (
+TasklistSocketService, TasklistService, LogService, $scope, TaskStorageService, filterFilter, $rootScope, logger, $filter) {
 
     var vm = this;
 
     // Get the initial tasklist
     TasklistService.init().then(function (data) {
         vm.tasks = data;
+        init();
     }, function (error) {
         // log error to DB
         // TODO Make robust
@@ -122,8 +125,54 @@ function (TasklistSocketService, TasklistService, LogService, $scope, TaskStorag
     $scope.$watch('remainingCount == 0', function(val) {
         return $scope.allChecked = val;
     });
-    return $scope.$watch('remainingCount', function(newVal, oldVal) {
+    $scope.$watch('remainingCount', function(newVal, oldVal) {
         return $rootScope.$broadcast('taskRemaining:changed', newVal);
     });
+    /////////////////////////
+    // FROM TABLECTRL
+    ////////////////////////
+    var init;
+    $scope.searchKeywords = '';
+    $scope.filteredStores = [];
+    $scope.row = '';
+    $scope.select = function(page) {
+        var end, start;
+        start = (page - 1) * $scope.numPerPage;
+        end = start + $scope.numPerPage;
+        return $scope.currentPageStores = $scope.filteredStores.slice(start, end);
+    };
+    $scope.onFilterChange = function() {
+        $scope.select(1);
+        $scope.currentPage = 1;
+        return $scope.row = '';
+    };
+    $scope.onNumPerPageChange = function() {
+        $scope.select(1);
+        return $scope.currentPage = 1;
+    };
+    $scope.onOrderChange = function() {
+        $scope.select(1);
+        return $scope.currentPage = 1;
+    };
+    $scope.search = function() {
+        vm.filteredTasks = $filter('filter')(vm.tasks, $scope.searchKeywords);
+        return $scope.onFilterChange();
+    };
+    $scope.order = function(rowName) {
+        if ($scope.row === rowName) {
+            return;
+        }
+        $scope.row = rowName;
+        $scope.filteredStores = $filter('orderBy')(vm.tasks, rowName);
+        return $scope.onOrderChange();
+    };
+    $scope.numPerPageOpt = [3, 5, 10, 20];
+    $scope.numPerPage = $scope.numPerPageOpt[2];
+    $scope.currentPage = 1;
+    $scope.currentPageStores = [];
+    init = function() {
+        $scope.search();
+        return $scope.select($scope.currentPage);
+    };
  }]);
 })();

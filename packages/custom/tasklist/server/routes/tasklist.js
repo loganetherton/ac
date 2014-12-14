@@ -9,6 +9,9 @@ module.exports = function (Tasklist, app, auth, database) {
     app.route('/tasklist').
     get(auth.requiresLogin, taskList.all);
 
+    app.route('/queryTasklist/:query').
+    get(auth.requiresLogin, taskList.queryList);
+
     // Create a new task
     app.route('/newTask').
     post(auth.requiresLogin, taskList.create);

@@ -132,6 +132,29 @@ exports.getTasksByTeamId = function (req, res, next) {
 exports.all = function(req, res) {
     Task.find().sort('-created').populate('user', 'name').exec(function(err, tasks) {
         if (err) {
+            return res.status(500).json({
+                error: 'Cannot list tasks'
+            });
+        }
+        res.json(tasks);
+    });
+};
+
+/**
+ * Query for task dependency autocomplete
+ * @param req
+ * @param res
+ */
+exports.queryList = function(req, res) {
+    console.log('queryList');
+    // Make sure a user ID was passed in
+    if (!req.params.hasOwnProperty('query')) {
+        return res.status(400).send('A query must be passed to /queryList/:query');
+    }
+    Task.find({
+        title: new RegExp(req.params.query, 'i')
+    }).select('title').sort('-created').populate('user', 'name').exec(function(err, tasks) {
+        if (err) {
             return res.json(500, {
                 error: 'Cannot list tasks'
             });
@@ -140,6 +163,11 @@ exports.all = function(req, res) {
     });
 };
 
+/**
+ * Query a single task
+ * @param req
+ * @param res
+ */
 exports.findOne = function (req, res) {
     Task.find().sort('-created').limit(1).populate('user', 'name username').exec(function(err, tasks) {
         if (err) {

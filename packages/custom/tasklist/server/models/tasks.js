@@ -29,18 +29,6 @@ var TaskHistorySchema = new Schema({
 });
 
 /**
- * Define array of dependencies
- * @type {Schema}
- */
-var TaskDependencySchema = new Schema({
-    dependency: {
-        type: Schema.ObjectId,
-        ref: 'Task',
-        required: true
-    }
-});
-
-/**
  * Task Schema
  */
 var TaskSchema = new Schema({
@@ -71,7 +59,7 @@ var TaskSchema = new Schema({
         type: Number,
         default: 0
     },
-    dependencies: [TaskDependencySchema],
+    dependencies: [{ type: Schema.ObjectId, ref: 'Task' }],
     assignedTo: {
         type: Schema.ObjectId,
         ref: 'User'
@@ -85,10 +73,6 @@ var TaskSchema = new Schema({
 TaskSchema.path('title').validate(function (title) {
     return !!title;
 }, 'Title cannot be blank');
-
-TaskSchema.path('content').validate(function (content) {
-    return !!content;
-}, 'Content cannot be blank');
 
 TaskSchema.path('user').validate(function (user) {
 
@@ -117,7 +101,7 @@ TaskSchema.statics.loadByTeamId = function (id, cb) {
         team: id
     },
     null,
-    {sort: {_id: -1}}).populate('user', 'name').exec(cb);
+    {sort: {_id: -1}}).populate('user', 'name').populate('dependencies', '-_id title').exec(cb);
 };
 
 // Get most recent tasks for the requested user

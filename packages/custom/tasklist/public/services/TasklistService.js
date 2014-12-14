@@ -1,3 +1,4 @@
+/*global _:false */
 'use strict';
 
 var app = angular.module('mean.tasklist');
@@ -20,6 +21,7 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
             }
             $http.get('/tasks/team/' + _identity.teams[0]).then(function (response) {
                 if (response.status === 200) {
+                    // Get task dependencies
                     deferred.resolve(response.data);
                 }
                 deferred.reject();

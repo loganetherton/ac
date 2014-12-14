@@ -83,7 +83,8 @@
     "weather-icons": "~1.2.1",
     "textAngular": "1.2.1",
     "angular-loading-bar": "~0.6.0",
-    "angular-truncate": "*"
+    "angular-truncate": "*",
+    "ng-tags-input": "~2.1.1"
   },
   "devDependencies": {
     "angular-mocks": "latest",

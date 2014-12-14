@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('mean.taskinsert', []);
+angular.module('mean.taskinsert', ['ngTagsInput']);

@@ -6,7 +6,7 @@
                 <div class="form-group">
                     <label for="" class="col-sm-2">Task Title</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" placeholder="Task title">
+                        <input type="text" class="form-control" placeholder="Task title" data-ng-model="tasklistInsert.title">
                     </div>
                 </div>
                 <div class="form-group">
@@ -36,34 +36,15 @@
                 <div class="form-group">
                     <label for="" class="col-sm-2">Content</label>
                     <div class="panel-body">
-                        <div text-angular ta-toolbar="[['bold', 'quote', 'italics', 'underline', 'insertImage', 'insertLink', 'ol', 'ul'], ['undo', 'redo']]" ng-model="mailContent" class="ui-editor"></div>
+                        <div text-angular ta-toolbar="[['bold', 'quote', 'italics', 'underline', 'insertImage', 'insertLink', 'ol', 'ul'], ['undo', 'redo']]" data-ng-model="tasklistInsert.content" class="ui-editor"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-9">
+                        <button type="submit" class="btn btn-info">Submit</button>
                     </div>
                 </div>
             </form>
         </div>
     </section>
-
-
-    <div class="row no-border">
-        <form name="taskForm" class="form-horizontal" role="form"
-              data-ng-submit="tasklistInsert.create(taskForm.$valid)" novalidate>
-            <div class="input-group col-md-9">
-                <span class="input-group-addon task-input-label">Title</span>
-                <input name="title" type="text" class="form-control" data-ng-model="tasklistInsert.title" id="title"
-                       placeholder="Title" required>
-            </div>
-            <div class="input-group col-md-9">
-                <span class="input-group-addon task-input-label">Content</span>
-                <input name="content" type="text" class="form-control" data-ng-model="tasklistInsert.content"
-                       id="content" placeholder="Content" required>
-            </div>
-            <br>
-
-            <div class="form-group">
-                <div class="col-md-9">
-                    <button type="submit" class="btn btn-info">Submit</button>
-                </div>
-            </div>
-        </form>
-    </div>
 </div>

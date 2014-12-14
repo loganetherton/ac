@@ -2,11 +2,12 @@
     <section class="panel panel-default">
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Task Title</strong></div>
         <div class="panel-body">
-            <form class="form-horizontal" data-ng-submit="taskInsertCtrl.create(taskForm.$valid)" novalidate>
+            <form name="taskInsertCtrl.taskForm" class="form-horizontal"
+            data-ng-submit="taskInsertCtrl.create(taskInsertCtrl.taskForm.$valid)" novalidate>
                 <div class="form-group">
                     <label for="" class="col-sm-2">Task Title</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" placeholder="Task title" data-ng-model="taskInsertCtrl.title">
+                        <input type="text" class="form-control" placeholder="Task title" data-ng-model="taskInsertCtrl.title" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -41,7 +42,7 @@
                 </div>
                 <div class="form-group">
                     <div class="col-md-9">
-                        <button type="submit" class="btn btn-info">Submit</button>
+                        <button type="submit" class="btn btn-info" data-ng-disabled="taskInsertCtrl.taskForm.$invalid">Submit</button>
                     </div>
                 </div>
             </form>

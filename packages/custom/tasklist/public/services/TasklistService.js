@@ -31,34 +31,6 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
                 });
             });
             return deferred.promise;
-        },
-        // Create a new task
-        create: function (isValid, title, content) {
-            var deferred = $q.defer();
-            if (isValid) {
-                var task = {
-                    user: _identity._id,
-                    title: title,
-                    content: content
-                };
-                $http.post('/newTask', task).then(function (data) {
-                    // Resolve and emit
-                    deferred.resolve();
-                    TasklistSocketService.emit('newTask', {
-                        data: data.data
-                    });
-                }, function () {
-                    deferred.reject('Failed to save new task');
-                    LogService.error({
-                        message: 'Failed to save new task',
-                        stackTrace: true
-                    });
-                });
-                return deferred.promise;
-            } else {
-                deferred.reject('Invalid task model');
-                return deferred.promise;
-            }
         }
     };
 }]);

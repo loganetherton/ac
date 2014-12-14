@@ -1,11 +1,10 @@
 (function () {
     'use strict';
 
-    var app = angular.module('mean.tasklist');
+    var app = angular.module('mean.taskinsert');
 
     app.controller('TaskInsertController',
-    // Tasklist here is referring to the Mongo model
-    ['Global', 'TasklistService', function (Global, TasklistService) {
+    ['Global', 'TaskInsertService', function (Global, TaskInsertService) {
         var vm = this;
         this.strings = Global.tasklist.strings;
 
@@ -14,7 +13,8 @@
          * @param valid
          */
         this.create = function (valid) {
-            var defer = TasklistService.create(valid, vm.title, vm.content);
+            console.log(valid);
+            var defer = TaskInsertService.create(valid, vm.title, vm.content);
 
             defer.then(function () {
                 vm.title = '';

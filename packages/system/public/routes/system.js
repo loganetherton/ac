@@ -75,6 +75,13 @@ function ($stateProvider, $urlRouterProvider) {
             roles: ['authenticated']
         }
     })
+    .state('site.insertTask', {
+        url: '/insert-task',
+        templateUrl: 'taskdetails/views/taskDetails.html',
+        data: {
+            roles: ['authenticated']
+        }
+    })
 
     /**
      * Team

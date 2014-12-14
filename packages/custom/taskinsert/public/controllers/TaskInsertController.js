@@ -3,7 +3,7 @@
 
     var app = angular.module('mean.tasklist');
 
-    app.controller('TasklistInsertController',
+    app.controller('TaskInsertController',
     // Tasklist here is referring to the Mongo model
     ['Global', 'TasklistService', function (Global, TasklistService) {
         var vm = this;
@@ -25,4 +25,4 @@
             });
         };
     }]);
-})();
+}).call(this);

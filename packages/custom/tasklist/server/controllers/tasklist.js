@@ -27,8 +27,9 @@ exports.create = function(req, res) {
     task.save(function(err) {
         if (err) {
             console.log('could not save task to database: ' + err);
-            return res.json(500, {
-                error: 'Cannot save the task'
+            return res.status(500).json({
+                errorText: 'Cannot save the task',
+                error: err
             });
         }
         res.json(task);

@@ -13,8 +13,7 @@
          * @param valid
          */
         this.create = function (valid) {
-            console.log(valid);
-            var defer = TaskInsertService.create(valid, vm.title, vm.content);
+            var defer = TaskInsertService.create(valid, vm.task);
 
             defer.then(function () {
                 vm.title = '';

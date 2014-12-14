@@ -29,6 +29,18 @@ var TaskHistorySchema = new Schema({
 });
 
 /**
+ * Define array of dependencies
+ * @type {Schema}
+ */
+var TaskDependencySchema = new Schema({
+    dependency: {
+        type: Schema.ObjectId,
+        ref: 'Task',
+        required: true
+    }
+});
+
+/**
  * Task Schema
  */
 var TaskSchema = new Schema({
@@ -43,7 +55,6 @@ var TaskSchema = new Schema({
     },
     content: {
         type: String,
-        required: true,
         trim: true
     },
     user: {
@@ -55,6 +66,15 @@ var TaskSchema = new Schema({
         type: Schema.ObjectId,
         ref: 'Team',
         required: true
+    },
+    estimate: {
+        type: Number,
+        default: 0
+    },
+    dependencies: [TaskDependencySchema],
+    assignedTo: {
+        type: Schema.ObjectId,
+        ref: 'User'
     },
     history: [TaskHistorySchema]
 });

@@ -7,22 +7,21 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
 
     return {
     // Create a new task
-        create: function (isValid, title, content) {
+        create: function (isValid, task) {
             var deferred = $q.defer();
             if (isValid) {
-                var task = {
-                    user: _identity._id, title: title, content: content
-                };
+                var task = task;
+                task.user = _identity._id;
                 $http.post('/newTask', task).then(function (data) {
                     // Resolve and emit
                     deferred.resolve();
                     TasklistSocketService.emit('newTask', {
                         data: data.data
                     });
-                }, function () {
+                }, function (err) {
                     deferred.reject('Failed to save new task');
                     LogService.error({
-                        message: 'Failed to save new task', stackTrace: true
+                        message: 'Failed to save new task', stackTrace: true, err: err
                     });
                 });
                 return deferred.promise;

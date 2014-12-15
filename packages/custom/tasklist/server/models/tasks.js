@@ -65,6 +65,10 @@ var TaskSchema = new Schema({
         ref: 'User'
     },
     history: [TaskHistorySchema]
+},
+{
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
 });
 
 /**
@@ -74,8 +78,18 @@ TaskSchema.path('title').validate(function (title) {
     return !!title;
 }, 'Title cannot be blank');
 
-TaskSchema.path('user').validate(function (user) {
-
+/**
+ * Get the dependencies in a string for display
+ */
+TaskSchema.virtual('dependencies_string').get(function () {
+    var dependenciesString = '';
+    if (_.isArray(this.dependencies)) {
+        this.dependencies.map(function (val) {
+            dependenciesString = dependenciesString + ', ' + val.title;
+        });
+        return dependenciesString.substring(2);
+    }
+    return dependenciesString;
 });
 
 /**

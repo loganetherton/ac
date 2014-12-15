@@ -68,7 +68,7 @@
                 <td><p class="text-primary">{{task.title | characters:20}}</p></td>
                 <td>{{task.user.name | characters:20}}</td>
                 <td><p class="text-muted">{{task.estimate || 'none' | characters:15}}</p></td>
-                <td>{{task.dependencies || 'none' | characters:20}}</td>
+                <td>{{task.dependencies_string || 'none' | characters:20}}</td>
             </tr>
             </tbody>
         </table>

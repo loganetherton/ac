@@ -31,6 +31,7 @@ system.register(function (app, auth, database) {
 
     system.aggregateAsset('css', 'flat.css');
     system.aggregateAsset('css', 'flat_modified.css');
+    system.aggregateAsset('css', 'd3Tree.css');
 
     // The middleware in config/express will run before this code
 
@@ -47,6 +48,9 @@ system.register(function (app, auth, database) {
     app.use('/img', express.static(__dirname + '/public/assets/img'));
     // Static fonts
     app.use('/fonts', express.static(__dirname + '/public/assets/fonts'));
+
+    // Static fonts
+    app.use('/d3Data', express.static(__dirname + '/../custom/overview/server/data'));
 
     return system;
 });

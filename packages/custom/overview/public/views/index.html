@@ -1,16 +1,14 @@
 <div class="page-charts col-lg-6">
 
-    <section data-ng-controller="OverviewController">
+    <section data-ng-controller="OverviewController as overviewCtrl">
         <div class="row">
             <div>
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title">Easy Pie Chart</h3>
+                        <h3 class="panel-title">Task Graph</h3>
                     </div>
                     <div class="panel-body text-center">
-                        <div easypiechart options="easypiechart.options" percent="easypiechart.percent" class="easypiechart">
-                            <span class="pie-percent" ng-bind="easypiechart.percent"></span>
-                        </div>
+                        <section d3-test></section>
                     </div>
                 </div>
             </div>

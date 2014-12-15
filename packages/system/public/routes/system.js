@@ -10,8 +10,8 @@ function ($stateProvider, $urlRouterProvider) {
     // For unmatched routes:
     $urlRouterProvider.otherwise('/auth/login');
 
-    // Temporary redirect so I can always end up on tasklist
-    $urlRouterProvider.when('', '/tasklist');
+    // Always redirect to overview if nothing is selected
+    $urlRouterProvider.when('', '/overview');
 
     $stateProvider.state('site', {
         templateUrl: 'system/views/site_layout.html',

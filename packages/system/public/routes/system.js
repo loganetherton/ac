@@ -123,6 +123,17 @@ function ($stateProvider, $urlRouterProvider) {
 
 app.run(['$rootScope', '$location', 'AuthenticationService', 'AuthorizationService',
 function ($rootScope, $location, AuthenticationService, AuthorizationService) {
+    /**
+     * Resize the right pane on state change
+     */
+    var resizeRightPane = function (toState) {
+        var smallRight = ['site.overview'];
+        var large = true;
+        if(_.contains(smallRight, toState.name)) {
+            large = false;
+        }
+        $rootScope.$broadcast('rightPaneSizeChange', large);
+    };
 
     $rootScope.$on('$stateChangeStart', function(event, toState, toStateParams, fromState) {
         // track the state the user wants to go to; authorization service needs this
@@ -135,5 +146,6 @@ function ($rootScope, $location, AuthenticationService, AuthorizationService) {
         }) && AuthenticationService.isIdentityResolved()) {
             AuthorizationService.authorize();
         }
+        resizeRightPane(toState);
     });
 }]);

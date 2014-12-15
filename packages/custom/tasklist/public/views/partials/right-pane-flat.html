@@ -1,4 +1,4 @@
-<section class="panel panel-default table-dynamic col-lg-6" data-ng-controller="TasklistController as taskListCtrl">
+<section ng-class="{panel:true, 'panel-default':true, 'table-dynamic':true, 'col-lg-6':indexCtrl.rightPaneLarge, 'col-md-4':!indexCtrl.rightPaneLarge}" data-ng-controller="TasklistController as taskListCtrl">
     <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Tasks</strong></div>
 
     <div class="table-filters">

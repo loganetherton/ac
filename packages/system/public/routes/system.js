@@ -83,6 +83,17 @@ function ($stateProvider, $urlRouterProvider) {
         }
     })
 
+    /**
+     * Overview
+     */
+    .state('site.overview', {
+        url: '/overview',
+        templateUrl: 'overview/views/index.html',
+        data: {
+            roles: ['authenticated']
+        }
+    })
+
     ///**
     // * Team
     // */

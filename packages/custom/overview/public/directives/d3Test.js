@@ -5,26 +5,30 @@ var app = angular.module('mean.overview');
 
 app.directive('d3Test', [function () {
 
-    var visualize = function () {
-        var m = [20, 120, 20, 120], w = 1280 - m[1] - m[3], h = 800 - m[0] - m[2], i = 0, root;
+    var treeGraph = function () {
+        // m = x1, y1, x2, y2
+        var m = [20, 120, 20, 120],
+            // Determine width based on original m
+            w = 1280 - m[1] - m[3],
+            // Determine height based on m
+            h = 800 - m[0] - m[2],
+            i = 0,
+            root;
 
         var tree = d3.layout.cluster().size([h, w]);
 
         var diagonal = d3.svg.diagonal().projection(function (d) { return [d.y, d.x]; });
 
-        var vis = d3.select("#task_graph")
+        var graph = d3.select("#task_graph")
         .append("svg:svg")
         .attr("width", w + m[1] + m[3])
         .attr("height", h + m[0] + m[2])
         .append("svg:g")
         .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
-        //scope.$on('graphData', function (event, data) {
-        //    //console.log(data);
-        //});
-
         d3.json("d3Data/flare.json", function (json) {
             root = json;
+            // Start each node in the middle
             root.x0 = h / 2;
             root.y0 = 0;
 
@@ -54,52 +58,90 @@ app.directive('d3Test', [function () {
             /**
              * Assign each node an id, or else return the id already assigned
              */
-            var node = vis.selectAll("g.node").data(nodes, function (d) {
+            var node = graph.selectAll("g.node").data(nodes, function (d) {
                 return d.id || (d.id = ++i);
             });
 
-            // Enter any new nodes at the parent's previous position.
-            var nodeEnter = node.enter().append("svg:g").attr("class", "node").attr("transform",
-            function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
+            /**
+             * Append each node on top of the parent node
+             */
+            var nodeEnter = node.enter().append("svg:g").attr("class", "node").attr("transform", function (d) {
+                return "translate(" + source.y0 + "," + source.x0 + ")";
+            });
 
+            /**
+             * Toggle and update on click
+             */
             nodeEnter.on("click", function (d) {
                 toggle(d);
                 update(d);
             });
 
+            /**
+             * Append children for each that has them, then style them
+             */
             nodeEnter.append("svg:circle").attr("r", 1e-6).style("fill",
-            function (d) { return d._children ? "lightsteelblue" : "#fff"; });
+            function (d) {
+                return d._children ? "lightsteelblue" : "#fff";
+            });
 
-            nodeEnter.append("svg:text").attr("x",
-            function (d) { return d.children || d._children ? -10 : 10; }).attr("dy",
-            ".35em").attr("text-anchor", function (d) {
-                return d.children || d._children ? "end" : "start";
-            }).text(function (d) { return d.name; }).style("fill-opacity", 1e-6);
+            /**
+             * Append text to each node
+             */
+            nodeEnter.append("svg:text").attr("x", function (d) {
+                // On first iteration
+                return d.children || d._children ? -10 : 10;
+            })
+            .attr("dy", ".35em")
+                // If there are children, anchor text at end. Otherwise, at start
+            .attr("text-anchor", function (d) {
+                return (d.children || d._children) ? "end" : "start";
+                // Place the name as the text on each node
+            }).text(function (d) {
+                return d.title;
+                // 1e-6 is a workaround for text flicker when transitioning text
+            }).style("fill-opacity", 1e-6);
 
             /**
              * Move the nodes to their proper locations
              */
             duration = d3.event && d3.event.altKey ? 5000 : 500;
             var nodeUpdate = node.transition().duration(duration).attr("transform",
-            function (d) { return "translate(" + d.y + "," + d.x + ")"; });
+            function (d) {
+                return "translate(" + d.y + "," + d.x + ")";
+            });
 
             nodeUpdate.select("circle").attr("r", 4.5).style("fill",
             function (d) { return d._children ? "lightsteelblue" : "#fff"; });
 
             nodeUpdate.select("text").style("fill-opacity", 1);
 
-            // Transition exiting nodes to the parent's new position.
-            var nodeExit = node.exit().transition().duration(duration).attr("transform",
-            function (d) { return "translate(" + source.y + "," + source.x + ")"; }).remove();
-
+            /**
+             * When removing nodes, move them back to the parents position, fade out circle and text
+             */
+            var nodeExit = node.exit().transition().duration(duration).attr("transform", function (d) {
+                return "translate(" + source.y + "," + source.x + ")";
+            }).remove();
             nodeExit.select("circle").attr("r", 1e-6);
-
             nodeExit.select("text").style("fill-opacity", 1e-6);
+
+            /**
+             * Stash the old positions for transition.
+             */
+            nodes.forEach(function (d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+
+            var task_3;
 
             /**
              * Draw the lines
              */
-            var link = vis.selectAll("path.link").data(tree.links(nodes), function (d) {
+            var link = graph.selectAll("path.link").data(tree.links(nodes), function (d) {
+                if (d.target.title === 'task_3') {
+                    task_3 = d;
+                }
                 return d.target.id;
             });
 
@@ -117,14 +159,6 @@ app.directive('d3Test', [function () {
                 var o = {x: source.x, y: source.y};
                 return diagonal({source: o, target: o});
             }).remove();
-
-            /**
-             * Stash the old positions for transition.
-             */
-            nodes.forEach(function (d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
         }
 
         function toggleAll(d) {
@@ -136,9 +170,11 @@ app.directive('d3Test', [function () {
 
         // Toggle children.
         function toggle(d) {
+            // Remove children nodes that exist
             if (d.children) {
                 d._children = d.children;
                 d.children = null;
+            // Add children nodes back in
             } else {
                 d.children = d._children;
                 d._children = null;
@@ -153,7 +189,8 @@ app.directive('d3Test', [function () {
             data: '='
         },
         link: function (scope, element, attrs) {
-            visualize();
+            treeGraph();
+            //forceGraph();
         }
     };
 }]);

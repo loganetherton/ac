@@ -1,20 +1,20 @@
 {
-    "name": "project_name", "children": [
+    "title": "project_name", "children": [
     {
-        "name": "task_1", "size": 3938, "children": [
+        "title": "task_1", "size": 3938, "children": [
         {
-            "name": "task_3"
+            "title": "task_3"
         }
     ]
     },
     {
-        "name": "task_2", "children": [
+        "title": "task_2", "children": [
         {
-            "name": "task_4", "children": [
+            "title": "task_4", "children": [
             {
-                "name": "task_5", "children": [
+                "title": "task_5", "children": [
                 {
-                    "name": "task_6"
+                    "title": "task_6"
                 }
             ]
             }

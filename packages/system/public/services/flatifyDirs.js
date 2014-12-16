@@ -1,3 +1,5 @@
+/*global $,Holder:false */
+
 'use strict';
 
 var app = angular.module('mean.system');
@@ -15,7 +17,7 @@ app.directive('imgHolder', [
     }
 ]).directive('customBackground', function() {
     return {
-        restrict: "A",
+        restrict: 'A',
         controller: [
             '$scope', '$element', '$location', function($scope, $element, $location) {
                 var addBg, path;
@@ -101,7 +103,7 @@ app.directive('imgHolder', [
                 return $window.resize(function() {
                     var t;
                     clearTimeout(t);
-                    return t = setTimeout(updateClass, 300);
+                    t = setTimeout(updateClass, 300);
                 });
             }
         };
@@ -141,7 +143,7 @@ app.directive('imgHolder', [
 ]).directive('highlightActive', [
     function() {
         return {
-            restrict: "A",
+            restrict: 'A',
             controller: [
                 '$scope', '$element', '$attrs', '$location', function($scope, $element, $attrs, $location) {
                     var highlightActive, links, path;
@@ -200,7 +202,7 @@ app.directive('imgHolder', [
 ]).directive('goBack', [
     function() {
         return {
-            restrict: "A",
+            restrict: 'A',
             controller: [
                 '$scope', '$element', '$window', function($scope, $element, $window) {
                     return $element.on('click', function() {

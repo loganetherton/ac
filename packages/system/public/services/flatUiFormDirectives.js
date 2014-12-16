@@ -1,4 +1,6 @@
 (function() {
+    'use strict';
+
     angular.module('app.ui.form.directives', []).directive('uiRangeSlider', [
         function() {
             return {

@@ -1,7 +1,7 @@
 {
     "name": "project_name", "children": [
     {
-        "name": "task_1", "children": [
+        "name": "task_1", "size": 3938, "children": [
         {
             "name": "task_3"
         }
@@ -12,7 +12,11 @@
         {
             "name": "task_4", "children": [
             {
-                "name": "task_5"
+                "name": "task_5", "children": [
+                {
+                    "name": "task_6"
+                }
+            ]
             }
         ]
         }

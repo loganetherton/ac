@@ -17,6 +17,6 @@ function ($scope, Global, Navigation, $rootScope, TaskStorageService, filterFilt
         completed: false
     }).length;
     $scope.$on('taskRemaining:changed', function(event, count) {
-        return $scope.taskRemainingCount = count;
+        $scope.taskRemainingCount = count;
     });
 }]);

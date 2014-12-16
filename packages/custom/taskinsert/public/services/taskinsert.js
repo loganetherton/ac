@@ -10,7 +10,6 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
         create: function (isValid, task) {
             var deferred = $q.defer();
             if (isValid) {
-                var task = task;
                 task.user = _identity._id;
                 $http.post('/newTask', task).then(function (data) {
                     // Resolve and emit

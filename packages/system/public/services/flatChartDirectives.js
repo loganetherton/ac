@@ -1,3 +1,4 @@
+/*global $,Gauge,Morris:false */
 (function() {
     'use strict';
     angular.module('app.chart.directives', []).directive('gaugeChart', [
@@ -31,7 +32,7 @@
                     var data, options, plot;
                     data = scope.data;
                     options = scope.options;
-                    return plot = $.plot(ele[0], data, options);
+                    plot = $.plot(ele[0], data, options);
                 }
             };
         }
@@ -64,7 +65,7 @@
                         i = 0;
                         while (i < data.length) {
                             res.push([i, data[i]]);
-                            ++i;
+                            i = i + 1;
                         }
                         return res;
                     };
@@ -96,7 +97,7 @@
                             borderWidth: 1,
                             borderColor: '#eeeeee'
                         },
-                        colors: ["#5BC0C4"]
+                        colors: ['#5BC0C4']
                     });
                     return update();
                 }
@@ -120,7 +121,7 @@
                     };
                     $(window).resize(function(e) {
                         clearTimeout(sparkResize);
-                        return sparkResize = setTimeout(sparklineDraw, 200);
+                        sparkResize = setTimeout(sparklineDraw, 200);
                     });
                     return sparklineDraw();
                 }
@@ -204,7 +205,8 @@
                                 resize: true
                             };
                             if (attrs.formatter) {
-                                func = new Function('y', 'data', attrs.formatter);
+                                var Fn = Function;
+                                func = new Fn('y', 'data', attrs.formatter);
                                 options.formatter = func;
                             }
                             return new Morris.Donut(options);

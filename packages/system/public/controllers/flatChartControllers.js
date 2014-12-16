@@ -88,7 +88,7 @@
                     percentColors: [[0.0, '#7ACBEE'], [1.0, '#7ACBEE']]
                 }
             };
-            return $scope.gaugeChart3 = {
+            $scope.gaugeChart3 = {
                 data: {
                     maxValue: 3000,
                     animationSpeed: 50,
@@ -216,18 +216,18 @@
                     c: 20
                 }
             ];
-            return $scope.donutData = [
+            $scope.donutData = [
                 {
-                    label: "Download Sales",
+                    label: 'Download Sales',
                     value: 12
                 }, {
-                    label: "In-Store Sales",
+                    label: 'In-Store Sales',
                     value: 30
                 }, {
-                    label: "Mail-Order Sales",
+                    label: 'Mail-Order Sales',
                     value: 20
                 }, {
-                    label: "Online Sales",
+                    label: 'Online Sales',
                     value: 19
                 }
             ];
@@ -242,13 +242,13 @@
             $scope.area.data = [
                 {
                     data: areaChart.data1,
-                    label: "Value A",
+                    label: 'Value A',
                     lines: {
                         fill: true
                     }
                 }, {
                     data: areaChart.data2,
-                    label: "Value B",
+                    label: 'Value B',
                     points: {
                         show: true
                     },
@@ -265,8 +265,8 @@
                         show: true,
                         lineWidth: 2,
                         fill: true,
-                        fillColor: "#ffffff",
-                        symbol: "circle",
+                        fillColor: '#ffffff',
+                        symbol: 'circle',
                         radius: 5
                     },
                     shadowSize: 0
@@ -274,21 +274,21 @@
                 grid: {
                     hoverable: true,
                     clickable: true,
-                    tickColor: "#f9f9f9",
+                    tickColor: '#f9f9f9',
                     borderWidth: 1,
-                    borderColor: "#eeeeee"
+                    borderColor: '#eeeeee'
                 },
-                colors: ["#23AE89", "#6A55C2"],
+                colors: ['#23AE89', '#6A55C2'],
                 tooltip: true,
                 tooltipOpts: {
                     defaultTheme: false
                 },
                 xaxis: {
-                    mode: "time"
+                    mode: 'time'
                 },
                 yaxes: [
                     {}, {
-                        position: "right"
+                        position: 'right'
                     }
                 ]
             };
@@ -299,13 +299,13 @@
             $scope.barChart = {};
             $scope.barChart.data = [
                 {
-                    label: "Value A",
+                    label: 'Value A',
                     data: barChart.data1
                 }, {
-                    label: "Value B",
+                    label: 'Value B',
                     data: barChart.data2
                 }, {
-                    label: "Value C",
+                    label: 'Value C',
                     data: barChart.data3
                 }
             ];
@@ -316,7 +316,7 @@
                         show: true,
                         fill: 1,
                         barWidth: 0.3,
-                        align: "center",
+                        align: 'center',
                         horizontal: false,
                         order: 1
                     }
@@ -324,27 +324,27 @@
                 grid: {
                     hoverable: true,
                     borderWidth: 1,
-                    borderColor: "#eeeeee"
+                    borderColor: '#eeeeee'
                 },
                 tooltip: true,
                 tooltipOpts: {
                     defaultTheme: false
                 },
-                colors: ["#23AE89", "#2EC1CC", "#FFB61C", "#E94B3B"]
+                colors: ['#23AE89', '#2EC1CC', '#FFB61C', '#E94B3B']
             };
             $scope.pieChart = {};
             $scope.pieChart.data = [
                 {
-                    label: "Download Sales",
+                    label: 'Download Sales',
                     data: 12
                 }, {
-                    label: "In-Store Sales",
+                    label: 'In-Store Sales',
                     data: 30
                 }, {
-                    label: "Mail-Order Sales",
+                    label: 'Mail-Order Sales',
                     data: 20
                 }, {
-                    label: "Online Sales",
+                    label: 'Online Sales',
                     data: 19
                 }
             ];
@@ -361,26 +361,26 @@
                     hoverable: true,
                     clickable: true
                 },
-                colors: ["#23AE89", "#2EC1CC", "#FFB61C", "#E94B3B"],
+                colors: ['#23AE89', '#2EC1CC', '#FFB61C', '#E94B3B'],
                 tooltip: true,
                 tooltipOpts: {
-                    content: "%p.0%, %s",
+                    content: '%p.0%, %s',
                     defaultTheme: false
                 }
             };
             $scope.donutChart = {};
             $scope.donutChart.data = [
                 {
-                    label: "Download Sales",
+                    label: 'Download Sales',
                     data: 12
                 }, {
-                    label: "In-Store Sales",
+                    label: 'In-Store Sales',
                     data: 30
                 }, {
-                    label: "Mail-Order Sales",
+                    label: 'Mail-Order Sales',
                     data: 20
                 }, {
-                    label: "Online Sales",
+                    label: 'Online Sales',
                     data: 19
                 }
             ];
@@ -398,33 +398,33 @@
                     hoverable: true,
                     clickable: true
                 },
-                colors: ["#23AE89", "#2EC1CC", "#FFB61C", "#E94B3B"],
+                colors: ['#23AE89', '#2EC1CC', '#FFB61C', '#E94B3B'],
                 tooltip: true,
                 tooltipOpts: {
-                    content: "%p.0%, %s",
+                    content: '%p.0%, %s',
                     defaultTheme: false
                 }
             };
             $scope.donutChart2 = {};
             $scope.donutChart2.data = [
                 {
-                    label: "Download Sales",
+                    label: 'Download Sales',
                     data: 12
                 }, {
-                    label: "In-Store Sales",
+                    label: 'In-Store Sales',
                     data: 30
                 }, {
-                    label: "Mail-Order Sales",
+                    label: 'Mail-Order Sales',
                     data: 20
                 }, {
-                    label: "Online Sales",
+                    label: 'Online Sales',
                     data: 19
                 }, {
-                    label: "Direct Sales",
+                    label: 'Direct Sales',
                     data: 15
                 }
             ];
-            return $scope.donutChart2.options = {
+            $scope.donutChart2.options = {
                 series: {
                     pie: {
                         show: true,
@@ -438,10 +438,10 @@
                     hoverable: true,
                     clickable: true
                 },
-                colors: ["#176799", "#2F87B0", "#42A4BB", "#5BC0C4", "#78D6C7"],
+                colors: ['#176799', '#2F87B0', '#42A4BB', '#5BC0C4', '#78D6C7'],
                 tooltip: true,
                 tooltipOpts: {
-                    content: "%p.0%, %s",
+                    content: '%p.0%, %s',
                     defaultTheme: false
                 }
             };
@@ -519,7 +519,7 @@
                     height: '150px'
                 }
             };
-            return $scope.largeChart3 = {
+            $scope.largeChart3 = {
                 data: [3, 1, 2, 3, 5],
                 options: {
                     type: 'pie',

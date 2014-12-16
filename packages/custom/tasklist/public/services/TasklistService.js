@@ -54,32 +54,33 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
              */
             $http.get('/tasks/team/graph/' + _identity.teams[0]).then(function (response) {
                 var tasks = _.clone(response.data);
-                var depsMap = {};
-                var noDeps = tasks.map(function (task, index, arr) {
-                    // If no dependencies, return the task
-                    if (!task.dependencies.length) {
-                        arr.splice(index, 1);
-                        depsMap[task._id] = {
-                            title: task.title
-                        };
-                        return task;
-                    }
-                });
-                var foundDeps;
-                tasks.map(function (task, key, arr) {
-                    foundDeps = task.dependencies.map(function (dep, key) {
-                        //console.log(dep);
-                        if (_.isObject(depsMap[dep])) {
-                            depsMap[dep][task._id] = {
-                                title: dep.title
-                            };
-                            //depsMap[dep]['_id'] = task._id;
-                            //depsMap[dep]['dependencies'] = task.dependencies;
-                            //depsMap[dep]['title'] = task.title;
-                        }
-                    });
-                    //console.error(foundDeps);
-                });
+                console.log(tasks);
+                //var depsMap = {};
+                //var noDeps = tasks.map(function (task, index, arr) {
+                //    // If no dependencies, return the task
+                //    if (!task.dependencies.length) {
+                //        arr.splice(index, 1);
+                //        depsMap[task._id] = {
+                //            title: task.title
+                //        };
+                //        return task;
+                //    }
+                //});
+                //var foundDeps;
+                //tasks.map(function (task, key, arr) {
+                //    foundDeps = task.dependencies.map(function (dep, key) {
+                //        //console.log(dep);
+                //        if (_.isObject(depsMap[dep])) {
+                //            depsMap[dep][task._id] = {
+                //                title: dep.title
+                //            };
+                //            //depsMap[dep]['_id'] = task._id;
+                //            //depsMap[dep]['dependencies'] = task.dependencies;
+                //            //depsMap[dep]['title'] = task.title;
+                //        }
+                //    });
+                //    //console.error(foundDeps);
+                //});
                 //console.log(depsMap);
                 //console.log(noDeps);
                 //console.log(tasks);

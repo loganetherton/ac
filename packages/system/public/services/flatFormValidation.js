@@ -16,7 +16,7 @@
                 console.log($scope.wizard.lastName === '');
                 return console.log($scope.wizard.firstName !== '' && $scope.wizard.lastName !== '');
             };
-            return $scope.finishedWizard = function() {
+            $scope.finishedWizard = function() {
                 return console.log('yoo');
             };
         }
@@ -47,7 +47,7 @@
             $scope.canRevert = function() {
                 return !angular.equals($scope.form, original) || !$scope.form_constraints.$pristine;
             };
-            return $scope.canSubmit = function() {
+            $scope.canSubmit = function() {
                 return $scope.form_constraints.$valid && !angular.equals($scope.form, original);
             };
         }
@@ -70,7 +70,7 @@
             $scope.canSubmit = function() {
                 return $scope.form_signin.$valid && !angular.equals($scope.user, original);
             };
-            return $scope.submitForm = function() {
+            $scope.submitForm = function() {
                 $scope.showInfoOnSubmit = true;
                 return $scope.revert();
             };
@@ -98,7 +98,7 @@
             $scope.canSubmit = function() {
                 return $scope.form_signup.$valid && !angular.equals($scope.user, original);
             };
-            return $scope.submitForm = function() {
+            $scope.submitForm = function() {
                 $scope.showInfoOnSubmit = true;
                 return $scope.revert();
             };
@@ -113,13 +113,13 @@
                         var valid;
                         valid = value === scope.$eval(attrs.validateEquals);
                         ngModelCtrl.$setValidity('equal', valid);
-                        return typeof valid === "function" ? valid({
+                        return typeof valid === 'function' ? valid({
                             value: void 0
                         }) : void 0;
                     };
                     ngModelCtrl.$parsers.push(validateEqual);
                     ngModelCtrl.$formatters.push(validateEqual);
-                    return scope.$watch(attrs.validateEquals, function(newValue, oldValue) {
+                    scope.$watch(attrs.validateEquals, function(newValue, oldValue) {
                         if (newValue !== oldValue) {
                             return ngModelCtrl.$setViewValue(ngModelCtrl.$ViewValue);
                         }

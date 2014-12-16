@@ -1,3 +1,4 @@
+/*global Skycons:false */
 (function() {
     'use strict';
     angular.module('app.ui.directives', []).directive('uiTime', [
@@ -14,13 +15,13 @@
                         s = today.getSeconds();
                         m = checkTime(m);
                         s = checkTime(s);
-                        time = h + ":" + m + ":" + s;
+                        time = h + ':' + m + ':' + s;
                         ele.html(time);
-                        return t = setTimeout(startTime, 500);
+                        t = setTimeout(startTime, 500);
                     };
                     checkTime = function(i) {
                         if (i < 10) {
-                            i = "0" + i;
+                            i = '0' + i;
                         }
                         return i;
                     };
@@ -37,8 +38,8 @@
                     color = attrs.color;
                     icon = Skycons[attrs.icon];
                     skycons = new Skycons({
-                        "color": color,
-                        "resizeClear": true
+                        'color': color,
+                        'resizeClear': true
                     });
                     skycons.add(ele[0], icon);
                     return skycons.play();

@@ -118,6 +118,15 @@ TaskSchema.statics.loadByTeamId = function (id, cb) {
     {sort: {_id: -1}}).populate('user', 'name').populate('dependencies', '-_id title').exec(cb);
 };
 
+// Query tasks for the team graph
+TaskSchema.statics.loadByTeamIdForGraph = function (id, cb) {
+    this.find({
+        team: id
+    },
+    null,
+    {sort: {_id: 1}}).select('title dependencies').exec(cb);
+};
+
 // Get most recent tasks for the requested user
 TaskSchema.statics.getMostRecent = function (userId, count, page, callback) {
     // Set page to 1 if not set

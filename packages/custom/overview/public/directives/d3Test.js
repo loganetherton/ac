@@ -8,10 +8,13 @@ app.directive('d3Test', [function () {
     return {
         restrict: 'A',
         templateUrl: 'overview/views/directiveTemplates/d3_test.html',
+        scope: {
+            data: '='
+        },
         link: function (scope, element, attrs) {
             var m = [20, 120, 20, 120], w = 1280 - m[1] - m[3], h = 800 - m[0] - m[2], i = 0, root;
 
-            var tree = d3.layout.tree().size([h, w]);
+            var tree = d3.layout.cluster().size([h, w]);
 
             var diagonal = d3.svg.diagonal().projection(function (d) { return [d.y, d.x]; });
 
@@ -22,25 +25,21 @@ app.directive('d3Test', [function () {
             .append("svg:g")
             .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
+            //scope.$on('graphData', function (event, data) {
+            //    //console.log(data);
+            //});
+
             d3.json("d3Data/flare.json", function (json) {
                 root = json;
                 root.x0 = h / 2;
                 root.y0 = 0;
 
-                function toggleAll(d) {
-                    if (d.children) {
-                        d.children.forEach(toggleAll);
-                        toggle(d);
-                    }
-                }
-
                 // Initialize the display to show a few nodes.
-                root.children.forEach(toggleAll);
-                toggle(root.children[1]);
-                toggle(root.children[1].children[2]);
-                toggle(root.children[9]);
-                toggle(root.children[9].children[0]);
-
+                //root.children.forEach(toggleAll);
+                //toggle(root.children[1]);
+                //toggle(root.children[1].children[2]);
+                //toggle(root.children[9]);
+                //toggle(root.children[9].children[0]);
                 update(root);
             });
 
@@ -50,7 +49,7 @@ app.directive('d3Test', [function () {
                 // Compute the new tree layout.
                 var nodes = tree.nodes(root).reverse();
 
-                // Normalize for fixed-depth.
+                // Determine the actual length drawn
                 nodes.forEach(function (d) { d.y = d.depth * 180; });
 
                 // Update the nodes…
@@ -58,8 +57,7 @@ app.directive('d3Test', [function () {
 
                 // Enter any new nodes at the parent's previous position.
                 var nodeEnter = node.enter().append("svg:g").attr("class", "node").attr("transform",
-                function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; }).on("click",
-                function (d) {
+                function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; }).on("click", function (d) {
                     toggle(d);
                     update(d);
                 });
@@ -90,7 +88,7 @@ app.directive('d3Test', [function () {
 
                 nodeExit.select("text").style("fill-opacity", 1e-6);
 
-                // Update the links…
+                // Update the links...
                 var link = vis.selectAll("path.link").data(tree.links(nodes), function (d) { return d.target.id; });
 
                 // Enter any new links at the parent's previous position.
@@ -113,6 +111,13 @@ app.directive('d3Test', [function () {
                     d.x0 = d.x;
                     d.y0 = d.y;
                 });
+            }
+
+            function toggleAll(d) {
+                if (d.children) {
+                    d.children.forEach(toggleAll);
+                    toggle(d);
+                }
             }
 
             // Toggle children.

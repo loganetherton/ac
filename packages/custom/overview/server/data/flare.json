@@ -26,6 +26,24 @@
             ]
             }
         ]
+        },
+        {
+            "title": "task_4", "children": [
+            {
+                "title": "task_5", "children": [
+                {
+                    "title": "task_6"
+                }
+            ]
+            },
+            {
+                "title": "task_5", "children": [
+                {
+                    "title": "task_6"
+                }
+            ]
+            }
+        ]
         }
     ]
     }

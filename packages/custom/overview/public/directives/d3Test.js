@@ -325,7 +325,7 @@ app.directive('d3Test', [function () {
         var tree = d3.layout.tree().size([height, width]);
         // Projections based on data points
         var diagonal = d3.svg.diagonal().projection(function (d) {
-            return [d.y, d.x];
+            return [d.x, d.y];
         });
         // Create SVG element, append g, translate from top left (120, 20)
         var graph = d3.select('#task_graph')
@@ -379,61 +379,156 @@ app.directive('d3Test', [function () {
             }).style('fill-opacity', 1e-6);
         };
 
+
+        var cloneAndConsole = function (node) {
+            console.log(_.clone(node));
+        };
+
         /**
          * Update data, draw nodes, etc
          */
         var createNodes = function (source) {
-            var duration;
-            // Compute the new tree layout beginning with last node and traveling up to parent
+            var duration = 500;
+
+            /**
+             * This will automatically make the nodes stretch as far x as possible, and close to as far y as possible
+             */
             var nodes = tree.nodes(root).reverse();
+
+            // Clone a node for examination
+            _.forEach(nodes, function (node) {
+                if (node.title === 'task_3') {
+                    cloneAndConsole(node);
+                }
+            });
+
             /**
              * Determine x position based on how far down the hierarchy the node resides (0-ordered)
              */
             //nodes.forEach(function (d) {
             //    d.y = d.depth * 180;
             //});
+
+            var mateNodes = function (stationary, moving) {
+                stationary = {
+                    title: stationary
+                };
+                moving = {
+                    title: moving
+                };
+                console.log('stationary', stationary);
+                console.log('moving', moving);
+                _.forEach(nodes, function (node) {
+                    if (node.title === stationary.title) {
+                        stationary = node;
+                    }
+                    if (node.title === moving.title) {
+                        moving = node;
+                    }
+                });
+                console.log('stationary', stationary);
+                console.log('moving', moving);
+                if (_.isNumber(moving.x) && _.isNumber(moving.y) && _.isNumber(stationary.x) && _.isNumber(stationary.y)) {
+                    moving.x = stationary.x;
+                    moving.y = stationary.y;
+                }
+            };
+
+            mateNodes('task_3', 'task_4');
+
             /**
-            * Select nodes, assign each node an id, or else return the id already assigned
-            */
+             * Assign each node an id, or else return the id already assigned
+             */
             var node = graph.selectAll('g.node').data(nodes, function (d) {
                 if (d.id) {
                     return d.id;
                 }
-                // Assign and iterate
                 d.id = i;
                 i = i + 1;
                 return d.id;
             });
+
             /**
             * Append each node on top of the parent node for their stating position
             */
-            var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function () {
+            var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function (d) {
+                if (d.title === 'task_3') {
+                    cloneAndConsole(d);
+                }
                 return 'translate(' + source.y0 + ',' + source.x0 + ')';
             });
+
             /**
-            * Append circle on each node, but so small it can't be seen
+            * Append children for each that has them, then style them
             */
             nodeEnter.append('svg:circle').attr('r', 1e-6).style('fill', function (d) {
-                console.log(d);
                 return d._children ? 'lightsteelblue' : '#fff';
             });
+
             /**
-             * Append text to each node
-             */
-            appendText(nodeEnter);
-            /**
-             * Move nodes to their required positions
-             */
-            var nodeUpdate = node.transition().duration(500).attr('transform', function (d) {
-                console.log(d);
-                /**
-                 * I need to find out where d.x is set for this
-                 */
-                //if (d.title === 'task_3') {
-                //    d.x = 570;
-                //}
-                return 'translate(' + d.y + ',' + d.x + ')';
+            * Move the nodes to their proper locations
+            */
+            var nodeUpdate = node.transition().duration(duration).attr('transform', function (d) {
+                return 'translate(' + d.x + ',' + d.y + ')';
             });
+
+            /**
+            * Define how big the circles are, and then color them based on whether children exist
+            */
+            nodeUpdate.select('circle').attr('r', 4.5).style('fill', function (d) {
+                return d._children ? 'lightsteelblue' : '#fff';
+            });
+
+            /**
+            * When removing nodes, move them back to the parents position, fade out circle and text
+            */
+            var nodeExit = node.exit().transition().duration(duration).attr('transform', function (d) {
+                return 'translate(' + source.y + ',' + source.x + ')';
+            }).remove();
+            nodeExit.select('circle').attr('r', 1e-6);
+            nodeExit.select('text').style('fill-opacity', 1e-6);
+
+            /**
+            * Stash the old positions for transition.
+            */
+            nodes.forEach(function (d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+
+            var task_3;
+
+
+            /**
+            * Draw the lines
+            */
+            var link = graph.selectAll('path.link').data(tree.links(nodes), function (d) {
+                return d.target.id;
+            });
+
+            // Enter any new links at the parent's previous position.
+            link.enter().insert('svg:path', 'g').attr('class', 'link').attr('d', function (d) {
+                var o = {x: source.x0, y: source.y0};
+                return diagonal({source: o, target: o});
+            }).transition().duration(duration).attr('d', diagonal);
+
+            // Transition links to their new position.
+            link.transition().duration(duration).attr('d', diagonal);
+
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition().duration(duration).attr('d', function (d) {
+                var o = {x: source.x, y: source.y};
+                return diagonal({source: o, target: o});
+            }).remove();
+
+            /**
+            * Append and fill text
+            */
+            appendText(nodeEnter);
+            nodeUpdate.select('text').style('fill-opacity', 1);
+
+            // Toggle each node on click
+            toggleClick(nodeEnter);
         };
     };
 
@@ -444,8 +539,8 @@ app.directive('d3Test', [function () {
             data: '='
         },
         link: function (scope, element, attrs) {
-            treeGraph();
-            //updatedTree();
+            //treeGraph();
+            updatedTree();
             //svgTest();
         }
     };

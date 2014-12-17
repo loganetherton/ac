@@ -17,6 +17,13 @@
                     "title": "task_6"
                 }
             ]
+            },
+            {
+                "title": "task_5", "children": [
+                {
+                    "title": "task_6"
+                }
+            ]
             }
         ]
         }

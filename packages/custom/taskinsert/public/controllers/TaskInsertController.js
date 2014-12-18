@@ -24,6 +24,7 @@
                 vm.task.assigned = '';
                 vm.task.estimate = '';
                 vm.task.dependenciesText = '';
+                vm.task.dependencies = [];
                 vm.task.content = '';
             }, function (error) {
                 console.log('error: ' + error);

@@ -14,7 +14,11 @@
             {
                 "title": "task_5", "children": [
                 {
-                    "title": "task_6"
+                    "title": "task_6", "children": [
+                    {
+                        "title": "task_4"
+                    }
+                ]
                 }
             ]
             },

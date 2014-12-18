@@ -3,7 +3,7 @@
 
 var app = angular.module('mean.overview');
 
-app.directive('d3Test', [function () {
+app.directive('d3Test', ['TasklistService', function (TasklistService) {
 
     var svgTest = function () {
         var barData = [],
@@ -88,229 +88,11 @@ app.directive('d3Test', [function () {
 
 
 
-
-
-
-
-
-
-
-
-
-    var treeGraph = function () {
-        // m = x1, y1, x2, y2
-        var heightWidthModifier = [20, 120, 20, 120],
-            // Determine width based on original m
-            width = 1280 - heightWidthModifier[1] - heightWidthModifier[3],
-            // Determine height based on m
-            height = 800 - heightWidthModifier[0] - heightWidthModifier[2],
-            i = 0,
-            root;
-
-        var tree = d3.layout.tree().size([height, width]);
-
-        var diagonal = d3.svg.diagonal().projection(function (d) {
-            //console.log('diagonal');
-            //console.log(d);
-            return [d.y, d.x];
-        });
-
-        var graph = d3.select('#task_graph')
-        .append('svg:svg')
-        .attr('width', width + heightWidthModifier[1] + heightWidthModifier[3])
-        .attr('height', height + heightWidthModifier[0] + heightWidthModifier[2])
-        .append('svg:g')
-        .attr('transform', 'translate(' + heightWidthModifier[3] + ',' + heightWidthModifier[0] + ')');
-
-        d3.json('d3Data/flare.json', function (json) {
-            console.log(json);
-            root = json;
-            // Start each node in the middle
-            root.x0 = height / 2;
-            root.y0 = 0;
-
-            // Initialize the display to show a few nodes.
-            //root.children.forEach(toggleAll);
-            //toggle(root.children[0]);
-            //toggle(root.children[1]);
-            //toggle(root.children[1].children[0]);
-            //toggle(root.children[9]);
-            //toggle(root.children[9].children[0]);
-            update(root);
-        });
-
-        /**
-         * Toggle and update on click
-         */
-        var toggleClick = function (nodeEnter) {
-            nodeEnter.on('click', function (d) {
-                toggle(d);
-                update(d);
-            });
-        };
-
-        /**
-         * Append text to each node
-         */
-        var appendText = function (nodeEnter) {
-            nodeEnter.append('svg:text').attr('x', function (d) {
-                // On first iteration
-                return d.children || d._children ? -10 : 10;
-            })
-            .attr('dy', '.35em')
-                // If there are children, anchor text at end. Otherwise, at start
-            .attr('text-anchor', function (d) {
-                return (d.children || d._children) ? 'end' : 'start';
-                // Place the name as the text on each node
-            }).text(function (d) {
-                return d.title;
-                // 1e-6 is a workaround for text flicker when transitioning text
-            }).style('fill-opacity', 1e-6);
-        };
-
-        /**
-         * Update each node with data, draw lines, create text, etc
-         * @param source
-         */
-        function update(source) {
-            var duration;
-
-            // Compute the new tree layout.
-            var nodes = tree.nodes(root).reverse();
-
-            /**
-             * Determine x position based on how far down the hierarchy the node resides (0-ordered)
-             */
-            //nodes.forEach(function (d) {
-            //    d.y = d.depth * 180;
-            //});
-
-            /**
-            * Assign each node an id, or else return the id already assigned
-            */
-            var node = graph.selectAll('g.node').data(nodes, function (d) {
-                if (d.id) {
-                    return d.id;
-                }
-                d.id = i;
-                i = i + 1;
-                return d.id;
-            });
-
-            /**
-            * Append each node on top of the parent node for their stating position
-            */
-            var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function (d) {
-                return 'translate(' + source.y0 + ',' + source.x0 + ')';
-            });
-
-            /**
-            * Append children for each that has them, then style them
-            */
-            nodeEnter.append('svg:circle').attr('r', 1e-6).style('fill',
-            function (d) {
-                return d._children ? 'lightsteelblue' : '#fff';
-            });
-
-            /**
-             * Move the nodes to their proper locations
-             */
-            duration = d3.event && d3.event.altKey ? 5000 : 500;
-            var nodeUpdate = node.transition().duration(duration).attr('transform', function (d) {
-                /**
-                 * I need to find out where d.x is set for this
-                 */
-                if (d.title === 'task_3') {
-                    d.x = 570;
-                }
-                return 'translate(' + d.y + ',' + d.x + ')';
-            });
-
-            /**
-             * Define how big the circles are, and then color them based on whether children exist
-             */
-            nodeUpdate.select('circle').attr('r', 4.5).style('fill', function (d) {
-                return d._children ? 'lightsteelblue' : '#fff';
-            });
-
-            /**
-            * When removing nodes, move them back to the parents position, fade out circle and text
-            */
-            var nodeExit = node.exit().transition().duration(duration).attr('transform', function (d) {
-                return 'translate(' + source.y + ',' + source.x + ')';
-            }).remove();
-            nodeExit.select('circle').attr('r', 1e-6);
-            nodeExit.select('text').style('fill-opacity', 1e-6);
-
-            /**
-            * Stash the old positions for transition.
-            */
-            nodes.forEach(function (d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
-
-            var task_3;
-
-
-            /**
-            * Draw the lines
-            */
-            var link = graph.selectAll('path.link').data(tree.links(nodes), function (d) {
-                if (d.target.title === 'task_3') {
-                    task_3 = d;
-                }
-                return d.target.id;
-            });
-
-            // Enter any new links at the parent's previous position.
-            link.enter().insert('svg:path', 'g').attr('class', 'link').attr('d', function (d) {
-                var o = {x: source.x0, y: source.y0};
-                return diagonal({source: o, target: o});
-            }).transition().duration(duration).attr('d', diagonal);
-
-            // Transition links to their new position.
-            link.transition().duration(duration).attr('d', diagonal);
-
-            // Transition exiting nodes to the parent's new position.
-            link.exit().transition().duration(duration).attr('d', function (d) {
-                var o = {x: source.x, y: source.y};
-                return diagonal({source: o, target: o});
-            }).remove();
-
-            /**
-             * Append and fill text
-             */
-            appendText(nodeEnter);
-            nodeUpdate.select('text').style('fill-opacity', 1);
-
-            // Toggle each node on click
-            toggleClick(nodeEnter);
-        }
-
-        function toggleAll(d) {
-            if (d.children) {
-                d.children.forEach(toggleAll);
-                toggle(d);
-            }
-        }
-
-        // Toggle children.
-        function toggle(d) {
-            // Remove children nodes that exist
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
-            // Add children nodes back in
-            } else {
-                d.children = d._children;
-                d._children = null;
-            }
-        }
-    };
-
     /**
      * Reworking of original tree graph creation
+     *
+     * Zooming and panning: http://stackoverflow.com/questions/17405638/d3-js-zooming-and-panning-a-collapsible-tree-diagram
+     * Zoomable, panable, scalable tree: http://bl.ocks.org/robschmuecker/7880033
      */
     var updatedTree = function () {
         var heightWidthModifier = [20, 120, 20, 120],
@@ -338,7 +120,12 @@ app.directive('d3Test', [function () {
          * Get data, set initial x,y coordinates for project parent node
          */
         d3.json('d3Data/flare.json', function (json) {
+            //console.log('json from d3.json');
+            //console.log(json);
             root = json;
+            // Determine the largest number of children to display to do range
+
+
             // Start project parent node in middle left
             root.x0 = height / 2;
             root.y0 = 0;
@@ -356,7 +143,7 @@ app.directive('d3Test', [function () {
         var toggleClick = function (nodeEnter) {
             nodeEnter.on('click', function (d) {
                 toggle(d);
-                update(d);
+                createNodes(d);
             });
         };
 
@@ -398,7 +185,7 @@ app.directive('d3Test', [function () {
             // Clone a node for examination
             _.forEach(nodes, function (node) {
                 if (node.title === 'task_3') {
-                    cloneAndConsole(node);
+                    //cloneAndConsole(node);
                 }
             });
 
@@ -416,22 +203,16 @@ app.directive('d3Test', [function () {
                         indexes.push(index);
                     }
                 });
-                console.log(indexes);
+                //console.log(indexes);
                 var stationary = indexes.shift();
                 _.forEach(indexes, function (index) {
                     nodes[index].x = nodes[stationary].x;
                     nodes[index].y = nodes[stationary].y;
                 });
-                //console.log('stationary', stationary);
-                //console.log('moving', moving);
-                //if (_.isNumber(moving.x) && _.isNumber(moving.y) && _.isNumber(stationary.x) && _.isNumber(stationary.y)) {
-                //    moving.x = stationary.x;
-                //    moving.y = stationary.y;
-                //}
             };
 
-            mateNodes('task_4');
-            mateNodes('task_1');
+            //mateNodes('task_4');
+            //mateNodes('task_1');
 
             /**
              * Assign each node an id, or else return the id already assigned
@@ -450,7 +231,7 @@ app.directive('d3Test', [function () {
             */
             var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function (d) {
                 if (d.title === 'task_3') {
-                    cloneAndConsole(d);
+                    //cloneAndConsole(d);
                 }
                 return 'translate(' + source.y0 + ',' + source.x0 + ')';
             });
@@ -527,6 +308,26 @@ app.directive('d3Test', [function () {
             // Toggle each node on click
             toggleClick(nodeEnter);
         };
+
+        function toggleAll(d) {
+            if (d.children) {
+                d.children.forEach(toggleAll);
+                toggle(d);
+            }
+        }
+
+        // Toggle children.
+        function toggle(d) {
+            // Remove children nodes that exist
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+                // Add children nodes back in
+            } else {
+                d.children = d._children;
+                d._children = null;
+            }
+        }
     };
 
     return {
@@ -536,7 +337,10 @@ app.directive('d3Test', [function () {
             data: '='
         },
         link: function (scope, element, attrs) {
-            //treeGraph();
+            TasklistService.getTasksForGraph().then(function (data) {
+                //console.log('tasks for graph');
+                //console.log(data);
+            });
             updatedTree();
             //svgTest();
         }

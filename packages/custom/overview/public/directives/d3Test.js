@@ -409,32 +409,29 @@ app.directive('d3Test', [function () {
             //    d.y = d.depth * 180;
             //});
 
-            var mateNodes = function (stationary, moving) {
-                stationary = {
-                    title: stationary
-                };
-                moving = {
-                    title: moving
-                };
-                console.log('stationary', stationary);
-                console.log('moving', moving);
-                _.forEach(nodes, function (node) {
-                    if (node.title === stationary.title) {
-                        stationary = node;
-                    }
-                    if (node.title === moving.title) {
-                        moving = node;
+            var mateNodes = function (search) {
+                var indexes = [];
+                _.forEach(nodes, function (node, index) {
+                    if (node.title === search) {
+                        indexes.push(index);
                     }
                 });
-                console.log('stationary', stationary);
-                console.log('moving', moving);
-                if (_.isNumber(moving.x) && _.isNumber(moving.y) && _.isNumber(stationary.x) && _.isNumber(stationary.y)) {
-                    moving.x = stationary.x;
-                    moving.y = stationary.y;
-                }
+                console.log(indexes);
+                var stationary = indexes.shift();
+                _.forEach(indexes, function (index) {
+                    nodes[index].x = nodes[stationary].x;
+                    nodes[index].y = nodes[stationary].y;
+                });
+                //console.log('stationary', stationary);
+                //console.log('moving', moving);
+                //if (_.isNumber(moving.x) && _.isNumber(moving.y) && _.isNumber(stationary.x) && _.isNumber(stationary.y)) {
+                //    moving.x = stationary.x;
+                //    moving.y = stationary.y;
+                //}
             };
 
-            mateNodes('task_3', 'task_4');
+            mateNodes('task_4');
+            mateNodes('task_1');
 
             /**
              * Assign each node an id, or else return the id already assigned

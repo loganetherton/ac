@@ -3,7 +3,7 @@
 
 var app = angular.module('mean.overview');
 
-app.directive('d3Test', ['TasklistService', function (TasklistService) {
+app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, User) {
 
     var svgTest = function () {
         var barData = [],
@@ -93,18 +93,23 @@ app.directive('d3Test', ['TasklistService', function (TasklistService) {
      *
      * Zooming and panning: http://stackoverflow.com/questions/17405638/d3-js-zooming-and-panning-a-collapsible-tree-diagram
      * Zoomable, panable, scalable tree: http://bl.ocks.org/robschmuecker/7880033
+     *
+     * Critical Path Method: https://github.com/MilanPecov/critical-path-method
+     * .NET CPM: http://www.leniel.net/2007/12/critical-path-method.html#sthash.MFd5MpNB.dpbs
+     * Python implementation: https://github.com/dhenderson/criticalpy
+     * JS implementation, not sure if it's any good: https://github.com/maxinfang/Cpath
      */
     var updatedTree = function () {
         var heightWidthModifier = [20, 120, 20, 120],
             // Determine width based on modifier
-            width = 1280 - heightWidthModifier[1] - heightWidthModifier[3],
+            height = 1280 - heightWidthModifier[1] - heightWidthModifier[3],
             // Determine height based on modifier
-            height = 800 - heightWidthModifier[0] - heightWidthModifier[2],
+            width = 900 - heightWidthModifier[0] - heightWidthModifier[2],
             i = 0,
             root;
 
         // Tree
-        var tree = d3.layout.tree().size([height, width]);
+        var tree = d3.layout.tree().size([width, height]);
         // Projections based on data points
         var diagonal = d3.svg.diagonal().projection(function (d) {
             return [d.x, d.y];
@@ -120,20 +125,30 @@ app.directive('d3Test', ['TasklistService', function (TasklistService) {
          * Get data, set initial x,y coordinates for project parent node
          */
         d3.json('d3Data/flare.json', function (json) {
-            //console.log('json from d3.json');
-            //console.log(json);
+        //d3.json('/tasks/team/graph/' + User.getIdentity().teams[0], function (json) {
+            console.log('json from d3.json');
+            console.log(json);
+            //root = json;
+            //// Determine the largest number of children to display to do range
+            //
+            //
+            //// Start project parent node in middle left
+            //root.x0 = height / 2;
+            //root.y0 = 0;
+            //
+            //// Initialize the display to show a few nodes.
+            ////root.children.forEach(toggleAll);
+            ////toggle(root.children[0]);
+            ////toggle(root.children[1].children[0]);
+            //createNodes(root);
+        });
+
+        d3.json('/tasks/team/graph/' + User.getIdentity().teams[0], function (json) {
+            console.log('json from taskGraph');
+            console.log(json);
             root = json;
-            // Determine the largest number of children to display to do range
-
-
-            // Start project parent node in middle left
             root.x0 = height / 2;
             root.y0 = 0;
-
-            // Initialize the display to show a few nodes.
-            //root.children.forEach(toggleAll);
-            //toggle(root.children[0]);
-            //toggle(root.children[1].children[0]);
             createNodes(root);
         });
 
@@ -337,10 +352,10 @@ app.directive('d3Test', ['TasklistService', function (TasklistService) {
             data: '='
         },
         link: function (scope, element, attrs) {
-            TasklistService.getTasksForGraph().then(function (data) {
-                //console.log('tasks for graph');
-                //console.log(data);
-            });
+            //TasklistService.getTasksForGraph().then(function (data) {
+            //    //console.log('tasks for graph');
+            //    //console.log(data);
+            //});
             updatedTree();
             //svgTest();
         }

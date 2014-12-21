@@ -149,8 +149,83 @@ exports.getTeamTasksForGraph = function (req, res, next) {
         if (!tasks) {
             return next(new Error('Failed to load tasks for ' + req.params.teamId));
         }
-        return res.json(tasks);
+        return res.json(processTasksForGraph(tasks));
     });
+};
+
+/**
+ * Arrange the tasks into a usable format for d3
+ * @param tasks
+ * @returns {*}
+ */
+var processTasksForGraph = function (tasksInput) {
+    var tasks = _.clone(tasksInput);
+    var taskMap = {};
+    var depsMap = {
+        title: 'project_name',
+        children: []
+    };
+    /**
+     * 1) Get all tasks without dependencies, as they will form the top level of graph.
+     * Additionally, create map of all of the remaining tasks to prevent unnecessary iteration
+     */
+    tasks.forEach(function (task) {
+        if (!task.dependencies.length) {
+            depsMap.children.push(task);
+        } else {
+            taskMap[task.id] = task;
+        }
+    });
+    console.log('**************TASKMAP**********');
+    console.log(taskMap);
+    console.log('**************DEPSMAP**********');
+    console.log(depsMap);
+    return depsMap;
+    //// Remove the tasks without dependencies, as we'll not be working on those anymore
+    //tasks = tasks.filter(function (task) {
+    //    return task.dependencies.length;
+    //});
+    ///**
+    // * 2) Create object composed of tasks without dependencies
+    // */
+    //var depsMap = {
+    //    title: 'project_name', children: []
+    //};
+    //noDeps.forEach(function (val) {
+    //    if (depsMap.children.indexOf(val.id) === -1) {
+    //        depsMap.children.push({
+    //            id: val.id,
+    //            title: val.title,
+    //            children: []
+    //        });
+    //    }
+    //});
+    //console.log('**************TASKS**********');
+    //console.log(tasks);
+    //_.forEach(noDeps, function (task) {
+    //    console.log('**************NODEP ITERATION**********');
+    //    console.log(task);
+    //    // Find all tasks which depend on these top level tasks
+    //});
+    ///**
+    //* 3) Find items which depend on the items that don't themselves have dependencies
+    //*/
+    //// We'll end up with tasks being an array of all tasks which don't have top level dependencies
+    //var tasksWithoutTopLevelDeps = tasks.map(function (task) {
+    //    task.dependencies.forEach(function (dep) {
+    //        if (depsMap[dep]) {
+    //            depsMap[dep].children[task.id] = task;
+    //            return null;
+    //        }
+    //        return task;
+    //    });
+    //}).filter(function (task) {
+    //    return !_.isUndefined(task);
+    //});
+    //console.log(tasksWithoutTopLevelDeps);
+    //console.log('**************DEPSMAP**********');
+    //console.log(depsMap);
+    //return depsMap;
 };
 
 /**

@@ -53,55 +53,55 @@ function ($http, TasklistSocketService, Global, LogService, $q, User) {
              * 3) Find duplicate dependencies, assign extra weight
              */
             $http.get('/tasks/team/graph/' + _identity.teams[0]).then(function (response) {
-                var tasks = _.clone(response.data);
-                /**
-                 * 1) Get all tasks without dependencies, as they will form the top level
-                 */
-                var noDeps = tasks.map(function (task) {
-                    // If no dependencies, return the task
-                    if (!task.dependencies.length) {
-                        return task;
-                    }
-                }).filter(function (task) {
-                    return !_.isUndefined(task);
-                });
-                // Remove the tasks without dependencies, as we'll not be working on those anymore
-                tasks = tasks.filter(function (task) {
-                    return task.dependencies.length;
-                });
-                /**
-                 * 2) Create object composed of tasks without dependencies
-                 */
-                var depsMap = {};
-                noDeps.forEach(function (val) {
-                    depsMap[val.id] = val;
-                    depsMap[val.id].children = {};
-                });
-                /**
-                 * 3) Find items which depend on the items that don't themselves have dependencies
-                 */
-                // We'll end up with tasks being an array of all tasks which don't have top level dependencies
-                var tasksWithoutTopLevelDeps = tasks.map(function (task) {
-                    task.dependencies.forEach(function (dep) {
-                        if (depsMap[dep]) {
-                            depsMap[dep].children[task.id] = task;
-                            return null;
-                        }
-                        return task;
-                    });
-                }).filter(function (task) {
-                    return !_.isUndefined(task);
-                });
-                console.log(tasksWithoutTopLevelDeps);
-                console.log(depsMap);
+                //var tasks = _.clone(response.data);
+                ///**
+                // * 1) Get all tasks without dependencies, as they will form the top level
+                // */
+                //var noDeps = tasks.map(function (task) {
+                //    // If no dependencies, return the task
+                //    if (!task.dependencies.length) {
+                //        return task;
+                //    }
+                //}).filter(function (task) {
+                //    return !_.isUndefined(task);
+                //});
+                //// Remove the tasks without dependencies, as we'll not be working on those anymore
+                //tasks = tasks.filter(function (task) {
+                //    return task.dependencies.length;
+                //});
+                ///**
+                // * 2) Create object composed of tasks without dependencies
+                // */
+                //var depsMap = {};
+                //noDeps.forEach(function (val) {
+                //    depsMap[val.id] = val;
+                //    depsMap[val.id].children = {};
+                //});
+                ///**
+                // * 3) Find items which depend on the items that don't themselves have dependencies
+                // */
+                //// We'll end up with tasks being an array of all tasks which don't have top level dependencies
+                //var tasksWithoutTopLevelDeps = tasks.map(function (task) {
+                //    task.dependencies.forEach(function (dep) {
+                //        if (depsMap[dep]) {
+                //            depsMap[dep].children[task.id] = task;
+                //            return null;
+                //        }
+                //        return task;
+                //    });
+                //}).filter(function (task) {
+                //    return !_.isUndefined(task);
+                //});
+                //console.log(tasksWithoutTopLevelDeps);
+                //console.log(depsMap);
                 /**
                  * 4) Find items in the dependencies map who share multiple parents
                  *
                  * This is going to need to be a recursive algorithm
                  */
-                _.forOwn(depsMap, function (task) {
-                    console.log(task);
-                });
+                //_.forOwn(depsMap, function (task) {
+                //    console.log(task);
+                //});
 
                 if (response.status === 200) {
                     // Get task dependencies

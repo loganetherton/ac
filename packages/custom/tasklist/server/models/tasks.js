@@ -60,7 +60,7 @@ var TaskSchema = new Schema({
         default: 0
     },
     dependencies: [{ type: Schema.ObjectId, ref: 'Task' }],
-    dependedOnBy: [{ type: Schema.ObjectId, ref: 'Task' }],
+    children: [{ type: Schema.ObjectId, ref: 'Task' }],
     assignedTo: {
         type: Schema.ObjectId,
         ref: 'User'
@@ -125,7 +125,7 @@ TaskSchema.statics.loadByTeamIdForGraph = function (id, cb) {
         team: id
     },
     null,
-    {sort: {_id: 1}}).select('title dependencies dependedOnBy').exec(cb);
+    {sort: {_id: 1}}).select('title dependencies children').exec(cb);
 };
 
 // Get most recent tasks for the requested user

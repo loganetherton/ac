@@ -5,7 +5,8 @@
  */
 var mongoose = require('mongoose'),
 Task = mongoose.model('Task'),
-_ = require('lodash');
+_ = require('lodash'),
+t = require('t');
 
 var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
 
@@ -41,7 +42,7 @@ exports.create = function(req, res) {
             }
             // For each parent task, mark the new dependency
             depTasks.forEach(function (parentTask) {
-                parentTask.dependedOnBy.push(task.id);
+                parentTask.children.push(task.id);
                 parentTask.save(function (err, parentSave) {
                     if (err) {
                         console.log(err);
@@ -170,34 +171,80 @@ exports.getTeamTasksForGraph = function (req, res, next) {
     });
 };
 
+var DataStructures = require('./TreeCreator');
+
 /**
  * Arrange the tasks into a usable format for d3
  * @param tasks
  * @returns {*}
  */
-var processTasksForGraph = function (tasksInput) {
-    var tasks = _.clone(tasksInput);
-    var taskMap = {};
-    var depsMap = {
-        title: 'project_name',
-        children: []
-    };
-    /**
-     * 1) Get all tasks without dependencies, as they will form the top level of graph.
-     * Additionally, create map of all of the remaining tasks to prevent unnecessary iteration
-     */
-    tasks.forEach(function (task) {
-        if (!task.dependencies.length) {
-            depsMap.children.push(task);
-        } else {
-            taskMap[task.id] = task;
+var processTasksForGraph = function (data) {
+    console.log(data);
+    var tree = DataStructures.Tree.createFromFlatTable(data),
+    simplifiedTree = tree.toSimpleObject(function(objectToDecorate, originalNode) {
+        objectToDecorate.size = originalNode.size;
+        if (objectToDecorate.children && objectToDecorate.children.length == 0) {
+            delete objectToDecorate.children;
         }
+
+        return objectToDecorate;
     });
-    console.log('**************TASKMAP**********');
-    console.log(taskMap);
-    console.log('**************DEPSMAP**********');
-    console.log(depsMap);
-    return depsMap;
+    console.log(tree);
+    console.log(simplifiedTree);
+    //Tree().createTree(tasksInput);
+    //var tasks = _.clone(tasksInput);
+    //var taskMap = {};
+    //var depsMap = {
+    //    title: 'project_name',
+    //    children: []
+    //};
+    ///**
+    // * 1) Get all tasks without dependencies, as they will form the top level of graph.
+    // * Additionally, create map of all of the remaining tasks to prevent unnecessary iteration
+    // */
+    //tasks.forEach(function (task) {
+    //    if (!task.dependencies.length) {
+    //        depsMap.children.push(task);
+    //    } else {
+    //        taskMap[task.id] = task;
+    //    }
+    //});
+    //console.log('**************TASKMAP**********');
+    //console.log(taskMap);
+    //console.log('**************DEPSMAP**********');
+    //console.log(depsMap);
+    //t.dfs(depsMap, function (node, parent) {
+    //    console.log('**************NODE**********');
+    //    console.log(taskMap[node]);
+    //    //console.log('**************PARENT**********');
+    //    //console.log(parent);
+    //});
+    //var buildGraphTree = function (inputTask) {
+    //    console.log('**************TOP LEVEL TASK**********');
+    //    console.log(inputTask);
+    //    _.each(inputTask.children, function (child, childIndex) {
+    //        console.log('**************CHILD**********');
+    //        console.log(child);
+    //        inputTask.children[childIndex] = taskMap[child];
+    //    });
+    //    console.log('**************INPUT TASK**********');
+    //    console.log(inputTask);
+    //    //console.log('**************TASKMAP LENGTH**********');
+    //    //console.log(Object.keys(taskMap).length);
+    //};
+    //_.forEach(depsMap.children, function (topLevelTask, index) {
+    //    //buildGraphTree(topLevelTask);
+    //    console.log('**************TOP LEVEL TASK**********');
+    //    console.log(topLevelTask);
+    //    _.forEach(topLevelTask.children, function (child, index) {
+    //        console.log('**************Taskmap child**********');
+    //        console.error(taskMap[child]);
+    //        topLevelTask.children[index] = taskMap[child];
+    //    });
+    //    console.log('**************TOP LEVEL TASK CHILDREN END**********');
+    //    console.log(topLevelTask.children);
+    //});
+    return data;
     //// Remove the tasks without dependencies, as we'll not be working on those anymore
     //tasks = tasks.filter(function (task) {
     //    return task.dependencies.length;

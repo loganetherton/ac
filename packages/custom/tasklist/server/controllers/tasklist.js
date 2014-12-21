@@ -23,7 +23,7 @@ exports.create = function(req, res) {
             console.log(error);
         }
     });
-
+    // Save the new task
     task.save(function(err) {
         if (err) {
             console.log('could not save task to database: ' + err);
@@ -32,6 +32,23 @@ exports.create = function(req, res) {
                 error: err
             });
         }
+        // Find tasks which are parent to this task and mark the dependency
+        Task.find().where('_id').in(task.dependencies).exec(function(err, depTasks) {
+            if (err) {
+                return res.json(500, {
+                    error: 'Unable to retrieve parent tasks'
+                });
+            }
+            // For each parent task, mark the new dependency
+            depTasks.forEach(function (parentTask) {
+                parentTask.dependedOnBy.push(task.id);
+                parentTask.save(function (err, parentSave) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            });
+        });
         res.json(task);
     });
 };

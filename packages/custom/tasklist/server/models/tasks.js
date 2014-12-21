@@ -60,6 +60,7 @@ var TaskSchema = new Schema({
         default: 0
     },
     dependencies: [{ type: Schema.ObjectId, ref: 'Task' }],
+    dependedOnBy: [{ type: Schema.ObjectId, ref: 'Task' }],
     assignedTo: {
         type: Schema.ObjectId,
         ref: 'User'

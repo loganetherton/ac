@@ -77,7 +77,7 @@ DataStructures.Tree = Base.extend({
                 current = traversalQueue.shift();
                 if (current) {
                     // enqueue the children (bread-first-traversal)
-                    current.children.each(function(childToEnqueue){
+                    _.each(current.children, function(childToEnqueue){
                         traversalQueue.push(childToEnqueue);
                     });
                 }
@@ -133,23 +133,35 @@ DataStructures.Tree.createFromFlatTable = function(flatTable){
     if (flatTable) {
         if (flatTable instanceof Array) {
             tree = new DataStructures.Tree();
+            console.log('**************FLAT TABLE**********');
+            console.log(flatTable);
 
             for (var i=0; i < flatTable.length; i++) {
                 var rowToConvertToNode = flatTable[i];
-                if (isNull(rowToConvertToNode.parentId)) {
+                console.log('**************ROW TO CONVERT TO NODE**********');
+                console.log(rowToConvertToNode);
+                //if (isNull(rowToConvertToNode.parentId)) {
+                if (!rowToConvertToNode.dependencies.length) {
                     // this is the root node
                     var root = tree.root;
 
                     for (var keyToCopy in rowToConvertToNode) {
                         root[keyToCopy] = rowToConvertToNode[keyToCopy];
                     }
+                    console.log('**************ROOT**********');
+                    console.log(root);
                 }
                 else {
                     // this is a child node, find the parent...
                     var matchById = function(nodeToMatch, valueToMatchOn) {
+                        console.log('**************NODE TO MATCH**********');
+                        console.log(nodeToMatch);
+                        console.log('**************VALUE TO MATCH ON**********');
+                        console.log(valueToMatchOn);
                         return (nodeToMatch.id == valueToMatchOn);
                     },
-                    parentNode = tree.findNode(rowToConvertToNode.parentId, matchById);
+                    //parentNode = tree.findNode(rowToConvertToNode.parentId, matchById);
+                    parentNode = tree.findNode(rowToConvertToNode.dependencies[0], matchById);
 
                     // if we managed to find the parentNode for this rowToConvert, add it as a child
                     if (parentNode) {
@@ -159,11 +171,10 @@ DataStructures.Tree.createFromFlatTable = function(flatTable){
                             convertedNode[keyToCopy] = rowToConvertToNode[keyToCopy];
                         }
 
-                    }
-                    else {
+                    } else {
                         throw {
-                            name : "NodeNotFound",
-                            message : "unable to find a parent node for row " + rowToConvertToNode.name
+                            name: "NodeNotFound",
+                            message: "unable to find a parent node for row " + rowToConvertToNode.name
                         }
                     }
                 }

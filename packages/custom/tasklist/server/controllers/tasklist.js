@@ -4,9 +4,10 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-Task = mongoose.model('Task'),
-_ = require('lodash'),
-t = require('t');
+    Task = mongoose.model('Task'),
+    _ = require('lodash'),
+    t = require('t'),
+    traverse = require('traverse');
 
 var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
 
@@ -167,8 +168,90 @@ exports.getTeamTasksForGraph = function (req, res, next) {
         if (!tasks) {
             return next(new Error('Failed to load tasks for ' + req.params.teamId));
         }
-        return res.json(processTasksForGraph(tasks));
+        //return res.json(processTasksForGraph(tasks));
+        return res.json(processAttempt2(tasks));
     });
+};
+
+var processAttempt2 = function (tasks) {
+    var taskMap = {};
+    var graph = {
+        title: 'project_name',
+        children: []
+    };
+    var removedMap = {};
+    /**
+     * 1) Create map of all tasks so they can be referenced by ID
+     * 2) Copy tasks that do not have parents into graph. They will be the top level nodes.
+     * 3) Remove top level tasks from tasksMap. As they're being removed, remove parent reference from parents array
+     * on remaining tasks
+     * 4) Tasks which no longer have any parents are now placed into graph. Remove references to those. Repeat as many
+     * times as necessary
+     */
+    tasks.forEach(function (task) {
+        taskMap[task.id] = task.toObject();
+    });
+    var createGraph = function (task) {
+        _.forEach(task, function (thisTask) {
+            if (!thisTask.dependencies.length) {
+                var taskId = thisTask.id;
+                //console.log('**************PARENTS**********');
+                //console.log(thisTask);
+                graph.children.push(thisTask);
+                //delete taskMap[taskId];
+                // Remove the reference in all children to the top level task
+                //_.forEach(thisTask.children, function (child) {
+                //    //console.log('**************CHILD**********');
+                //    //console.log(child);
+                //    //console.log('**************TASKMAP CHILD**********');
+                //    //taskMap[child].dependencies.splice(taskMap[child].dependencies.indexOf(taskId), 1);
+                //    //console.log(taskMap[child].dependencies);
+                //});
+                // Remove references to the parents in the remaining tasks
+                //_.forEach(taskMap, function (taskToAlter) {
+                //    if (taskToAlter.dependencies.indexOf(taskId) !== -1) {
+                //        taskToAlter.dependencies.splice(taskToAlter.dependencies.indexOf(taskId), 1);
+                //        console.log('**************TASK TO ALTER**********');
+                //        console.log(taskToAlter);
+                //        t.bfs(graph, function (node, parent) {
+                //            console.log('**************NODE**********');
+                //            console.log(node);
+                //            console.log('**************PARENT**********');
+                //            console.log(parent);
+                //        })
+                //    }
+                //});
+            }
+        });
+    };
+    createGraph(taskMap);
+    console.log('**************GRAPH**********');
+    console.log(graph);
+    console.log('**************TASK MAP**********');
+    console.log(taskMap);
+    traverse(graph).forEach(function (node) {
+        if (node instanceof mongoose.Types.ObjectId && this.parent.key === 'children') {
+            var taskToAdd = _.clone(taskMap[this.node], true);
+            console.log('**************TASK TO ADD**********');
+            console.log(taskMap[this.node]);
+            this.update(taskMap[this.node]);
+            //console.log('**************TASKMAP NODE**********');
+            //console.log(taskMap[node]);
+            //_.forOwn(taskMap[node], function (nodeProp) {
+            //    console.log('**************NODE PROP**********');
+            //    console.log(nodeProp);
+            //});
+            ////console.log(taskToAdd);
+            ////this.update(taskToAdd);
+            //i++;
+        }
+    });
+    //console.log('**************GRAPH**********');
+    //console.log(JSON.stringify(graph));
+    return graph;
+
+    //console.log('**************TASK MAP**********');
+    //console.log(taskMap['5496387354f963ba42f318e7']);
 };
 
 var DataStructures = require('./TreeCreator');
@@ -179,72 +262,101 @@ var DataStructures = require('./TreeCreator');
  * @returns {*}
  */
 var processTasksForGraph = function (data) {
-    console.log(data);
-    var tree = DataStructures.Tree.createFromFlatTable(data),
-    simplifiedTree = tree.toSimpleObject(function(objectToDecorate, originalNode) {
-        objectToDecorate.size = originalNode.size;
-        if (objectToDecorate.children && objectToDecorate.children.length == 0) {
-            delete objectToDecorate.children;
-        }
-
-        return objectToDecorate;
-    });
-    console.log(tree);
-    console.log(simplifiedTree);
-    //Tree().createTree(tasksInput);
-    //var tasks = _.clone(tasksInput);
-    //var taskMap = {};
-    //var depsMap = {
-    //    title: 'project_name',
-    //    children: []
-    //};
-    ///**
-    // * 1) Get all tasks without dependencies, as they will form the top level of graph.
-    // * Additionally, create map of all of the remaining tasks to prevent unnecessary iteration
-    // */
-    //tasks.forEach(function (task) {
-    //    if (!task.dependencies.length) {
-    //        depsMap.children.push(task);
-    //    } else {
-    //        taskMap[task.id] = task;
+    ////console.log(data);
+    //var tree = DataStructures.Tree.createFromFlatTable(data),
+    //simplifiedTree = tree.toSimpleObject(function(objectToDecorate, originalNode) {
+    //    objectToDecorate.size = originalNode.size;
+    //    if (objectToDecorate.children && objectToDecorate.children.length == 0) {
+    //        delete objectToDecorate.children;
     //    }
+    //
+    //    return objectToDecorate;
     //});
+    //console.log(tree);
+    //console.log(simplifiedTree);
+    //Tree().createTree(tasksInput);
+    var tasks = _.clone(data);
+    var taskMap = {};
+    var depsMap = {
+        title: 'project_name',
+        children: []
+    };
+    /**
+    * 1) Get all tasks without dependencies, as they will form the top level of graph.
+    * Additionally, create map of all of the remaining tasks to prevent unnecessary iteration
+    */
+    tasks.forEach(function (task) {
+        if (!task.dependencies.length) {
+            depsMap.children.push(task);
+        } else {
+            taskMap[task.id] = task;
+        }
+    });
     //console.log('**************TASKMAP**********');
     //console.log(taskMap);
-    //console.log('**************DEPSMAP**********');
-    //console.log(depsMap);
-    //t.dfs(depsMap, function (node, parent) {
-    //    console.log('**************NODE**********');
-    //    console.log(taskMap[node]);
-    //    //console.log('**************PARENT**********');
-    //    //console.log(parent);
-    //});
-    //var buildGraphTree = function (inputTask) {
-    //    console.log('**************TOP LEVEL TASK**********');
-    //    console.log(inputTask);
-    //    _.each(inputTask.children, function (child, childIndex) {
-    //        console.log('**************CHILD**********');
-    //        console.log(child);
-    //        inputTask.children[childIndex] = taskMap[child];
-    //    });
-    //    console.log('**************INPUT TASK**********');
-    //    console.log(inputTask);
-    //    //console.log('**************TASKMAP LENGTH**********');
-    //    //console.log(Object.keys(taskMap).length);
-    //};
-    //_.forEach(depsMap.children, function (topLevelTask, index) {
-    //    //buildGraphTree(topLevelTask);
-    //    console.log('**************TOP LEVEL TASK**********');
-    //    console.log(topLevelTask);
-    //    _.forEach(topLevelTask.children, function (child, index) {
-    //        console.log('**************Taskmap child**********');
-    //        console.error(taskMap[child]);
-    //        topLevelTask.children[index] = taskMap[child];
-    //    });
-    //    console.log('**************TOP LEVEL TASK CHILDREN END**********');
-    //    console.log(topLevelTask.children);
-    //});
-    return data;
+    console.log('**************DEPSMAP**********');
+    console.log(depsMap);
+    var outputTree = t.map(depsMap, function (node, parent) {
+        console.log('**************NODE**********');
+        console.log(node);
+        console.log('**************PARENT**********');
+        console.log(parent);
+    });
+    console.log('**************OUTPUT TREE**********');
+    console.log(outputTree);
+
+
+
+    var level = 0, branch = 0;
+    var thisIndex;
+    var buildTreeGraph = function (inputMap) {
+        console.log('**************INPUT MAP**********');
+        console.log(inputMap);
+        // If we're dealing with an object, send recurse children
+        if (!_.isArray(inputMap)) {
+            if (inputMap instanceof mongoose.Types.ObjectId) {
+                console.log('**************LEVEL**********');
+                console.log(level);
+                console.log('**************INDEX**********');
+                console.log(thisIndex);
+                console.log('**************BRANCH**********');
+                console.log(branch);
+                //console.log('**************taskmap found**********');
+                //console.log(taskMap[inputMap]);
+            } else if (inputMap.children.length) {
+                level = level + 1;
+                buildTreeGraph(inputMap.children);
+                level = level - 1;
+            }
+            // if we're dealing with an array of children, call each child
+        } else {
+            //console.log('**************INPUT MAP ARRAY**********');
+            //console.log(inputMap);
+            _.forEach(inputMap, function (child, index) {
+                branch = branch + 1;
+                thisIndex = index;
+                buildTreeGraph(child);
+            })
+        }
+    };
+    var outputMap = buildTreeGraph(depsMap);
+    console.log('**************OUTPUT MAP**********');
+    console.log(outputMap);
+
+    _.forEach(depsMap.children, function (task, depsMapIndex) {
+        //console.log('**************TASK**********');
+        //console.log(task);
+        _.forEach(task.children, function (child, childIndex) {
+            //console.log('**************DEPS MAP CHILD**********');
+            depsMap.children[depsMapIndex].children[childIndex] = taskMap[child];
+        })
+    });
+    console.log('**************DEPSMAP AT END**********');
+    console.log(depsMap);
+
+
+
+
     //// Remove the tasks without dependencies, as we'll not be working on those anymore
     //tasks = tasks.filter(function (task) {
     //    return task.dependencies.length;
@@ -289,7 +401,7 @@ var processTasksForGraph = function (data) {
     //console.log(tasksWithoutTopLevelDeps);
     //console.log('**************DEPSMAP**********');
     //console.log(depsMap);
-    //return depsMap;
+    return depsMap;
 };
 
 /**

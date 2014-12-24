@@ -5,88 +5,6 @@ var app = angular.module('mean.overview');
 
 app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, User) {
 
-    var svgTest = function () {
-        var barData = [],
-        height = 400,
-        width = 600,
-        tempColor;
-
-        for (var i = 0; i < 50; i++) {
-            barData.push(Math.round(Math.random() * 100) + 1);
-        }
-
-        var colors = d3.scale.linear()
-        .domain([0, barData.length * .33, barData.length * .66, barData.length])
-        .range(['red', 'blue', 'orange', 'pink']);
-
-        // Set domain to max data point, range to height
-        // Domain is x, range is y
-        var yScale = d3.scale.linear()
-        .domain([0, d3.max(barData)])
-        .range([0, height]);
-
-        var xScale = d3.scale.ordinal()
-        .domain(d3.range(0, barData.length))
-        .rangeBands([0, width]);
-
-        var tooltip = d3.select('body').append('div')
-        .style('position', 'absolute')
-        .style('padding', '0 10px')
-        .style('background', 'white')
-        .style('opacity', 0);
-
-        var svgTest = d3.select('#svg_test')
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .selectAll('rect').data(barData)
-        .enter().append('rect')
-        .style('fill', function(d,i) {
-            return colors(i);
-        })
-        .attr('width', xScale.rangeBand())
-        .attr('x', function (d, i) {
-            return xScale(i);
-        })
-        .attr('height', 0)
-        .attr('y', height)
-        .on('mouseover', function (d) {
-            tooltip.transition()
-            .style('opacity', 0.9);
-
-            tooltip.html(d)
-            .style('left', (d3.event.pageX) + 'px')
-            .style('top', (d3.event.pageY) + 'px');
-
-            tempColor = this.style.fill;
-            // This refers to the current element
-            d3.select(this)
-            .style('opacity', 0.5)
-            .style('fill', 'yellow');
-        })
-        .on('mouseleave', function (d) {
-            d3.select(this)
-            .style('opacity', 1)
-            .style('fill', tempColor);
-        });
-
-        svgTest.transition()
-        .attr('height', function (d) {
-            return yScale(d);
-        })
-        .attr('y', function (d) {
-            return height - yScale(d);
-        })
-        .delay(function (d, i) {
-            return i * 10;
-        })
-        .duration(1000)
-        .ease('elastic');
-    };
-
-
-
-
 
     /**
      * Reworking of original tree graph creation
@@ -195,14 +113,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             /**
              * This will automatically make the nodes stretch as far x as possible, and close to as far y as possible
              */
-            var nodes = tree.nodes(root).reverse();
-
-            // Clone a node for examination
-            _.forEach(nodes, function (node) {
-                if (node.title === 'task_3') {
-                    //cloneAndConsole(node);
-                }
-            });
+            var nodes = tree.nodes(root);
 
             /**
              * Determine x position based on how far down the hierarchy the node resides (0-ordered)
@@ -241,6 +152,59 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 return d.id;
             });
 
+            var nodeIds = {};
+
+            /**
+            * Find repeated nodes and merge
+            */
+            _.forEach(nodes, function (node, index) {
+                // Create an array of everywhere this node is found
+                if (node._id) {
+                    if (nodeIds[node._id]) {
+                        nodeIds[node._id].index.push(index);
+                    } else {
+                        nodeIds[node._id] = {
+                            index: [index]
+                        };
+                    }
+                }
+            });
+            // Since we're iterating over the nodes themselves, the repeated values will be found multiple times
+            var repeatedNodes = [];
+            var nodeIter;
+            // Iterate nodes and find the ones that have repeated values, based on the number of indexes in nodeIds
+            for (nodeIter = 0; nodeIter < nodes.length; nodeIter = nodeIter + 1) {
+                if (nodeIds[nodes[nodeIter]._id] && nodeIds[nodes[nodeIter]._id].index && nodeIds[nodes[nodeIter]._id].index.length > 1) {
+                    repeatedNodes.push(nodeIds[nodes[nodeIter]._id].index);
+                }
+            }
+            // Remove repeated values
+            var removeDuplicateNodeIndexes = function (a) {
+                var exists = {};
+                return a.filter(function(item) {
+                    return exists.hasOwnProperty(item) ? false : (exists[item] = true);
+                });
+            };
+            var repeatedWithoutDuplicates = removeDuplicateNodeIndexes(repeatedNodes);
+            // Merge the nodes that are repeated
+            for (nodeIter = 0; nodeIter < repeatedWithoutDuplicates.length; nodeIter = nodeIter + 1) {
+                var thisX = [];
+                var thisY = [];
+                // Get an array of all x and y values for repeated nodes
+                repeatedWithoutDuplicates[nodeIter].forEach(function (nodeArrayItem) {
+                    thisX.push(nodes[nodeArrayItem].x);
+                    thisY.push(nodes[nodeArrayItem].y);
+                });
+                // Determine average
+                var avgX = thisX.reduce(function(a, b) { return a + b }) / thisX.length;
+                var avgY = thisY.reduce(function(a, b) { return a + b }) / thisY.length;
+                // Replace each node's x and y with average
+                repeatedWithoutDuplicates[nodeIter].forEach(function (nodeArrayItem) {
+                    nodes[nodeArrayItem].x = avgX;
+                    nodes[nodeArrayItem].y = avgY;
+                });
+            }
+
             /**
             * Append each node on top of the parent node for their stating position
             */
@@ -276,7 +240,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             * When removing nodes, move them back to the parents position, fade out circle and text
             */
             var nodeExit = node.exit().transition().duration(duration).attr('transform', function (d) {
-                return 'translate(' + source.y + ',' + source.x + ')';
+                return 'translate(' + source.x + ',' + source.y + ')';
             }).remove();
             nodeExit.select('circle').attr('r', 1e-6);
             nodeExit.select('text').style('fill-opacity', 1e-6);
@@ -357,7 +321,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             //    //console.log(data);
             //});
             updatedTree();
-            //svgTest();
         }
     };
 }]);

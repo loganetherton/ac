@@ -190,68 +190,24 @@ var processAttempt2 = function (tasks) {
      */
     tasks.forEach(function (task) {
         taskMap[task.id] = task.toObject();
+        delete taskMap[task.id].id;
     });
+    // Add top level nodes
     var createGraph = function (task) {
         _.forEach(task, function (thisTask) {
             if (!thisTask.dependencies.length) {
-                var taskId = thisTask.id;
-                //console.log('**************PARENTS**********');
-                //console.log(thisTask);
                 graph.children.push(thisTask);
-                //delete taskMap[taskId];
-                // Remove the reference in all children to the top level task
-                //_.forEach(thisTask.children, function (child) {
-                //    //console.log('**************CHILD**********');
-                //    //console.log(child);
-                //    //console.log('**************TASKMAP CHILD**********');
-                //    //taskMap[child].dependencies.splice(taskMap[child].dependencies.indexOf(taskId), 1);
-                //    //console.log(taskMap[child].dependencies);
-                //});
-                // Remove references to the parents in the remaining tasks
-                //_.forEach(taskMap, function (taskToAlter) {
-                //    if (taskToAlter.dependencies.indexOf(taskId) !== -1) {
-                //        taskToAlter.dependencies.splice(taskToAlter.dependencies.indexOf(taskId), 1);
-                //        console.log('**************TASK TO ALTER**********');
-                //        console.log(taskToAlter);
-                //        t.bfs(graph, function (node, parent) {
-                //            console.log('**************NODE**********');
-                //            console.log(node);
-                //            console.log('**************PARENT**********');
-                //            console.log(parent);
-                //        })
-                //    }
-                //});
             }
         });
     };
     createGraph(taskMap);
-    console.log('**************GRAPH**********');
-    console.log(graph);
-    console.log('**************TASK MAP**********');
-    console.log(taskMap);
+    // Traverse the tree and add each node which is somewhere down the line from the top level node
     traverse(graph).forEach(function (node) {
         if (node instanceof mongoose.Types.ObjectId && this.parent.key === 'children') {
-            var taskToAdd = _.clone(taskMap[this.node], true);
-            console.log('**************TASK TO ADD**********');
-            console.log(taskMap[this.node]);
             this.update(taskMap[this.node]);
-            //console.log('**************TASKMAP NODE**********');
-            //console.log(taskMap[node]);
-            //_.forOwn(taskMap[node], function (nodeProp) {
-            //    console.log('**************NODE PROP**********');
-            //    console.log(nodeProp);
-            //});
-            ////console.log(taskToAdd);
-            ////this.update(taskToAdd);
-            //i++;
         }
     });
-    //console.log('**************GRAPH**********');
-    //console.log(JSON.stringify(graph));
     return graph;
-
-    //console.log('**************TASK MAP**********');
-    //console.log(taskMap['5496387354f963ba42f318e7']);
 };
 
 var DataStructures = require('./TreeCreator');

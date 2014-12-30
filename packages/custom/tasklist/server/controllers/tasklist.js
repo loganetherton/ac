@@ -6,7 +6,6 @@
 var mongoose = require('mongoose'),
     Task = mongoose.model('Task'),
     _ = require('lodash'),
-    t = require('t'),
     traverse = require('traverse');
 
 var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
@@ -168,7 +167,6 @@ exports.getTeamTasksForGraph = function (req, res, next) {
         if (!tasks) {
             return next(new Error('Failed to load tasks for ' + req.params.teamId));
         }
-        //return res.json(processTasksForGraph(tasks));
         return res.json(processAttempt2(tasks));
     });
 };
@@ -192,172 +190,177 @@ var processAttempt2 = function (tasks) {
         taskMap[task.id] = task.toObject();
         delete taskMap[task.id].id;
     });
-    // Add top level nodes
-    var createGraph = function (task) {
-        _.forEach(task, function (thisTask) {
-            if (!thisTask.dependencies.length) {
-                graph.children.push(thisTask);
-            }
-        });
-    };
-    createGraph(taskMap);
-    // Traverse the tree and add each node which is somewhere down the line from the top level node
+    /**
+     * Get top level nodes, as they're all that's needed for building the initial tree
+     */
+    _.forEach(taskMap, function (thisTask) {
+        if (!thisTask.dependencies.length) {
+            graph.children.push(thisTask);
+        }
+    });
+    /**
+     * Build tree from top level nodes
+     */
     traverse(graph).forEach(function (node) {
         if (node instanceof mongoose.Types.ObjectId && this.parent.key === 'children') {
             this.update(taskMap[this.node]);
         }
     });
-    return graph;
-};
-
-var DataStructures = require('./TreeCreator');
-
-/**
- * Arrange the tasks into a usable format for d3
- * @param tasks
- * @returns {*}
- */
-var processTasksForGraph = function (data) {
-    ////console.log(data);
-    //var tree = DataStructures.Tree.createFromFlatTable(data),
-    //simplifiedTree = tree.toSimpleObject(function(objectToDecorate, originalNode) {
-    //    objectToDecorate.size = originalNode.size;
-    //    if (objectToDecorate.children && objectToDecorate.children.length == 0) {
-    //        delete objectToDecorate.children;
-    //    }
-    //
-    //    return objectToDecorate;
-    //});
-    //console.log(tree);
-    //console.log(simplifiedTree);
-    //Tree().createTree(tasksInput);
-    var tasks = _.clone(data);
-    var taskMap = {};
-    var depsMap = {
-        title: 'project_name',
-        children: []
-    };
+    var foundBranches = {};
+    var duplicateBranches = {};
     /**
-    * 1) Get all tasks without dependencies, as they will form the top level of graph.
-    * Additionally, create map of all of the remaining tasks to prevent unnecessary iteration
-    */
-    tasks.forEach(function (task) {
-        if (!task.dependencies.length) {
-            depsMap.children.push(task);
-        } else {
-            taskMap[task.id] = task;
+     * Determine which nodes are actually duplicates on a single branch
+     * @param pathsArray
+     */
+    var determineDuplicates = function (pathsArray) {
+        // For each path, iterate all others. If any are found that are the same path, but longer, remove this one
+        var pathsToRemove = pathsArray.filter(function (thisPath) {
+            return (thisPath !== 'children');
+        });
+        // Create initial array of found branches
+        if (!foundBranches[taskTitle]) {
+            foundBranches[taskTitle] = [];
         }
-    });
-    //console.log('**************TASKMAP**********');
-    //console.log(taskMap);
-    console.log('**************DEPSMAP**********');
-    console.log(depsMap);
-    var outputTree = t.map(depsMap, function (node, parent) {
-        console.log('**************NODE**********');
-        console.log(node);
-        console.log('**************PARENT**********');
-        console.log(parent);
-    });
-    console.log('**************OUTPUT TREE**********');
-    console.log(outputTree);
-
-
-
-    var level = 0, branch = 0;
-    var thisIndex;
-    var buildTreeGraph = function (inputMap) {
-        console.log('**************INPUT MAP**********');
-        console.log(inputMap);
-        // If we're dealing with an object, send recurse children
-        if (!_.isArray(inputMap)) {
-            if (inputMap instanceof mongoose.Types.ObjectId) {
-                console.log('**************LEVEL**********');
-                console.log(level);
-                console.log('**************INDEX**********');
-                console.log(thisIndex);
-                console.log('**************BRANCH**********');
-                console.log(branch);
-                //console.log('**************taskmap found**********');
-                //console.log(taskMap[inputMap]);
-            } else if (inputMap.children.length) {
-                level = level + 1;
-                buildTreeGraph(inputMap.children);
-                level = level - 1;
-            }
-            // if we're dealing with an array of children, call each child
+        // If the branch isn't found, add it
+        if (foundBranches[taskTitle].indexOf(pathsToRemove[0]) === -1) {
+            foundBranches[taskTitle].push(pathsToRemove[0]);
         } else {
-            //console.log('**************INPUT MAP ARRAY**********');
-            //console.log(inputMap);
-            _.forEach(inputMap, function (child, index) {
-                branch = branch + 1;
-                thisIndex = index;
-                buildTreeGraph(child);
-            })
+            // Add to the array of duplicates
+            if (duplicateBranches[taskTitle].indexOf(pathsToRemove[0]) === -1) {
+                duplicateBranches[taskTitle].push(pathsToRemove[0]);
+            }
         }
     };
-    var outputMap = buildTreeGraph(depsMap);
-    console.log('**************OUTPUT MAP**********');
-    console.log(outputMap);
-
-    _.forEach(depsMap.children, function (task, depsMapIndex) {
-        //console.log('**************TASK**********');
-        //console.log(task);
-        _.forEach(task.children, function (child, childIndex) {
-            //console.log('**************DEPS MAP CHILD**********');
-            depsMap.children[depsMapIndex].children[childIndex] = taskMap[child];
-        })
+    var keepMe;
+    var actualRemovals = {};
+    /**
+     * Create collection of paths of leaves to remove
+     * @param leaf
+     * @param leafToKeep
+     */
+    var findLeavesToRemove = function (leaf, leafToKeep) {
+        if (typeof leafToKeep === 'undefined') {
+            var potentialRemoval = [];
+            leaf.forEach(function (thisLeaf) {
+                // Get actual paths of duplicates
+                if (duplicateBranches[taskTitle].indexOf(thisLeaf[1]) !== -1) {
+                    // Keep the ones that may be removed
+                    potentialRemoval.push(thisLeaf);
+                    // Set keep me
+                    if (typeof keepMe === 'undefined' || keepMe === null) {
+                        keepMe = thisLeaf;
+                    }
+                    // Find the longest leaf
+                    if (thisLeaf.length > keepMe.length) {
+                        keepMe = thisLeaf;
+                    }
+                }
+            });
+            // iterate again over list of leaves that might be removed, and remove all but one
+            findLeavesToRemove(potentialRemoval, keepMe);
+        } else {
+            // Add to collection of paths for removal
+            leaf.forEach(function (thisLeaf) {
+                if (thisLeaf !== keepMe) {
+                    actualRemovals[thisLeaf] = 1;
+                }
+            });
+            keepMe = null;
+        }
+    };
+    var taskTitle;
+    /**
+     * Handle actual removing of duplicate nodes
+     * @param leaf
+     */
+    var removeDuplicateLeaves = function (leaf) {
+        // Task object
+        if (_.isPlainObject(leaf) && 'paths' in leaf && leaf.paths.length > 1) {
+            removeDuplicateLeaves(leaf.paths);
+        } else {
+            // Array of paths
+            if (_.isArray(leaf) && _.isArray(leaf[0])) {
+                leaf.forEach(function (thisLeaf) {
+                    determineDuplicates(thisLeaf);
+                });
+                // Find leaves which should be removed
+                findLeavesToRemove(leaf);
+                traverse(graph).forEach(function () {
+                    // Remove leaves this should go
+                    if (actualRemovals[this.path]) {
+                        this.remove();
+                    }
+                });
+            }
+        }
+    };
+    var leafCollection = [];
+    var duplicateLeaves = {};
+    /**
+     * Find duplicate leaves on the tree, so that duplicates on a single branch can be removed
+     */
+    traverse(graph).forEach(function (node) {
+        if (node.children && !node.children.length) {
+            // mark duplicates
+            if (leafCollection.indexOf(node.title)) {
+                if (!duplicateLeaves[node.title]) {
+                    duplicateLeaves[node.title] = {
+                        paths: []
+                    };
+                }
+                duplicateLeaves[node.title].paths.push(this.path);
+            } else {
+                // Add to the leaf collection to check for duplicates on next run through
+                leafCollection.push(node.title);
+            }
+        }
     });
-    console.log('**************DEPSMAP AT END**********');
-    console.log(depsMap);
-
-
-
-
-    //// Remove the tasks without dependencies, as we'll not be working on those anymore
-    //tasks = tasks.filter(function (task) {
-    //    return task.dependencies.length;
+    /**
+     * Iterate duplicates on a branch and remove all but lowest level
+     */
+    _.forEach(duplicateLeaves, function (duplicate, thisTaskTitle) {
+        taskTitle = thisTaskTitle;
+        // Create array for this particular branch
+        duplicateBranches[taskTitle] = [];
+        removeDuplicateLeaves(duplicate);
+    });
+    /**
+     * This is how to remove duplicate nodes
+     */
+    //traverse(graph).forEach(function (node) {
+    //    var path = this.path;
+    //    if (path.length === 4 && path[0] === 'children' && path[1] === '0' && path[2] === 'children' && path[3] === '1') {
+    //        this.remove();
+    //    }
     //});
-    ///**
-    // * 2) Create object composed of tasks without dependencies
-    // */
-    //var depsMap = {
-    //    title: 'project_name', children: []
-    //};
-    //noDeps.forEach(function (val) {
-    //    if (depsMap.children.indexOf(val.id) === -1) {
-    //        depsMap.children.push({
-    //            id: val.id,
-    //            title: val.title,
-    //            children: []
+
+
+    // Remove all but the lowest path
+    //_.forEach(duplicateLeaves, function (duplicate, duplicateIndex) {
+    //    if (duplicate.paths.length > 1) {
+    //        duplicate.stringPaths = [];
+    //        console.log('**************DUPLICATE**********');
+    //        console.log(duplicate);
+    //        console.log('**************DUPLICATE INDEX**********');
+    //        console.log(duplicateIndex);
+    //        // Find duplicate nodes on the same path
+    //        duplicate.paths.forEach(function (path, index) {
+    //            // Reduce paths to numbers only for comparison
+    //            var numberedPath = path.map(function (thisPath) {
+    //                if (thisPath !== 'children') {
+    //                    return thisPath;
+    //                }
+    //            }).filter(function (thisPath) {
+    //                return typeof thisPath !== 'undefined';
+    //            });
+    //            console.log('**************MODIFIED PATH**********');
+    //            console.log(numberedPath);
+    //            console.log('**************IN ORIGINAL**********');
+    //            console.log(duplicateLeaves[duplicateIndex].paths[index]);
     //        });
     //    }
     //});
-    //console.log('**************TASKS**********');
-    //console.log(tasks);
-    //_.forEach(noDeps, function (task) {
-    //    console.log('**************NODEP ITERATION**********');
-    //    console.log(task);
-    //    // Find all tasks which depend on these top level tasks
-    //});
-    ///**
-    //* 3) Find items which depend on the items that don't themselves have dependencies
-    //*/
-    //// We'll end up with tasks being an array of all tasks which don't have top level dependencies
-    //var tasksWithoutTopLevelDeps = tasks.map(function (task) {
-    //    task.dependencies.forEach(function (dep) {
-    //        if (depsMap[dep]) {
-    //            depsMap[dep].children[task.id] = task;
-    //            return null;
-    //        }
-    //        return task;
-    //    });
-    //}).filter(function (task) {
-    //    return !_.isUndefined(task);
-    //});
-    //console.log(tasksWithoutTopLevelDeps);
-    //console.log('**************DEPSMAP**********');
-    //console.log(depsMap);
-    return depsMap;
+    return graph;
 };
 
 /**

@@ -5,7 +5,17 @@ var app = angular.module('mean.overview');
 
 app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, User) {
 
+    /**
+     * Allow click events to be triggered programmatically
+     */
+    jQuery.fn.d3Click = function () {
+        this.each(function (i, e) {
+            var evt = document.createEvent("MouseEvents");
+            evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 
+            e.dispatchEvent(evt);
+        });
+    };
     /**
      * Reworking of original tree graph creation
      *
@@ -73,10 +83,30 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
         /**
          * Toggle and update on click
          */
+        var clickInProgress = false,
+            opening = null;
         var toggleClick = function (nodeEnter) {
             nodeEnter.on('click', function (d) {
+                /**
+                 * Ensure that the toggle doesn't get out of sync between multiple nodes which may have been
+                 * closed and then opened again when separated
+                 */
+                if (opening !== null && opening !== !!d.children) {
+                    return;
+                }
+                // Determine whether opening or closing, so we can keep multiples (which may be hidden) in sync
+                if (opening === null) {
+                    opening = !!d.children;
+                }
+                // Prevent infinite recursion, and only click if it's a node that can be toggled
+                if (!clickInProgress) {
+                    clickInProgress = true;
+                    $('.' + d.title).not(this).d3Click();
+                }
                 toggle(d);
                 createNodes(d);
+                clickInProgress = false;
+                opening = null;
             });
         };
 
@@ -121,24 +151,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             //nodes.forEach(function (d) {
             //    d.y = d.depth * 180;
             //});
-
-            var mateNodes = function (search) {
-                var indexes = [];
-                _.forEach(nodes, function (node, index) {
-                    if (node.title === search) {
-                        indexes.push(index);
-                    }
-                });
-                //console.log(indexes);
-                var stationary = indexes.shift();
-                _.forEach(indexes, function (index) {
-                    nodes[index].x = nodes[stationary].x;
-                    nodes[index].y = nodes[stationary].y;
-                });
-            };
-
-            //mateNodes('task_4');
-            //mateNodes('task_1');
 
             /**
              * Assign each node an id, or else return the id already assigned
@@ -209,9 +221,9 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             * Append each node on top of the parent node for their stating position
             */
             var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function (d) {
-                if (d.title === 'task_3') {
-                    //cloneAndConsole(d);
-                }
+                // Append title to class for triggering click
+                var oldClass = $(this).attr('class');
+                $(this).attr('class', oldClass + ' ' + d.title);
                 return 'translate(' + source.y0 + ',' + source.x0 + ')';
             });
 

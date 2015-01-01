@@ -99,10 +99,10 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                     opening = !!d.children;
                 }
                 // Prevent infinite recursion, and only click if it's a node that can be toggled
-                if (!clickInProgress) {
-                    clickInProgress = true;
-                    $('.' + d.title).not(this).d3Click();
-                }
+                //if (!clickInProgress) {
+                //    clickInProgress = true;
+                //    $('.' + d.title).not(this).d3Click();
+                //}
                 toggle(d);
                 createNodes(d);
                 clickInProgress = false;
@@ -198,24 +198,26 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 });
             };
             var repeatedWithoutDuplicates = removeDuplicateNodeIndexes(repeatedNodes);
-            // Merge the nodes that are repeated
-            for (nodeIter = 0; nodeIter < repeatedWithoutDuplicates.length; nodeIter = nodeIter + 1) {
-                var thisX = [];
-                var thisY = [];
-                // Get an array of all x and y values for repeated nodes
-                repeatedWithoutDuplicates[nodeIter].forEach(function (nodeArrayItem) {
-                    thisX.push(nodes[nodeArrayItem].x);
-                    thisY.push(nodes[nodeArrayItem].y);
-                });
-                // Determine average
-                var avgX = thisX.reduce(function(a, b) { return a + b }) / thisX.length;
-                var avgY = thisY.reduce(function(a, b) { return a + b }) / thisY.length;
-                // Replace each node's x and y with average
-                repeatedWithoutDuplicates[nodeIter].forEach(function (nodeArrayItem) {
-                    nodes[nodeArrayItem].x = avgX;
-                    nodes[nodeArrayItem].y = avgY;
-                });
-            }
+            /**
+             * Mate repeated nodes
+             */
+            //for (nodeIter = 0; nodeIter < repeatedWithoutDuplicates.length; nodeIter = nodeIter + 1) {
+            //    var thisX = [];
+            //    var thisY = [];
+            //    // Get an array of all x and y values for repeated nodes
+            //    repeatedWithoutDuplicates[nodeIter].forEach(function (nodeArrayItem) {
+            //        thisX.push(nodes[nodeArrayItem].x);
+            //        thisY.push(nodes[nodeArrayItem].y);
+            //    });
+            //    // Determine average
+            //    var avgX = thisX.reduce(function(a, b) { return a + b }) / thisX.length;
+            //    var avgY = thisY.reduce(function(a, b) { return a + b }) / thisY.length;
+            //    // Replace each node's x and y with average
+            //    repeatedWithoutDuplicates[nodeIter].forEach(function (nodeArrayItem) {
+            //        nodes[nodeArrayItem].x = avgX;
+            //        nodes[nodeArrayItem].y = avgY;
+            //    });
+            //}
 
             /**
             * Append each node on top of the parent node for their stating position

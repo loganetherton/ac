@@ -208,6 +208,14 @@ var processAttempt2 = function (tasks) {
     });
     var foundBranches = {};
     var duplicateBranches = {};
+
+    /*****************************************************************************
+     * TESTING ORIGINAL GRAPH
+     *****************************************************************************/
+    var originalGraph = _.clone(graph, true);
+    //return graph;
+
+
     /**
      * Determine which nodes are actually duplicates on a single branch
      * @param pathsArray
@@ -217,6 +225,8 @@ var processAttempt2 = function (tasks) {
         var pathsToRemove = pathsArray.filter(function (thisPath) {
             return (thisPath !== 'children');
         });
+        console.log('**************PATHS TO REMOVE**********');
+        console.log(pathsToRemove);
         // Create initial array of found branches
         if (!foundBranches[taskTitle]) {
             foundBranches[taskTitle] = [];
@@ -256,7 +266,7 @@ var processAttempt2 = function (tasks) {
                     }
                 }
             });
-            // iterate again over list of leaves that might be removed, and remove all but one
+            // iterate again over list of leaves that might be removed, and remove all but one per branch
             findLeavesToRemove(potentialRemoval, keepMe);
         } else {
             // Add to collection of paths for removal
@@ -278,12 +288,33 @@ var processAttempt2 = function (tasks) {
         if (_.isPlainObject(leaf) && 'paths' in leaf && leaf.paths.length > 1) {
             removeDuplicateLeaves(leaf.paths);
         } else {
+            if (taskTitle === 'Task10') {
+                console.log('**************LEAF IN REMOVEDUPLICATELEAVES()**********');
+                console.log(leaf);
+            }
             // Array of paths
             if (_.isArray(leaf) && _.isArray(leaf[0])) {
+                // Determine all duplicates
                 leaf.forEach(function (thisLeaf) {
                     determineDuplicates(thisLeaf);
                 });
+                console.log('**************AFTER DETERMINE DUPLICATES**********');
+                console.log(duplicateBranches[taskTitle]);
                 // Find leaves which should be removed
+                /****************************************************
+                 * OK, what should be happening here is like this:
+                 * If all ancestors are the same, remove the shortest. For example:
+                 * [ '1', '1', '1' ]
+                 * [ '1', '1' ]  <------ Remove me
+                 * If not completely common ancestors are kept, keep both
+                 * [ '1', '0', '1' ]  <---- Keep me
+                 * [ '1', '1', '0' ]  <---- Keep me
+                 * If any ancestors are different, keep those. If all are the same, and one is shortest
+                 * (a mix of the above two), apply both parts of the algorithm
+                 * [ '1', '0', '1' ] <---- Difference ancestors, keep
+                 * [ '1', '1', '0' ] <---- Difference ancestors, keep
+                 * [ '1', '2' ]      <---- Since we only care about ancestors, not the node itself, REMOVE ME
+                 ****************************************************/
                 findLeavesToRemove(leaf);
                 traverse(graph).forEach(function () {
                     // Remove leaves this should go
@@ -303,18 +334,25 @@ var processAttempt2 = function (tasks) {
         if (node.children && !node.children.length) {
             // mark duplicates
             if (leafCollection.indexOf(node.title)) {
-                if (!duplicateLeaves[node.title]) {
-                    duplicateLeaves[node.title] = {
-                        paths: []
-                    };
+                /******************************************************************
+                 * TEMPORARY TESTING ON TASK 10 ONLY
+                 ******************************************************************/
+                if (node.title === 'Task10') {
+                    if (!duplicateLeaves[node.title]) {
+                        duplicateLeaves[node.title] = {
+                            paths: []
+                        };
+                    }
+                    duplicateLeaves[node.title].paths.push(this.path);
                 }
-                duplicateLeaves[node.title].paths.push(this.path);
             } else {
                 // Add to the leaf collection to check for duplicates on next run through
                 leafCollection.push(node.title);
             }
         }
     });
+    console.log('**************DUPLICATE LEAVES**********');
+    console.log(duplicateLeaves);
     /**
      * Iterate duplicates on a branch and remove all but lowest level
      */
@@ -324,43 +362,8 @@ var processAttempt2 = function (tasks) {
         duplicateBranches[taskTitle] = [];
         removeDuplicateLeaves(duplicate);
     });
-    /**
-     * This is how to remove duplicate nodes
-     */
-    //traverse(graph).forEach(function (node) {
-    //    var path = this.path;
-    //    if (path.length === 4 && path[0] === 'children' && path[1] === '0' && path[2] === 'children' && path[3] === '1') {
-    //        this.remove();
-    //    }
-    //});
-
-
-    // Remove all but the lowest path
-    //_.forEach(duplicateLeaves, function (duplicate, duplicateIndex) {
-    //    if (duplicate.paths.length > 1) {
-    //        duplicate.stringPaths = [];
-    //        console.log('**************DUPLICATE**********');
-    //        console.log(duplicate);
-    //        console.log('**************DUPLICATE INDEX**********');
-    //        console.log(duplicateIndex);
-    //        // Find duplicate nodes on the same path
-    //        duplicate.paths.forEach(function (path, index) {
-    //            // Reduce paths to numbers only for comparison
-    //            var numberedPath = path.map(function (thisPath) {
-    //                if (thisPath !== 'children') {
-    //                    return thisPath;
-    //                }
-    //            }).filter(function (thisPath) {
-    //                return typeof thisPath !== 'undefined';
-    //            });
-    //            console.log('**************MODIFIED PATH**********');
-    //            console.log(numberedPath);
-    //            console.log('**************IN ORIGINAL**********');
-    //            console.log(duplicateLeaves[duplicateIndex].paths[index]);
-    //        });
-    //    }
-    //});
-    return graph;
+    //return graph;
+    return originalGraph;
 };
 
 /**

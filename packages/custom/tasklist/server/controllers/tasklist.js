@@ -171,13 +171,37 @@ exports.getTeamTasksForGraph = function (req, res, next) {
     });
 };
 
+// For array comparison
+Array.prototype.equals = function (array) {
+    // if the other array is a falsy value, return
+    if (!array)
+        return false;
+
+    // compare lengths - can save a lot of time
+    if (this.length != array.length)
+        return false;
+
+    for (var i = 0, l=this.length; i < l; i++) {
+        // Check if we have nested arrays
+        if (this[i] instanceof Array && array[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!this[i].equals(array[i]))
+                return false;
+        }
+        else if (this[i] != array[i]) {
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;
+        }
+    }
+    return true;
+};
+
 var processAttempt2 = function (tasks) {
     var taskMap = {};
     var graph = {
         title: 'project_name',
         children: []
     };
-    var removedMap = {};
     /**
      * 1) Create map of all tasks so they can be referenced by ID
      * 2) Copy tasks that do not have parents into graph. They will be the top level nodes.
@@ -206,122 +230,188 @@ var processAttempt2 = function (tasks) {
             this.update(taskMap[this.node]);
         }
     });
-    var foundBranches = {};
-    var duplicateBranches = {};
 
     /*****************************************************************************
      * TESTING ORIGINAL GRAPH
      *****************************************************************************/
     var originalGraph = _.clone(graph, true);
-    //return graph;
 
-
+    var pathsToRemove = [];
     /**
      * Determine which nodes are actually duplicates on a single branch
      * @param pathsArray
      */
-    var determineDuplicates = function (pathsArray) {
-        // For each path, iterate all others. If any are found that are the same path, but longer, remove this one
-        var pathsToRemove = pathsArray.filter(function (thisPath) {
-            return (thisPath !== 'children');
+    var findPathsToRemove = function (pathsArray) {
+        // Normalize the paths array
+        pathsArray = pathsArray.map(function (path) {
+            return path.filter(function (thisPath) {
+                return (thisPath !== 'children');
+            });
         });
-        console.log('**************PATHS TO REMOVE**********');
-        console.log(pathsToRemove);
-        // Create initial array of found branches
-        if (!foundBranches[taskTitle]) {
-            foundBranches[taskTitle] = [];
-        }
-        // If the branch isn't found, add it
-        if (foundBranches[taskTitle].indexOf(pathsToRemove[0]) === -1) {
-            foundBranches[taskTitle].push(pathsToRemove[0]);
-        } else {
-            // Add to the array of duplicates
-            if (duplicateBranches[taskTitle].indexOf(pathsToRemove[0]) === -1) {
-                duplicateBranches[taskTitle].push(pathsToRemove[0]);
+        pathsToRemove = pathsArray.map(function (path) {
+            // Determine if there are any paths that are the same length or longer than this path. If not, it won't be removed
+            var potentialPathsToRemove = pathsArray.filter(function (thisPath) {
+                // Don't compare against this path
+                if (thisPath.equals(path)) {
+                    return false;
+                }
+                return thisPath.length <= path.length;
+            });
+            // If there are no potential paths, return null
+            if (!potentialPathsToRemove.length) {
+                return [];
             }
-        }
+            // Check for common ancestor paths among all paths to a given node
+            return potentialPathsToRemove.filter(function (thisPath) {
+                var pieceOfPathForComparison = path.slice(0, thisPath.length - 1);
+                var otherPathForComparison = thisPath.slice(0, thisPath.length - 1);
+                return pieceOfPathForComparison.equals(otherPathForComparison);
+            });
+        });
+        var consolidatedPaths = [];
+        // Flatten the array of paths
+        pathsToRemove.forEach(function (path) {
+            if (path.length) {
+                path.forEach(function (thisPath) {
+                    consolidatedPaths.push(thisPath);
+                });
+            }
+        });
+        var pathsToRemoveFinal = [];
+        // Remove duplicate paths set for removal, since they may be found more than once
+        consolidatedPaths.forEach(function (path) {
+            if (!pathsToRemoveFinal.length) {
+                return pathsToRemoveFinal.push(path);
+            }
+            pathsToRemoveFinal.forEach(function (foundPath) {
+                if (!foundPath.equals(path)) {
+                    pathsToRemoveFinal.push(path);
+                }
+            })
+        });
+        var i = 0;
+        // Recreate original path structure
+        pathsToRemoveFinal.forEach(function (path) {
+            var pathLength = path.length * 2;
+            for (i = 0; i < pathLength; i = i + 1) {
+                // Paths should end up being like this: ['children', '0', 'children', '1', 'children', '0' ...]
+                if (!i || i % 2 === 0) {
+                    path.splice(i, 0, 'children');
+                }
+            }
+        });
+        return pathsToRemoveFinal;
+
+        //var foundBranches = {};
+        //var duplicateBranches = {};
+        // For each path, iterate all others. If any are found that are the same path, but longer, remove this one
+        //var pathsToRemove = pathsArray.filter(function (thisPath) {
+        //    return (thisPath !== 'children');
+        //});
+        //console.log('**************PATHS TO REMOVE**********');
+        //console.log(pathsToRemove);
+        //// Create initial array of found branches
+        //if (!foundBranches[taskTitle]) {
+        //    foundBranches[taskTitle] = [];
+        //}
+        //// If the branch isn't found, add it
+        //if (foundBranches[taskTitle].indexOf(pathsToRemove[0]) === -1) {
+        //    foundBranches[taskTitle].push(pathsToRemove[0]);
+        //} else {
+        //    // Add to the array of duplicates
+        //    if (duplicateBranches[taskTitle].indexOf(pathsToRemove[0]) === -1) {
+        //        duplicateBranches[taskTitle].push(pathsToRemove[0]);
+        //    }
+        //}
     };
-    var keepMe;
-    var actualRemovals = {};
+    //var keepMe;
+    //var actualRemovals = {};
+    ///**
+    // * Create collection of paths of leaves to remove
+    // * @param leaf
+    // * @param leafToKeep
+    // */
+    //var findLeavesToRemove = function (leaf, leafToKeep) {
+    //    if (typeof leafToKeep === 'undefined') {
+    //        var potentialRemoval = [];
+    //        leaf.forEach(function (thisLeaf) {
+    //            // Get actual paths of duplicates
+    //            if (duplicateBranches[taskTitle].indexOf(thisLeaf[1]) !== -1) {
+    //                // Keep the ones that may be removed
+    //                potentialRemoval.push(thisLeaf);
+    //                // Set keep me
+    //                if (typeof keepMe === 'undefined' || keepMe === null) {
+    //                    keepMe = thisLeaf;
+    //                }
+    //                // Find the longest leaf
+    //                if (thisLeaf.length > keepMe.length) {
+    //                    keepMe = thisLeaf;
+    //                }
+    //            }
+    //        });
+    //        // iterate again over list of leaves that might be removed, and remove all but one per branch
+    //        findLeavesToRemove(potentialRemoval, keepMe);
+    //    } else {
+    //        // Add to collection of paths for removal
+    //        leaf.forEach(function (thisLeaf) {
+    //            if (thisLeaf !== keepMe) {
+    //                actualRemovals[thisLeaf] = 1;
+    //            }
+    //        });
+    //        keepMe = null;
+    //    }
+    //};
+    //var taskTitle;
+
+    var thisPath;
+    var removeMe = false;
     /**
-     * Create collection of paths of leaves to remove
-     * @param leaf
-     * @param leafToKeep
+     * Remove paths once they have been determined to be extraneous
+     * @param pathsToRemove array
      */
-    var findLeavesToRemove = function (leaf, leafToKeep) {
-        if (typeof leafToKeep === 'undefined') {
-            var potentialRemoval = [];
-            leaf.forEach(function (thisLeaf) {
-                // Get actual paths of duplicates
-                if (duplicateBranches[taskTitle].indexOf(thisLeaf[1]) !== -1) {
-                    // Keep the ones that may be removed
-                    potentialRemoval.push(thisLeaf);
-                    // Set keep me
-                    if (typeof keepMe === 'undefined' || keepMe === null) {
-                        keepMe = thisLeaf;
-                    }
-                    // Find the longest leaf
-                    if (thisLeaf.length > keepMe.length) {
-                        keepMe = thisLeaf;
-                    }
+    var removeByPath = function (pathsToRemove) {
+        traverse(graph).forEach(function () {
+            thisPath = this.path;
+            // Search the array of paths to remove to see if this path should be removed
+            pathsToRemove.forEach(function (path) {
+                if (path.equals(thisPath)) {
+                    removeMe = true;
                 }
             });
-            // iterate again over list of leaves that might be removed, and remove all but one per branch
-            findLeavesToRemove(potentialRemoval, keepMe);
-        } else {
-            // Add to collection of paths for removal
-            leaf.forEach(function (thisLeaf) {
-                if (thisLeaf !== keepMe) {
-                    actualRemovals[thisLeaf] = 1;
-                }
-            });
-            keepMe = null;
-        }
+            // Remove if necessary, then prepare for next iteration
+            if (removeMe) {
+                this.remove();
+                removeMe = false;
+            }
+        });
     };
-    var taskTitle;
+
     /**
      * Handle actual removing of duplicate nodes
      * @param leaf
+     *
+     * OK, what should be happening here is like this:
+     * If all ancestors are the same, remove the shortest. For example:
+     * [ '1', '1', '1', '2' ]
+     * [ '1', '1' ]  <------ Remove me
+     * If not completely common ancestors are kept, keep both
+     * [ '1', '0', '1' ]  <---- Keep me
+     * [ '1', '1', '0' ]  <---- Keep me
+     * If any ancestors are different, keep those. If all are the same, and one is shortest
+     * (a mix of the above two), apply both parts of the algorithm
+     * [ '1', '0', '1' ] <---- Difference ancestors, keep
+     * [ '1', '1', '0' ] <---- Difference ancestors, keep
+     * [ '1', '2' ]      <---- Since we only care about ancestors, not the node itself, REMOVE ME
      */
     var removeDuplicateLeaves = function (leaf) {
         // Task object
         if (_.isPlainObject(leaf) && 'paths' in leaf && leaf.paths.length > 1) {
             removeDuplicateLeaves(leaf.paths);
         } else {
-            if (taskTitle === 'Task10') {
-                console.log('**************LEAF IN REMOVEDUPLICATELEAVES()**********');
-                console.log(leaf);
-            }
             // Array of paths
             if (_.isArray(leaf) && _.isArray(leaf[0])) {
-                // Determine all duplicates
-                leaf.forEach(function (thisLeaf) {
-                    determineDuplicates(thisLeaf);
-                });
-                console.log('**************AFTER DETERMINE DUPLICATES**********');
-                console.log(duplicateBranches[taskTitle]);
-                // Find leaves which should be removed
-                /****************************************************
-                 * OK, what should be happening here is like this:
-                 * If all ancestors are the same, remove the shortest. For example:
-                 * [ '1', '1', '1' ]
-                 * [ '1', '1' ]  <------ Remove me
-                 * If not completely common ancestors are kept, keep both
-                 * [ '1', '0', '1' ]  <---- Keep me
-                 * [ '1', '1', '0' ]  <---- Keep me
-                 * If any ancestors are different, keep those. If all are the same, and one is shortest
-                 * (a mix of the above two), apply both parts of the algorithm
-                 * [ '1', '0', '1' ] <---- Difference ancestors, keep
-                 * [ '1', '1', '0' ] <---- Difference ancestors, keep
-                 * [ '1', '2' ]      <---- Since we only care about ancestors, not the node itself, REMOVE ME
-                 ****************************************************/
-                findLeavesToRemove(leaf);
-                traverse(graph).forEach(function () {
-                    // Remove leaves this should go
-                    if (actualRemovals[this.path]) {
-                        this.remove();
-                    }
-                });
+                // Find paths which share all the same ancestors and remove these
+                removeByPath(findPathsToRemove(leaf));
             }
         }
     };
@@ -334,36 +424,26 @@ var processAttempt2 = function (tasks) {
         if (node.children && !node.children.length) {
             // mark duplicates
             if (leafCollection.indexOf(node.title)) {
-                /******************************************************************
-                 * TEMPORARY TESTING ON TASK 10 ONLY
-                 ******************************************************************/
-                if (node.title === 'Task10') {
-                    if (!duplicateLeaves[node.title]) {
-                        duplicateLeaves[node.title] = {
-                            paths: []
-                        };
-                    }
-                    duplicateLeaves[node.title].paths.push(this.path);
+                if (!duplicateLeaves[node.title]) {
+                    duplicateLeaves[node.title] = {
+                        paths: []
+                    };
                 }
+                duplicateLeaves[node.title].paths.push(this.path);
             } else {
                 // Add to the leaf collection to check for duplicates on next run through
                 leafCollection.push(node.title);
             }
         }
     });
-    console.log('**************DUPLICATE LEAVES**********');
-    console.log(duplicateLeaves);
     /**
-     * Iterate duplicates on a branch and remove all but lowest level
+     * Find duplicate paths to any particular node, and remove the shorter path
      */
-    _.forEach(duplicateLeaves, function (duplicate, thisTaskTitle) {
-        taskTitle = thisTaskTitle;
-        // Create array for this particular branch
-        duplicateBranches[taskTitle] = [];
+    _.forEach(duplicateLeaves, function (duplicate) {
         removeDuplicateLeaves(duplicate);
     });
-    //return graph;
-    return originalGraph;
+    return graph;
+    //return originalGraph;
 };
 
 /**

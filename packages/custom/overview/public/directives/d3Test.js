@@ -1,4 +1,4 @@
-/*global d3:false */
+/*global d3, $, _:false */
 'use strict';
 
 var app = angular.module('mean.overview');
@@ -8,10 +8,10 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
     /**
      * Allow click events to be triggered programmatically
      */
-    jQuery.fn.d3Click = function () {
+    $.fn.d3Click = function () {
         this.each(function (i, e) {
-            var evt = document.createEvent("MouseEvents");
-            evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            var evt = document.createEvent('MouseEvents');
+            evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 
             e.dispatchEvent(evt);
         });
@@ -91,7 +91,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                  * Ensure that the toggle doesn't get out of sync between multiple nodes which may have been
                  * closed and then opened again when separated
                  */
-                if (opening !== null && opening !== !!d.children) {
+                if (opening !== null && opening !== Boolean(d.children)) {
                     return;
                 }
                 // Determine whether opening or closing, so we can keep multiples (which may be hidden) in sync
@@ -130,9 +130,9 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
         };
 
 
-        var cloneAndConsole = function (node) {
-            console.log(_.clone(node));
-        };
+        //var cloneAndConsole = function (node) {
+        //    console.log(_.clone(node));
+        //};
 
         /**
          * Update data, draw nodes, etc
@@ -191,13 +191,13 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 }
             }
             // Remove repeated values
-            var removeDuplicateNodeIndexes = function (a) {
-                var exists = {};
-                return a.filter(function(item) {
-                    return exists.hasOwnProperty(item) ? false : (exists[item] = true);
-                });
-            };
-            var repeatedWithoutDuplicates = removeDuplicateNodeIndexes(repeatedNodes);
+            //var removeDuplicateNodeIndexes = function (a) {
+            //    var exists = {};
+            //    return a.filter(function(item) {
+            //        return exists.hasOwnProperty(item) ? false : (exists[item] = true);
+            //    });
+            //};
+            //var repeatedWithoutDuplicates = removeDuplicateNodeIndexes(repeatedNodes);
             /**
              * Mate repeated nodes
              */
@@ -267,8 +267,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 d.y0 = d.y;
             });
 
-            var task_3;
-
 
             /**
             * Draw the lines
@@ -302,12 +300,12 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             toggleClick(nodeEnter);
         };
 
-        function toggleAll(d) {
-            if (d.children) {
-                d.children.forEach(toggleAll);
-                toggle(d);
-            }
-        }
+        //function toggleAll(d) {
+        //    if (d.children) {
+        //        d.children.forEach(toggleAll);
+        //        toggle(d);
+        //    }
+        //}
 
         // Toggle children.
         function toggle(d) {

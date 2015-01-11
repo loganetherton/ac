@@ -11,7 +11,7 @@
             ]
         }, "js": {
             "bower_components/build/js/dist.min.js": [
-                "bower_components/jquery/jquery.min.js",
+                "bower_components/jquery/dist/jquery.min.js",
                 "bower_components/jquery-ui/jquery-ui.min.js",
                 "bower_components/lodash/dist/lodash.min.js",
                 "bower_components/underscore.string/dist/underscore.string.min.js",

@@ -52,11 +52,11 @@ describe('Task model', function () {
             });
         });
 
-        it('should be able to show an error when try to save without content', function (done) {
+        it('should allow the user to save without content', function (done) {
             task.content = '';
 
             return task.save(function (err) {
-                should.exist(err);
+                should.not.exist(err);
                 done();
             });
         });

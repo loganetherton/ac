@@ -194,21 +194,6 @@ describe('User controller', function () {
             });
         });
 
-        it('should require a matching confirm password for the new user', function (done) {
-            user.confirmPassword = 'badPassword';
-            server
-            .post('/register')
-            .send(user)
-            .expect(400)
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-                res.error.text.should.be.equal('Passwords do not match');
-                return done();
-            });
-        });
-
         it('should create a user and a team for that user together', function (done) {
             server
             .post('/register')

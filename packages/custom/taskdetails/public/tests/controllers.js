@@ -1,4 +1,4 @@
-ddescribe('TaskdetailsController', function () {
+describe('TaskdetailsController', function () {
     var scope, controller, taskService, fakeId;
     beforeEach(function () {
         module('mean');

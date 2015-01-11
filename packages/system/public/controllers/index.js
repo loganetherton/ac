@@ -14,7 +14,7 @@ function ($scope, Global, $location) {
 
     vm.isSpecificPage = function() {
         var path = $location.path();
-        return _.contains(['/404', '/pages/500', '/pages/login', '/pages/signin', '/pages/signin1', '/pages/signin2', '/pages/signup', '/pages/signup1', '/pages/signup2', '/pages/lock-screen', '/auth/login'], path);
+        return _.contains(['/404', '/pages/500', '/pages/login', '/pages/signin', '/pages/signin1', '/pages/signin2', '/pages/signup', '/pages/signup1', '/pages/signup2', '/pages/lock-screen', '/auth/login', '/auth/register'], path);
     };
 
     // Determine the size of the right pane
@@ -24,7 +24,7 @@ function ($scope, Global, $location) {
     });
 
     vm.main = {
-        brand: 'dry',
-        name: 'Lisa Doe'
+        login: 'login',
+        register: 'register'
     };
 }]);

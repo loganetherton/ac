@@ -60,7 +60,6 @@ exports.create = function (req, res, next) {
     req.assert('email', 'You must enter a valid email address').isEmail();
     req.assert('password', 'You must enter a password').notEmpty();
     req.assert('password', 'Password must be between 8-100 characters long').len(8, 100);
-    req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
 
     var errors = req.validationErrors();
     if (errors) {

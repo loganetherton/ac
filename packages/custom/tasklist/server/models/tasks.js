@@ -125,7 +125,7 @@ TaskSchema.statics.loadByTeamIdForGraph = function (id, cb) {
         team: id
     },
     null,
-    {sort: {_id: 1}}).select('title dependencies children').exec(cb);
+    {sort: {_id: 1}}).select('title dependencies children estimate').exec(cb);
 };
 
 // Get most recent tasks for the requested user

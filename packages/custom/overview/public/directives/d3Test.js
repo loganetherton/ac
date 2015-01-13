@@ -1,21 +1,21 @@
-/*global d3, $, _:false */
+/*global d3, $:false */
 'use strict';
 
 var app = angular.module('mean.overview');
 
 app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, User) {
 
-    /**
-     * Allow click events to be triggered programmatically
-     */
-    $.fn.d3Click = function () {
-        this.each(function (i, e) {
-            var evt = document.createEvent('MouseEvents');
-            evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-
-            e.dispatchEvent(evt);
-        });
-    };
+    ///**
+    // * Allow click events to be triggered programmatically
+    // */
+    //$.fn.d3Click = function () {
+    //    this.each(function (i, e) {
+    //        var evt = document.createEvent('MouseEvents');
+    //        evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    //
+    //        e.dispatchEvent(evt);
+    //    });
+    //};
     /**
      * Reworking of original tree graph creation
      *
@@ -28,54 +28,42 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
      * JS implementation, not sure if it's any good: https://github.com/maxinfang/Cpath
      */
     var updatedTree = function () {
-        var heightWidthModifier = [20, 120, 20, 120],
-            // Determine width based on modifier
-            height = 1280 - heightWidthModifier[1] - heightWidthModifier[3],
+        var heightWidthModifierObj = {
+            h1: 20,
+            h2: 120,
+            w1: 20,
+            w2: 120
+        };
+        //var heightWidthModifier = [20, 120, 20, 120],
+        // Determine width based on modifier
+        var height = 1280,
             // Determine height based on modifier
-            width = 900 - heightWidthModifier[0] - heightWidthModifier[2],
+            width = $('#task_graph').width(),
             i = 0,
             root;
+
+        // Create SVG element, append g, translate from top left (120, 20)
+        var graph = d3.select('#task_graph')
+        .append('svg:svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('svg:g')
+        .attr('transform', 'translate(' + 0 + ',' + heightWidthModifierObj.h1 + ')');
 
         // Tree
         var tree = d3.layout.tree().size([width, height]);
         // Projections based on data points
         var diagonal = d3.svg.diagonal().projection(function (d) {
+            //console.log(d);
             return [d.x, d.y];
-        });
-        // Create SVG element, append g, translate from top left (120, 20)
-        var graph = d3.select('#task_graph')
-        .append('svg:svg')
-        .attr('width', width + heightWidthModifier[1] + heightWidthModifier[3])
-        .attr('height', height + heightWidthModifier[0] + heightWidthModifier[2])
-        .append('svg:g')
-        .attr('transform', 'translate(' + heightWidthModifier[3] + ',' + heightWidthModifier[0] + ')');
-        /**
-         * Get data, set initial x,y coordinates for project parent node
-         */
-        d3.json('d3Data/flare.json', function (json) {
-        //d3.json('/tasks/team/graph/' + User.getIdentity().teams[0], function (json) {
-            console.log('json from d3.json');
-            console.log(json);
-            //root = json;
-            //// Determine the largest number of children to display to do range
-            //
-            //
-            //// Start project parent node in middle left
-            //root.x0 = height / 2;
-            //root.y0 = 0;
-            //
-            //// Initialize the display to show a few nodes.
-            ////root.children.forEach(toggleAll);
-            ////toggle(root.children[0]);
-            ////toggle(root.children[1].children[0]);
-            //createNodes(root);
         });
 
         d3.json('/tasks/team/graph/' + User.getIdentity().teams[0], function (json) {
-            console.log('json from taskGraph');
-            console.log(json);
+            //console.log('json from taskGraph');
+            //console.log(json);
             root = json;
-            root.x0 = height / 2;
+            //root.x0 = width / 2;
+            root.x0 = 0;
             root.y0 = 0;
             createNodes(root);
         });
@@ -91,13 +79,13 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                  * Ensure that the toggle doesn't get out of sync between multiple nodes which may have been
                  * closed and then opened again when separated
                  */
-                if (opening !== null && opening !== Boolean(d.children)) {
-                    return;
-                }
-                // Determine whether opening or closing, so we can keep multiples (which may be hidden) in sync
-                if (opening === null) {
-                    opening = !!d.children;
-                }
+                //if (opening !== null && opening !== Boolean(d.children)) {
+                //    return;
+                //}
+                //// Determine whether opening or closing, so we can keep multiples (which may be hidden) in sync
+                //if (opening === null) {
+                //    opening = !!d.children;
+                //}
                 // Prevent infinite recursion, and only click if it's a node that can be toggled
                 //if (!clickInProgress) {
                 //    clickInProgress = true;
@@ -129,15 +117,17 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             }).style('fill-opacity', 1e-6);
         };
 
-
         //var cloneAndConsole = function (node) {
         //    console.log(_.clone(node));
         //};
+
+        var depthModifierByEstimate = 1;
 
         /**
          * Update data, draw nodes, etc
          */
         var createNodes = function (source) {
+            //console.log(source);
             var duration = 500;
 
             /**
@@ -148,9 +138,24 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             /**
              * Determine x position based on how far down the hierarchy the node resides (0-ordered)
              */
-            //nodes.forEach(function (d) {
-            //    d.y = d.depth * 180;
-            //});
+            nodes.forEach(function (d) {
+                //console.log(depthModifier);
+                //depthModifier = depthModifier + 10;
+                depthModifierByEstimate = 1;
+                d.y = d.depth * 180;
+                if (d.estimate && d.estimate > 1) {
+                    depthModifierByEstimate = d.estimate;
+                }
+                //if (d.title === 'Task13') {
+                //    console.log('**************DEPTH BEFORE MODIFICATION**********');
+                //    console.log((d.depth * 180));
+                //    console.log('**************DEPTH AFTER MODIFICATION**********');
+                //    console.log((d.depth * 180) * depthModifierByEstimate);
+                //}
+                //d.y = d.y + (180 * depthModifierByEstimate)
+            });
+
+            // M117.55555555555556,720C117.55555555555556,945 176.33333333333334,945 176.33333333333334,1170
 
             /**
              * Assign each node an id, or else return the id already assigned
@@ -164,69 +169,12 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 return d.id;
             });
 
-            var nodeIds = {};
-
-            /**
-            * Find repeated nodes and merge
-            */
-            _.forEach(nodes, function (node, index) {
-                // Create an array of everywhere this node is found
-                if (node._id) {
-                    if (nodeIds[node._id]) {
-                        nodeIds[node._id].index.push(index);
-                    } else {
-                        nodeIds[node._id] = {
-                            index: [index]
-                        };
-                    }
-                }
-            });
-            // Since we're iterating over the nodes themselves, the repeated values will be found multiple times
-            var repeatedNodes = [];
-            var nodeIter;
-            // Iterate nodes and find the ones that have repeated values, based on the number of indexes in nodeIds
-            for (nodeIter = 0; nodeIter < nodes.length; nodeIter = nodeIter + 1) {
-                if (nodeIds[nodes[nodeIter]._id] && nodeIds[nodes[nodeIter]._id].index && nodeIds[nodes[nodeIter]._id].index.length > 1) {
-                    repeatedNodes.push(nodeIds[nodes[nodeIter]._id].index);
-                }
-            }
-            // Remove repeated values
-            //var removeDuplicateNodeIndexes = function (a) {
-            //    var exists = {};
-            //    return a.filter(function(item) {
-            //        return exists.hasOwnProperty(item) ? false : (exists[item] = true);
-            //    });
-            //};
-            //var repeatedWithoutDuplicates = removeDuplicateNodeIndexes(repeatedNodes);
-            /**
-             * Mate repeated nodes
-             */
-            //for (nodeIter = 0; nodeIter < repeatedWithoutDuplicates.length; nodeIter = nodeIter + 1) {
-            //    var thisX = [];
-            //    var thisY = [];
-            //    // Get an array of all x and y values for repeated nodes
-            //    repeatedWithoutDuplicates[nodeIter].forEach(function (nodeArrayItem) {
-            //        thisX.push(nodes[nodeArrayItem].x);
-            //        thisY.push(nodes[nodeArrayItem].y);
-            //    });
-            //    // Determine average
-            //    var avgX = thisX.reduce(function(a, b) { return a + b }) / thisX.length;
-            //    var avgY = thisY.reduce(function(a, b) { return a + b }) / thisY.length;
-            //    // Replace each node's x and y with average
-            //    repeatedWithoutDuplicates[nodeIter].forEach(function (nodeArrayItem) {
-            //        nodes[nodeArrayItem].x = avgX;
-            //        nodes[nodeArrayItem].y = avgY;
-            //    });
-            //}
-
             /**
             * Append each node on top of the parent node for their stating position
             */
             var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function (d) {
-                // Append title to class for triggering click
-                var oldClass = $(this).attr('class');
-                $(this).attr('class', oldClass + ' ' + d.title);
-                return 'translate(' + source.y0 + ',' + source.x0 + ')';
+                //return 'translate(' + source.x0 + ',' + source.y0 + ')';
+                return 'translate(0,0)';
             });
 
             /**
@@ -240,6 +188,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             * Move the nodes to their proper locations
             */
             var nodeUpdate = node.transition().duration(duration).attr('transform', function (d) {
+                //console.log(d);
                 return 'translate(' + d.x + ',' + d.y + ')';
             });
 

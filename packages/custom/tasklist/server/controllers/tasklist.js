@@ -263,7 +263,7 @@ var processAttempt2 = function (tasks) {
      * Find duplicate leaves on the tree, so that duplicates on a single branch can be removed
      */
     traverse(graph).forEach(function (node) {
-        if (node.children && !node.children.length) {
+        if (node && node.children && !node.children.length) {
             // mark duplicates
             if (leafCollection.indexOf(node.title)) {
                 if (!duplicateLeaves[node.title]) {

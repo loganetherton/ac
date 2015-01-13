@@ -5,6 +5,9 @@ var app = angular.module('mean.overview');
 
 app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, User) {
 
+    // The amount to move down y for each level of depth
+    var levelDepth = 180;
+
     ///**
     // * Allow click events to be triggered programmatically
     // */
@@ -54,19 +57,83 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
         var tree = d3.layout.tree().size([width, height]);
         // Projections based on data points
         var diagonal = d3.svg.diagonal().projection(function (d) {
-            //console.log(d);
             return [d.x, d.y];
         });
 
         d3.json('/tasks/team/graph/' + User.getIdentity().teams[0], function (json) {
-            //console.log('json from taskGraph');
-            //console.log(json);
             root = json;
             //root.x0 = width / 2;
             root.x0 = 0;
             root.y0 = 0;
             createNodes(root);
+            // Reposition nodes based on estimate
+            repositionNodes();
         });
+
+        var repositionNodes = function () {
+            // Get nodes from tree
+            var nodes = tree.nodes(root);
+            // Iterate nodes
+            //nodes.forEach(function (node) {
+            //    // If the estimate is greater than 1, move further down y
+            //    if (node.estimate > 1) {
+            //        console.log(node);
+            //        console.log(this);
+            //    }
+            //});
+
+            // @todo Not sure why, but I need to set a timeout or the lines never finish drawing.
+            // It seems as though this if this runs before everything is drawn initially, it interrupts the drawing
+            // This might be a clue: http://stackoverflow.com/questions/10692100/invoke-a-callback-at-the-end-of-a-transition
+            setTimeout(function () {
+                d3.selectAll('circle').transition().each('end', function (d) {
+                    if (typeof d.estimate !== 'undefined' && d.estimate > 1) {
+                        console.log(d);
+                        var gParent = $(this).parent().get(0);
+                        var transitionY = (d.estimate - 1) * levelDepth;
+                        console.log(gParent);
+                        var originalTransform = gParent.getAttribute('transform');
+                        console.log(originalTransform);
+                        var subT = originalTransform.substr(originalTransform.indexOf('(') + 1);
+                        var coordinatesOnly = subT.substr(0, subT.indexOf(')'));
+                        console.log(coordinatesOnly);
+                        var coordinatesSplit = coordinatesOnly.split(',');
+                        var xCoordinate = coordinatesSplit[0];
+                        var yCoordinate = coordinatesSplit[1];
+                        console.log(xCoordinate);
+                        console.log(yCoordinate);
+                        var newYCoordinate = (parseInt(yCoordinate) + transitionY);
+                        console.log(newYCoordinate);
+                        gParent.setAttribute('transform', 'translate(' + xCoordinate + ',' + newYCoordinate + ')');
+                    }
+                });
+                // Lengthen the path when necessary
+                d3.selectAll('path').transition().each('end', function (d) {
+                    //    //console.log('transition ending');
+                    if (d.target.estimate > 1) {
+                        var extendLength = (d.target.estimate - 1) * levelDepth;
+                        // Get original svg path d attribute
+                        var pathD = this.getAttribute('d');
+                        // Split coordinates
+                        var pathDSplit = pathD.split(' ');
+                        // Split the last coordinate instructions, so we can get coordinates to extend from
+                        var pathLastDrawInstruction = pathDSplit[pathDSplit.length -1].split(',');
+                        // Get original x and y
+                        var pathXCoordinate = pathLastDrawInstruction[0];
+                        var pathYCoordinate = pathLastDrawInstruction[1];
+                        // Keep x the same, extend y as far down as necessary
+                        this.setAttribute('d', pathD + ' L' + pathXCoordinate + ',' + (parseInt(pathYCoordinate) + extendLength));
+                    }
+                });
+            }, 500);
+
+            //_.each(document.getElementsByTagName('path'), function (path) {
+            //    //console.log(path);
+            //    path.removeAttribute('d');
+            //    //console.log(path);
+            //    //console.log(path.getAttribute('d'));
+            //});
+        };
 
         /**
          * Toggle and update on click
@@ -127,7 +194,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
          * Update data, draw nodes, etc
          */
         var createNodes = function (source) {
-            //console.log(source);
             var duration = 500;
 
             /**
@@ -142,7 +208,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 //console.log(depthModifier);
                 //depthModifier = depthModifier + 10;
                 depthModifierByEstimate = 1;
-                d.y = d.depth * 180;
+                d.y = d.depth * levelDepth;
                 if (d.estimate && d.estimate > 1) {
                     depthModifierByEstimate = d.estimate;
                 }
@@ -152,7 +218,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 //    console.log('**************DEPTH AFTER MODIFICATION**********');
                 //    console.log((d.depth * 180) * depthModifierByEstimate);
                 //}
-                //d.y = d.y + (180 * depthModifierByEstimate)
+                //d.y = d.y + (180 * depthModifierByEstimate);
             });
 
             // M117.55555555555556,720C117.55555555555556,945 176.33333333333334,945 176.33333333333334,1170
@@ -188,7 +254,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             * Move the nodes to their proper locations
             */
             var nodeUpdate = node.transition().duration(duration).attr('transform', function (d) {
-                //console.log(d);
                 return 'translate(' + d.x + ',' + d.y + ')';
             });
 
@@ -277,10 +342,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             data: '='
         },
         link: function (scope, element, attrs) {
-            //TasklistService.getTasksForGraph().then(function (data) {
-            //    //console.log('tasks for graph');
-            //    //console.log(data);
-            //});
             updatedTree();
         }
     };

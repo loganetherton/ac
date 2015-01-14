@@ -70,17 +70,88 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             repositionNodes();
         });
 
+        /**
+         * Get the original coordinates a node to be repositioned
+         * @param originalTransform
+         * @returns {Array}
+         */
+        var getOriginalCoordinates = function (originalTransform) {
+            var subT = originalTransform.substr(originalTransform.indexOf('(') + 1);
+            var coordinatesOnly = subT.substr(0, subT.indexOf(')'));
+            return coordinatesOnly.split(',');
+        };
+
+        /**
+         * Reposition nodes based on time estimates
+         */
         var repositionNodes = function () {
-            // Get nodes from tree
-            var nodes = tree.nodes(root);
-            // Iterate nodes
-            //nodes.forEach(function (node) {
-            //    // If the estimate is greater than 1, move further down y
-            //    if (node.estimate > 1) {
-            //        console.log(node);
-            //        console.log(this);
-            //    }
-            //});
+            // Variables for moving the nodes themselves
+            var gParent, transitionY, originalTransform, coordinatesSplit, xCoordinate, yCoordinate,
+                newYCoordinate;
+            // Variables for moving the paths
+            var extendLength, pathD, pathDSplit, pathLastDrawInstruction, pathXCoordinate, pathYCoordinate;
+
+            /**
+             * Reposition individual nodes based on estimate or based on parent's estimate
+             * @param d
+             * @param nodeDomElement
+             * @param amount
+             */
+            var repositionIndividualNode = function (d, nodeDomElement, amount) {
+                // Get the grouping parent
+                gParent = $(nodeDomElement).parent().get(0);
+                // Move the node down based on the estimate, or else based on the parent node's estimate, if that moved
+                transitionY = amount || (d.estimate - 1) * levelDepth;
+                // Get the original transform property of the node
+                originalTransform = gParent.getAttribute('transform');
+                // Get the coordinates of the original transform property
+                coordinatesSplit = getOriginalCoordinates(originalTransform);
+                xCoordinate = coordinatesSplit[0];
+                yCoordinate = coordinatesSplit[1];
+                newYCoordinate = (parseInt(yCoordinate) + transitionY);
+                // Move the node to its new position
+                gParent.setAttribute('transform', 'translate(' + xCoordinate + ',' + newYCoordinate + ')');
+                // Move all children an equal amount
+                _.each(d.children, function (nodeChild) {
+                    repositionIndividualNode(nodeChild, $('#' + nodeChild.title).find('circle'), transitionY);
+                });
+            };
+
+            /**
+             * Redraw paths when nodes are repositioned
+             * @param d
+             * @param thisPath
+             * @param amount
+             */
+            var redrawPathsBasedOnReposition = function (d, thisPath, amount) {
+                // Get the length of redraw based on estimate, or amount parent moves
+                extendLength = amount || (d.target.estimate - 1) * levelDepth;
+                // If this is a child node, then perform a translate, rather extending the path
+                if (amount) {
+                    $(thisPath).attr('transform', 'translate(0, 180)');
+                } else {
+                    // Get original svg path d attribute
+                    pathD = thisPath.getAttribute('d');
+                    // Split coordinates
+                    pathDSplit = pathD.split(' ');
+                    // Split the last coordinate instructions, so we can get coordinates to extend from
+                    pathLastDrawInstruction = pathDSplit[pathDSplit.length -1].split(',');
+                    // Get original x and y
+                    pathXCoordinate = pathLastDrawInstruction[0];
+                    pathYCoordinate = pathLastDrawInstruction[1];
+                    // Keep x the same, extend y as far down as necessary
+                    thisPath.setAttribute('d', pathD + ' L' + pathXCoordinate + ',' + (parseInt(pathYCoordinate) + extendLength));
+                }
+                // If there's a target, iterate children to find those that need to move as well
+                if (d.target) {
+                    _.each(d.target.children, function (nodeChild) {
+                        // Translate the path of each child node
+                        d3.select('#' + d.target.title + '_' + nodeChild.title).each(function (childData) {
+                            redrawPathsBasedOnReposition(childData, $('#' + d.target.title + '_' + nodeChild.title).get(0), extendLength);
+                        });
+                    });
+                }
+            };
 
             // @todo Not sure why, but I need to set a timeout or the lines never finish drawing.
             // It seems as though this if this runs before everything is drawn initially, it interrupts the drawing
@@ -88,51 +159,16 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             setTimeout(function () {
                 d3.selectAll('circle').transition().each('end', function (d) {
                     if (typeof d.estimate !== 'undefined' && d.estimate > 1) {
-                        console.log(d);
-                        var gParent = $(this).parent().get(0);
-                        var transitionY = (d.estimate - 1) * levelDepth;
-                        console.log(gParent);
-                        var originalTransform = gParent.getAttribute('transform');
-                        console.log(originalTransform);
-                        var subT = originalTransform.substr(originalTransform.indexOf('(') + 1);
-                        var coordinatesOnly = subT.substr(0, subT.indexOf(')'));
-                        console.log(coordinatesOnly);
-                        var coordinatesSplit = coordinatesOnly.split(',');
-                        var xCoordinate = coordinatesSplit[0];
-                        var yCoordinate = coordinatesSplit[1];
-                        console.log(xCoordinate);
-                        console.log(yCoordinate);
-                        var newYCoordinate = (parseInt(yCoordinate) + transitionY);
-                        console.log(newYCoordinate);
-                        gParent.setAttribute('transform', 'translate(' + xCoordinate + ',' + newYCoordinate + ')');
+                        repositionIndividualNode(d, this);
                     }
                 });
                 // Lengthen the path when necessary
                 d3.selectAll('path').transition().each('end', function (d) {
-                    //    //console.log('transition ending');
                     if (d.target.estimate > 1) {
-                        var extendLength = (d.target.estimate - 1) * levelDepth;
-                        // Get original svg path d attribute
-                        var pathD = this.getAttribute('d');
-                        // Split coordinates
-                        var pathDSplit = pathD.split(' ');
-                        // Split the last coordinate instructions, so we can get coordinates to extend from
-                        var pathLastDrawInstruction = pathDSplit[pathDSplit.length -1].split(',');
-                        // Get original x and y
-                        var pathXCoordinate = pathLastDrawInstruction[0];
-                        var pathYCoordinate = pathLastDrawInstruction[1];
-                        // Keep x the same, extend y as far down as necessary
-                        this.setAttribute('d', pathD + ' L' + pathXCoordinate + ',' + (parseInt(pathYCoordinate) + extendLength));
+                        redrawPathsBasedOnReposition(d, this);
                     }
                 });
             }, 500);
-
-            //_.each(document.getElementsByTagName('path'), function (path) {
-            //    //console.log(path);
-            //    path.removeAttribute('d');
-            //    //console.log(path);
-            //    //console.log(path.getAttribute('d'));
-            //});
         };
 
         /**
@@ -239,7 +275,8 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             * Append each node on top of the parent node for their stating position
             */
             var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function (d) {
-                //return 'translate(' + source.x0 + ',' + source.y0 + ')';
+                // Set id as task title, so that it can be found later for repositioning
+                $(this).attr('id', d.title);
                 return 'translate(0,0)';
             });
 
@@ -291,6 +328,8 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
 
             // Enter any new links at the parent's previous position.
             link.enter().insert('svg:path', 'g').attr('class', 'link').attr('d', function (d) {
+                // Add ID for the path for finding during repositioning
+                $(this).attr('id', d.source.title + '_' + d.target.title);
                 var o = {x: source.x0, y: source.y0};
                 return diagonal({source: o, target: o});
             }).transition().duration(duration).attr('d', diagonal);
@@ -314,13 +353,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             toggleClick(nodeEnter);
         };
 
-        //function toggleAll(d) {
-        //    if (d.children) {
-        //        d.children.forEach(toggleAll);
-        //        toggle(d);
-        //    }
-        //}
-
         // Toggle children.
         function toggle(d) {
             // Remove children nodes that exist
@@ -332,6 +364,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 d.children = d._children;
                 d._children = null;
             }
+            repositionNodes();
         }
     };
 

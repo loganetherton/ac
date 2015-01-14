@@ -37,7 +37,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             w1: 20,
             w2: 120
         };
-        //var heightWidthModifier = [20, 120, 20, 120],
         // Determine width based on modifier
         var height = 1280,
             // Determine height based on modifier
@@ -87,7 +86,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
         var repositionNodes = function () {
             // Variables for moving the nodes themselves
             var gParent, transitionY, originalTransform, coordinatesSplit, xCoordinate, yCoordinate,
-                newYCoordinate;
+                newYCoordinate, thisChildCircle;
             // Variables for moving the paths
             var extendLength, pathD, pathDSplit, pathLastDrawInstruction, pathXCoordinate, pathYCoordinate;
 
@@ -113,7 +112,11 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 gParent.setAttribute('transform', 'translate(' + xCoordinate + ',' + newYCoordinate + ')');
                 // Move all children an equal amount
                 _.each(d.children, function (nodeChild) {
-                    repositionIndividualNode(nodeChild, $('#' + nodeChild.title).find('circle'), transitionY);
+                    // Find the nodes which actually need to be moved
+                    thisChildCircle = $('.' + nodeChild.title).find('circle');
+                    _.each(thisChildCircle, function (child) {
+                        repositionIndividualNode(nodeChild, child, transitionY);
+                    });
                 });
             };
 
@@ -124,11 +127,15 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
              * @param amount
              */
             var redrawPathsBasedOnReposition = function (d, thisPath, amount) {
+                // Don't process closed nodes
+                if (!d.source.children) {
+                    return;
+                }
                 // Get the length of redraw based on estimate, or amount parent moves
                 extendLength = amount || (d.target.estimate - 1) * levelDepth;
                 // If this is a child node, then perform a translate, rather extending the path
                 if (amount) {
-                    $(thisPath).attr('transform', 'translate(0, 180)');
+                    $(thisPath).attr('transform', 'translate(0, ' + amount + ')');
                 } else {
                     // Get original svg path d attribute
                     pathD = thisPath.getAttribute('d');
@@ -178,22 +185,10 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             opening = null;
         var toggleClick = function (nodeEnter) {
             nodeEnter.on('click', function (d) {
-                /**
-                 * Ensure that the toggle doesn't get out of sync between multiple nodes which may have been
-                 * closed and then opened again when separated
-                 */
-                //if (opening !== null && opening !== Boolean(d.children)) {
-                //    return;
-                //}
-                //// Determine whether opening or closing, so we can keep multiples (which may be hidden) in sync
-                //if (opening === null) {
-                //    opening = !!d.children;
-                //}
-                // Prevent infinite recursion, and only click if it's a node that can be toggled
-                //if (!clickInProgress) {
-                //    clickInProgress = true;
-                //    $('.' + d.title).not(this).d3Click();
-                //}
+                // If no children, don't do anything
+                if (!d.children && !d._children) {
+                    return;
+                }
                 toggle(d);
                 createNodes(d);
                 clickInProgress = false;
@@ -275,8 +270,12 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             * Append each node on top of the parent node for their stating position
             */
             var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function (d) {
-                // Set id as task title, so that it can be found later for repositioning
-                $(this).attr('id', d.title);
+                // Set parent as task title, so that it can be found later for repositioning
+                // Only set for nodes which will be moved
+                if (d.parent && d.parent.estimate && d.parent.estimate > 1) {
+                    var originalClass = $(this).attr('class');
+                    $(this).attr('class', originalClass + ' ' + d.title);
+                }
                 return 'translate(0,0)';
             });
 

@@ -94,6 +94,17 @@ function ($stateProvider, $urlRouterProvider) {
         }
     })
 
+    /**
+     * Create mock tasks
+     */
+    .state('site.createMockTasks', {
+        url: '/create-mock-tasks',
+        templateUrl: 'create-mock-tasks/views/index.html',
+        data: {
+            roles: ['authenticated']
+        }
+    })
+
     ///**
     // * Team
     // */

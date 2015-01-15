@@ -113,7 +113,8 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 // Move all children an equal amount
                 _.each(d.children, function (nodeChild) {
                     // Find the nodes which actually need to be moved
-                    thisChildCircle = $('.' + nodeChild.title).find('circle');
+                    thisChildCircle = $('.' + nodeChild.title + '.reposition').find('circle');
+                    // Move each that needs it
                     _.each(thisChildCircle, function (child) {
                         repositionIndividualNode(nodeChild, child, transitionY);
                     });
@@ -128,7 +129,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
              */
             var redrawPathsBasedOnReposition = function (d, thisPath, amount) {
                 // Don't process closed nodes
-                if (!d.source.children) {
+                if (!d.source.children || !$('.' + d.target.title).length) {
                     return;
                 }
                 // Get the length of redraw based on estimate, or amount parent moves
@@ -270,12 +271,15 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             * Append each node on top of the parent node for their stating position
             */
             var nodeEnter = node.enter().append('svg:g').attr('class', 'node').attr('transform', function (d) {
-                // Set parent as task title, so that it can be found later for repositioning
-                // Only set for nodes which will be moved
+                var originalClass = $(this).attr('class');
+                // Add the title of the node to the class
+                var newClass = originalClass + ' ' + d.title;
+                // Note nodes which will be repositioned
                 if (d.parent && d.parent.estimate && d.parent.estimate > 1) {
-                    var originalClass = $(this).attr('class');
-                    $(this).attr('class', originalClass + ' ' + d.title);
+                    newClass = newClass + ' reposition';
                 }
+                // Set the new class
+                $(this).attr('class', newClass);
                 return 'translate(0,0)';
             });
 

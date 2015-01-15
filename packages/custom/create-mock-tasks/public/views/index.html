@@ -1,8 +1,8 @@
-<div class="col-lg-6" data-ng-controller="TaskInsertController as taskInsertCtrl" ng-cloak>
+<div class="col-lg-6" data-ng-controller="CreateMockTasksController as createMockTasksCtrl" ng-cloak>
     <section class="panel panel-default">
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Here you can create a bunch of fake tasks</strong></div>
         <div class="panel-body">
-            <form name="taskInsertCtrl.taskForm" class="form-horizontal"
+            <form name="createMockTasksCtrl.createMockTasksForm" class="form-horizontal"
                   data-ng-submit="taskInsertCtrl.create(taskInsertCtrl.taskForm.$valid)" novalidate>
                 <div class="form-group">
                     <label class="col-sm-2">How many you makin?</label>
@@ -14,7 +14,7 @@
                 </div>
                 <div class="form-group">
                     <div class="col-md-9">
-                        <button type="submit" class="btn btn-info" data-ng-disabled="taskInsertCtrl.taskForm.$invalid">
+                        <button type="submit" class="btn btn-info" data-ng-disabled="createMockTasksCtrl.createMockTasksForm.$invalid">
                             Submit
                         </button>
                     </div>
@@ -26,12 +26,11 @@
     <section class="panel panel-default">
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> You can delete all of the tasks here</strong></div>
         <div class="panel-body">
-            <form name="taskInsertCtrl.taskForm" class="form-horizontal"
-                  data-ng-submit="taskInsertCtrl.create(taskInsertCtrl.taskForm.$valid)" novalidate>
+            <form name="createMockTasksCtrl.deleteAllForm" class="form-horizontal" novalidate>
                 <div class="form-group">
                     <div class="col-md-9">
-                        <button type="submit" class="btn btn-info">
-                            Do it!
+                        <button type="button" class="btn btn-info" data-ng-click="createMockTasksCtrl.deleteAll()">
+                            {{createMockTasksCtrl.deleteButtonText}}
                         </button>
                     </div>
                 </div>

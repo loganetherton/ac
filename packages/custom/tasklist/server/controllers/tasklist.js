@@ -451,6 +451,22 @@ exports.getTeamTasksForGraph = function (req, res, next) {
 };
 
 /**
+ * Delete all tasks for this team
+ */
+exports.deleteAllTasks = function (req, res) {
+    // Check for invalid object ID
+    if (!serverCtrlHelpers.checkValidObjectId(req.params.teamId)) {
+        return res.status(400).send('Invalid team ID');
+    }
+    Task.remove({team: req.params.teamId}, function (err) {
+        if (err) {
+            return res.status(400).send('Could not clear tasks collection for team ' + req.params.teamId);
+        }
+        return res.send('Tasks deleted');
+    });
+};
+
+/**
  * List of tasks
  */
 exports.all = function(req, res) {

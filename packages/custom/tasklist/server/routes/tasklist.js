@@ -29,6 +29,10 @@ module.exports = function (Tasklist, app, auth, database) {
     app.route('/tasks/team/graph/:teamId').
     get(auth.requiresLogin, taskList.getTeamTasksForGraph);
 
+    // Delete all tasks for this team
+    app.route('/tasks/deleteAll/:teamId').
+    get(auth.requiresLogin, taskList.deleteAllTasks);
+
     // Connection to socket
     Tasklist.io.of('/task').on('connection', function (socket) {
         //console.log(socket);

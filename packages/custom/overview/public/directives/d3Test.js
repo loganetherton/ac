@@ -6,7 +6,7 @@ var app = angular.module('mean.overview');
 app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, User) {
 
     // The amount to move down y for each level of depth
-    var levelDepth = 180;
+    var levelDepth = 100;
 
     ///**
     // * Allow click events to be triggered programmatically
@@ -58,7 +58,6 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
         var diagonal = d3.svg.diagonal().projection(function (d) {
             return [d.x, d.y];
         });
-
         d3.json('/tasks/team/graph/' + User.getIdentity().teams[0], function (json) {
             root = json;
             //root.x0 = width / 2;
@@ -112,9 +111,13 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 gParent.setAttribute('transform', 'translate(' + xCoordinate + ',' + newYCoordinate + ')');
                 // Move all children an equal amount
                 _.each(d.children, function (nodeChild) {
-                    // Find the nodes which actually need to be moved
-                    thisChildCircle = $('.' + nodeChild.title + '.reposition').find('circle');
-                    // Move each that needs it
+                    // Find the nodes which actually need to be moved. Since multiple nodes of the same
+                    // task may need to be moved different amounts, match on x coordinate of parent
+                    thisChildCircle = $('.' + nodeChild.title + '.reposition').find('circle').filter(function () {
+                        var regex = new RegExp('translate.' + xCoordinate + ',');
+                        return regex.test($(this).parent().attr('transform'));
+                    });
+                    //Move each that needs it
                     _.each(thisChildCircle, function (child) {
                         repositionIndividualNode(nodeChild, child, transitionY);
                     });

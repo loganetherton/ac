@@ -56,6 +56,7 @@ var processAttempt2 = function (tasks) {
         taskMap[task.id] = task.toObject();
         delete taskMap[task.id].id;
     });
+
     /**
      * Get top level nodes, as they're all that's needed for building the initial tree
      */
@@ -110,26 +111,31 @@ var processAttempt2 = function (tasks) {
                 return pieceOfPathForComparison.equals(otherPathForComparison);
             });
         });
-        var consolidatedPaths = [];
+        var consolidatedPathsToRemove = [];
         // Flatten the array of paths
         pathsToRemove.forEach(function (path) {
             if (path.length) {
                 path.forEach(function (thisPath) {
-                    consolidatedPaths.push(thisPath);
+                    consolidatedPathsToRemove.push(thisPath);
                 });
             }
         });
         var pathsToRemoveFinal = [];
+        var addToFinalArray;
         // Remove duplicate paths set for removal, since they may be found more than once
-        consolidatedPaths.forEach(function (path) {
+        consolidatedPathsToRemove.forEach(function (path) {
             if (!pathsToRemoveFinal.length) {
                 return pathsToRemoveFinal.push(path);
             }
+            addToFinalArray = true;
             pathsToRemoveFinal.forEach(function (foundPath) {
-                if (!foundPath.equals(path)) {
-                    pathsToRemoveFinal.push(path);
+                if (foundPath.equals(path)) {
+                    addToFinalArray = false;
                 }
             });
+            if (addToFinalArray) {
+                pathsToRemoveFinal.push(path);
+            }
         });
         var i = 0;
         // Recreate original path structure
@@ -143,67 +149,7 @@ var processAttempt2 = function (tasks) {
             }
         });
         return pathsToRemoveFinal;
-
-        //var foundBranches = {};
-        //var duplicateBranches = {};
-        // For each path, iterate all others. If any are found that are the same path, but longer, remove this one
-        //var pathsToRemove = pathsArray.filter(function (thisPath) {
-        //    return (thisPath !== 'children');
-        //});
-        //console.log('**************PATHS TO REMOVE**********');
-        //console.log(pathsToRemove);
-        //// Create initial array of found branches
-        //if (!foundBranches[taskTitle]) {
-        //    foundBranches[taskTitle] = [];
-        //}
-        //// If the branch isn't found, add it
-        //if (foundBranches[taskTitle].indexOf(pathsToRemove[0]) === -1) {
-        //    foundBranches[taskTitle].push(pathsToRemove[0]);
-        //} else {
-        //    // Add to the array of duplicates
-        //    if (duplicateBranches[taskTitle].indexOf(pathsToRemove[0]) === -1) {
-        //        duplicateBranches[taskTitle].push(pathsToRemove[0]);
-        //    }
-        //}
     };
-    //var keepMe;
-    //var actualRemovals = {};
-    ///**
-    // * Create collection of paths of leaves to remove
-    // * @param leaf
-    // * @param leafToKeep
-    // */
-    //var findLeavesToRemove = function (leaf, leafToKeep) {
-    //    if (typeof leafToKeep === 'undefined') {
-    //        var potentialRemoval = [];
-    //        leaf.forEach(function (thisLeaf) {
-    //            // Get actual paths of duplicates
-    //            if (duplicateBranches[taskTitle].indexOf(thisLeaf[1]) !== -1) {
-    //                // Keep the ones that may be removed
-    //                potentialRemoval.push(thisLeaf);
-    //                // Set keep me
-    //                if (typeof keepMe === 'undefined' || keepMe === null) {
-    //                    keepMe = thisLeaf;
-    //                }
-    //                // Find the longest leaf
-    //                if (thisLeaf.length > keepMe.length) {
-    //                    keepMe = thisLeaf;
-    //                }
-    //            }
-    //        });
-    //        // iterate again over list of leaves that might be removed, and remove all but one per branch
-    //        findLeavesToRemove(potentialRemoval, keepMe);
-    //    } else {
-    //        // Add to collection of paths for removal
-    //        leaf.forEach(function (thisLeaf) {
-    //            if (thisLeaf !== keepMe) {
-    //                actualRemovals[thisLeaf] = 1;
-    //            }
-    //        });
-    //        keepMe = null;
-    //    }
-    //};
-    //var taskTitle;
 
     var thisPath;
     var removeMe = false;

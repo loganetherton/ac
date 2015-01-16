@@ -14,4 +14,16 @@ angular.module('mean.create-mock-tasks').controller('CreateMockTasksController',
             console.log(error);
         });
     };
+
+    /**
+     * Create fake tasks to see how the graph turns out
+     * @param amount
+     */
+    vm.createFakeTasks = function (amount) {
+        CreateMockTasksService.createFakeTasks(amount).then(function (response) {
+            console.log('task created', response);
+        }, function (error) {
+            console.log('error', error);
+        });
+    }
 }]);

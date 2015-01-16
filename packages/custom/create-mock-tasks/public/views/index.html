@@ -3,13 +3,13 @@
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Here you can create a bunch of fake tasks</strong></div>
         <div class="panel-body">
             <form name="createMockTasksCtrl.createMockTasksForm" class="form-horizontal"
-                  data-ng-submit="taskInsertCtrl.create(taskInsertCtrl.taskForm.$valid)" novalidate>
+                  data-ng-submit="createMockTasksCtrl.createFakeTasks(createMockTasksCtrl.mockTaskAmount)" novalidate>
                 <div class="form-group">
                     <label class="col-sm-2">How many you makin?</label>
 
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" placeholder="One billion"
-                               data-ng-model="taskInsertCtrl.task.title" required>
+                        <input type="text" class="form-control" placeholder="1000000000"
+                               data-ng-model="createMockTasksCtrl.mockTaskAmount" required>
                     </div>
                 </div>
                 <div class="form-group">

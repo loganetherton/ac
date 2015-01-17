@@ -11,7 +11,7 @@ function ($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/auth/login');
 
     // Always redirect to overview if nothing is selected
-    $urlRouterProvider.when('', '/create-mock-tasks');
+    $urlRouterProvider.when('', '/overview');
 
     $stateProvider.state('site', {
         templateUrl: 'system/views/site_layout.html',

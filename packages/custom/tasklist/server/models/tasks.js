@@ -57,7 +57,7 @@ var TaskSchema = new Schema({
     },
     estimate: {
         type: Number,
-        default: 0
+        default: 1
     },
     dependencies: [{ type: Schema.ObjectId, ref: 'Task' }],
     children: [{ type: Schema.ObjectId, ref: 'Task' }],

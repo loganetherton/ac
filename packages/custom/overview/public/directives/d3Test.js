@@ -84,8 +84,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
          */
         var repositionNodes = function () {
             // Variables for moving the nodes themselves
-            var gParent, transitionY, originalTransform, coordinatesSplit, xCoordinate, yCoordinate,
-                newYCoordinate, thisChildCircle;
+            var gParent, originalTransform, coordinatesSplit, newYCoordinate, currentEstimate;
             // Variables for moving the paths
             var extendLength, pathD, pathDSplit, pathLastDrawInstruction, pathXCoordinate, pathYCoordinate;
 
@@ -93,35 +92,26 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
              * Reposition individual nodes based on estimate or based on parent's estimate
              * @param d
              * @param nodeDomElement
-             * @param amount
              */
-            var repositionIndividualNode = function (d, nodeDomElement, amount) {
-                // Get the grouping parent
+            var repositionIndividualNode = function (d, nodeDomElement) {
+                // Don't mess with the top level node
+                if (typeof d.parent === 'undefined') {
+                    return;
+                }
+                // Get the grouping parent, which has the transform property
                 gParent = $(nodeDomElement).parent().get(0);
-                // Move the node down based on the estimate, or else based on the parent node's estimate, if that moved
-                transitionY = amount || (d.estimate - 1) * levelDepth;
                 // Get the original transform property of the node
                 originalTransform = gParent.getAttribute('transform');
                 // Get the coordinates of the original transform property
                 coordinatesSplit = getOriginalCoordinates(originalTransform);
-                xCoordinate = coordinatesSplit[0];
-                yCoordinate = coordinatesSplit[1];
-                newYCoordinate = (parseInt(yCoordinate) + transitionY);
+                // Determine the amount to move based on estimate (default estimate of 1)
+                currentEstimate = parseInt(d.estimate) * levelDepth || levelDepth;
+                // Determine the new y value, based on parent y + estimate of current node
+                newYCoordinate = parseInt(parseInt(d.parent.y) + (currentEstimate));
                 // Move the node to its new position
-                gParent.setAttribute('transform', 'translate(' + xCoordinate + ',' + newYCoordinate + ')');
-                // Move all children an equal amount
-                _.each(d.children, function (nodeChild) {
-                    // Find the nodes which actually need to be moved. Since multiple nodes of the same
-                    // task may need to be moved different amounts, match on x coordinate of parent
-                    thisChildCircle = $('.' + nodeChild.title + '.reposition').find('circle').filter(function () {
-                        var regex = new RegExp('translate.' + xCoordinate + ',');
-                        return regex.test($(this).parent().attr('transform'));
-                    });
-                    //Move each that needs it
-                    _.each(thisChildCircle, function (child) {
-                        repositionIndividualNode(nodeChild, child, transitionY);
-                    });
-                });
+                gParent.setAttribute('transform', 'translate(' + coordinatesSplit[0] + ',' + newYCoordinate + ')');
+                // Modify the y value on the data of the current node
+                d.y = newYCoordinate;
             };
 
             /**
@@ -129,6 +119,8 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
              * @param d
              * @param thisPath
              * @param amount
+             *
+             * Follow the same idea above -- Create paths based on the parent node, not every single matching node
              */
             var redrawPathsBasedOnReposition = function (d, thisPath, amount) {
                 // Don't process closed nodes
@@ -169,9 +161,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             // This might be a clue: http://stackoverflow.com/questions/10692100/invoke-a-callback-at-the-end-of-a-transition
             setTimeout(function () {
                 d3.selectAll('circle').transition().each('end', function (d) {
-                    if (typeof d.estimate !== 'undefined' && d.estimate > 1) {
-                        repositionIndividualNode(d, this);
-                    }
+                    repositionIndividualNode(d, this);
                 });
                 // Lengthen the path when necessary
                 d3.selectAll('path').transition().each('end', function (d) {

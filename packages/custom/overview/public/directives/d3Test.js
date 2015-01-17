@@ -86,7 +86,8 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             // Variables for moving the nodes themselves
             var gParent, originalTransform, coordinatesSplit, newYCoordinate, currentEstimate;
             // Variables for moving the paths
-            var extendLength, pathD, pathDSplit, pathLastDrawInstruction, pathXCoordinate, pathYCoordinate;
+            var extendLength, pathD, pathDSplit, pathLastDrawInstruction, pathXCoordinate, pathYCoordinate,
+                sourceStartY, targetStartY, sourceEndY, targetEndY, amountToTranslateY;
 
             /**
              * Reposition individual nodes based on estimate or based on parent's estimate
@@ -118,21 +119,27 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
              * Redraw paths when nodes are repositioned
              * @param d
              * @param thisPath
-             * @param amount
              *
              * Follow the same idea above -- Create paths based on the parent node, not every single matching node
              */
-            var redrawPathsBasedOnReposition = function (d, thisPath, amount) {
-                // Don't process closed nodes
-                if (!d.source.children || !$('.' + d.target.title).length) {
-                    return;
+            var redrawPathsBasedOnReposition = function (d, thisPath) {
+                // The y that the source and target nodes were at before moving
+                sourceStartY = d.source.depth * levelDepth;
+                targetStartY = d.target.depth * levelDepth;
+                // The actual current y value of the source and target node
+                sourceEndY = d.source.y;
+                targetEndY = d.target.y;
+                // The amount to translate the path based on source movement
+                amountToTranslateY = 0;
+                // If the depth of the source node is changed (source y != (source depth * level depth)
+                if (sourceEndY !== sourceStartY) {
+                    // Determine the amount to translate y, based on source current and starting y
+                    amountToTranslateY = sourceEndY - sourceStartY;
+                    $(thisPath).attr('transform', 'translate(0, ' + amountToTranslateY + ')');
                 }
-                // Get the length of redraw based on estimate, or amount parent moves
-                extendLength = amount || (d.target.estimate - 1) * levelDepth;
-                // If this is a child node, then perform a translate, rather extending the path
-                if (amount) {
-                    $(thisPath).attr('transform', 'translate(0, ' + amount + ')');
-                } else {
+                // If the depth of the target node is changed, extend the path to it
+                if (targetEndY !== targetStartY) {
+                    extendLength = (targetEndY - targetStartY) - amountToTranslateY;
                     // Get original svg path d attribute
                     pathD = thisPath.getAttribute('d');
                     // Split coordinates
@@ -145,29 +152,19 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                     // Keep x the same, extend y as far down as necessary
                     thisPath.setAttribute('d', pathD + ' L' + pathXCoordinate + ',' + (parseInt(pathYCoordinate) + extendLength));
                 }
-                // If there's a target, iterate children to find those that need to move as well
-                if (d.target) {
-                    _.each(d.target.children, function (nodeChild) {
-                        // Translate the path of each child node
-                        d3.select('#' + d.target.title + '_' + nodeChild.title).each(function (childData) {
-                            redrawPathsBasedOnReposition(childData, $('#' + d.target.title + '_' + nodeChild.title).get(0), extendLength);
-                        });
-                    });
-                }
             };
 
             // @todo Not sure why, but I need to set a timeout or the lines never finish drawing.
             // It seems as though this if this runs before everything is drawn initially, it interrupts the drawing
             // This might be a clue: http://stackoverflow.com/questions/10692100/invoke-a-callback-at-the-end-of-a-transition
+            // @todo NOTE: These functions did not turn out to need to be recursive, since d3 correctly traverses for me
             setTimeout(function () {
                 d3.selectAll('circle').transition().each('end', function (d) {
                     repositionIndividualNode(d, this);
                 });
                 // Lengthen the path when necessary
                 d3.selectAll('path').transition().each('end', function (d) {
-                    if (d.target.estimate > 1) {
-                        redrawPathsBasedOnReposition(d, this);
-                    }
+                    redrawPathsBasedOnReposition(d, this);
                 });
             }, 500);
         };
@@ -237,16 +234,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 if (d.estimate && d.estimate > 1) {
                     depthModifierByEstimate = d.estimate;
                 }
-                //if (d.title === 'Task13') {
-                //    console.log('**************DEPTH BEFORE MODIFICATION**********');
-                //    console.log((d.depth * 180));
-                //    console.log('**************DEPTH AFTER MODIFICATION**********');
-                //    console.log((d.depth * 180) * depthModifierByEstimate);
-                //}
-                //d.y = d.y + (180 * depthModifierByEstimate);
             });
-
-            // M117.55555555555556,720C117.55555555555556,945 176.33333333333334,945 176.33333333333334,1170
 
             /**
              * Assign each node an id, or else return the id already assigned

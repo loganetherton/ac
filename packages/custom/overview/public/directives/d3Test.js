@@ -244,8 +244,6 @@ app.directive('d3Test', ['TasklistService', 'User', '$q', function (TasklistServ
              * Determine x position based on how far down the hierarchy the node resides (0-ordered)
              */
             nodes.forEach(function (d) {
-                //console.log(depthModifier);
-                //depthModifier = depthModifier + 10;
                 depthModifierByEstimate = 1;
                 d.y = d.depth * levelDepth;
                 if (d.estimate && d.estimate > 1) {
@@ -379,7 +377,11 @@ app.directive('d3Test', ['TasklistService', 'User', '$q', function (TasklistServ
         link: function (scope, element, attrs) {
             updatedTree().then(function () {
                 // Init pan, zoom
-                //svgPanZoom('#task_graph svg');
+                svgPanZoom('#task_graph svg', {
+                    fit: false,
+                    center: false,
+                    dblClickZoomEnabled: false
+                });
             });
         }
     };

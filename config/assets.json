@@ -62,7 +62,8 @@
                 "bower_components/toastr/toastr.min.js",
                 "bower_components/angular-truncate/src/truncate.js",
                 "bower_components/ng-tags-input/ng-tags-input.min.js",
-                "bower_components/d3/d3.min.js"
+                "bower_components/d3/d3.min.js",
+                "bower_components/svg-pan-zoom/dist/svg-pan-zoom.min.js"
             ]
         }
     }

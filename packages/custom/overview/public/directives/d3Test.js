@@ -1,24 +1,27 @@
-/*global d3, $:false */
+/*global d3, $, svgPanZoom:false */
 'use strict';
 
 var app = angular.module('mean.overview');
 
-app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, User) {
+app.directive('d3Test', ['TasklistService', 'User', '$q', function (TasklistService, User, $q) {
 
     // The amount to move down y for each level of depth
-    var levelDepth = 100;
+    var levelDepth = 100,
+        deferred = $q.defer();
 
-    ///**
-    // * Allow click events to be triggered programmatically
-    // */
-    //$.fn.d3Click = function () {
-    //    this.each(function (i, e) {
-    //        var evt = document.createEvent('MouseEvents');
-    //        evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-    //
-    //        e.dispatchEvent(evt);
-    //    });
-    //};
+    /**
+    * Allow click events to be triggered programmatically
+     *
+     * This needs to be updated to remove initMouseEvent
+    */
+    $.fn.d3Click = function () {
+        this.each(function (i, e) {
+            var evt = document.createEvent('MouseEvents');
+            evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+
+            e.dispatchEvent(evt);
+        });
+    };
     /**
      * Reworking of original tree graph creation
      *
@@ -115,6 +118,8 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 d.y = newYCoordinate;
             };
 
+            var closedHashTable = [];
+
             /**
              * Redraw paths when nodes are repositioned
              * @param d
@@ -123,6 +128,17 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
              * Follow the same idea above -- Create paths based on the parent node, not every single matching node
              */
             var redrawPathsBasedOnReposition = function (d, thisPath) {
+                // Get children of the closed item, so we can know not to create lines for them
+                if (!d.source.children && d.source._children) {
+                    closedHashTable.push(d.source.id);
+                    closedHashTable.push(d.target.id);
+                    return;
+                }
+                // If the path about to be created is for a closed node, return
+                if (closedHashTable.indexOf(d.source.id) !== -1) {
+                    closedHashTable.push(d.target.id);
+                    return;
+                }
                 // The y that the source and target nodes were at before moving
                 sourceStartY = d.source.depth * levelDepth;
                 targetStartY = d.target.depth * levelDepth;
@@ -166,6 +182,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
                 d3.selectAll('path').transition().each('end', function (d) {
                     redrawPathsBasedOnReposition(d, this);
                 });
+                deferred.resolve();
             }, 500);
         };
 
@@ -350,6 +367,7 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             }
             repositionNodes();
         }
+        return deferred.promise;
     };
 
     return {
@@ -359,7 +377,10 @@ app.directive('d3Test', ['TasklistService', 'User', function (TasklistService, U
             data: '='
         },
         link: function (scope, element, attrs) {
-            updatedTree();
+            updatedTree().then(function () {
+                // Init pan, zoom
+                //svgPanZoom('#task_graph svg');
+            });
         }
     };
 }]);

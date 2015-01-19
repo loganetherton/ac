@@ -74,7 +74,7 @@ module.exports = function (grunt) {
                 options: {
                     mangle: false
                 },
-                files: '<%= assets.core.js %>'
+                files: ['<%= assets.core.js %>', '<%= assets.core.fonts %>']
             }
         },
         csslint: {
@@ -85,7 +85,7 @@ module.exports = function (grunt) {
         },
         cssmin: {
             core: {
-                files: '<%= assets.core.css %>'
+                files: ['<%= assets.core.css %>', '<%= assets.core.fonts %>']
             }
         },
         nodemon: {

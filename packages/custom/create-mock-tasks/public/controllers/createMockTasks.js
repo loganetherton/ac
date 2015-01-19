@@ -25,5 +25,5 @@ angular.module('mean.create-mock-tasks').controller('CreateMockTasksController',
         }, function (error) {
             console.log('error', error);
         });
-    }
+    };
 }]);

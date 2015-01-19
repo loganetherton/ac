@@ -37,15 +37,12 @@ angular.module('mean.create-mock-tasks').factory('CreateMockTasksService',
             switch (true) {
                 case randomNumber > 0.9:
                     return 5;
-                    break;
                 case randomNumber > 0.75:
                     return 3;
-                    break;
                 case randomNumber > 0.5:
                     return 2;
                 default:
                     return 1;
-                    break;
             }
         },
         /**

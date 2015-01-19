@@ -42,7 +42,7 @@ module.exports = function (grunt) {
                 options: {
                     livereload: true
                 }
-            },
+            }
             //coffee: {
             //    files: paths.coffee,
             //    tasks: ['coffee:compile']
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
                 options: {
                     mangle: false
                 },
-                files: ['<%= assets.core.js %>', '<%= assets.core.fonts %>']
+                files: '<%= assets.core.js %>'
             }
         },
         csslint: {
@@ -86,6 +86,11 @@ module.exports = function (grunt) {
         cssmin: {
             core: {
                 files: '<%= assets.core.css %>'
+            }
+        },
+        copy: {
+            dist: {
+                files: '<%= assets.core.fonts %>'
             }
         },
         nodemon: {

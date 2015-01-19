@@ -89,7 +89,7 @@ module.exports = function (grunt) {
             }
         },
         copy: {
-            dist: {
+            core: {
                 files: '<%= assets.core.fonts %>'
             }
         },
@@ -165,7 +165,7 @@ module.exports = function (grunt) {
     //Default task(s).
     if (process.env.NODE_ENV === 'production') {
         // Run and monitoring is done by pm2, not concurrent
-        grunt.registerTask('default', ['clean', 'cssmin', 'uglify']);
+        grunt.registerTask('default', ['clean', 'cssmin', 'uglify', 'copy']);
     } else {
         grunt.registerTask('default', ['clean', 'jshint', 'csslint', 'concurrent']);
     }

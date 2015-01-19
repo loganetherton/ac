@@ -85,7 +85,7 @@ module.exports = function (grunt) {
         },
         cssmin: {
             core: {
-                files: ['<%= assets.core.css %>', '<%= assets.core.fonts %>']
+                files: '<%= assets.core.css %>'
             }
         },
         nodemon: {

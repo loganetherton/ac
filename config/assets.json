@@ -67,7 +67,7 @@
             ]
         }, "fonts": {
             "bower_components/build/js/dist.min.js": [
-                "bower_components/font-awesome/fonts/fontawesome-webfont.woff",
+                "bower_components/font-awesome/fonts/fontawesome-webfont.woff"
             ]
         }
     }

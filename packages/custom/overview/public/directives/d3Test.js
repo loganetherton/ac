@@ -3,7 +3,7 @@
 
 var app = angular.module('mean.overview');
 
-app.directive('d3Test', ['TasklistService', 'User', '$q', function (TasklistService, User, $q) {
+app.directive('displayGraph', ['TasklistService', 'User', '$q', function (TasklistService, User, $q) {
 
     // The amount to move down y for each level of depth
     var levelDepth = 100,

@@ -94,8 +94,8 @@ module.exports = function (grunt) {
                 files: [
                     {
                         expand: true,
-                        src: ["bower_components/font-awesome/fonts/fontawesome-webfont.woff"],
-                        dest: "bower_components/build/fonts/",
+                        src: ['bower_components/font-awesome/fonts/fontawesome-webfont.woff'],
+                        dest: 'bower_components/build/fonts/',
                         //cwd: '.'
                         flatten: true
                     }
@@ -175,7 +175,6 @@ module.exports = function (grunt) {
     if (process.env.NODE_ENV === 'production') {
         // Run and monitoring is done by pm2, not concurrent
         grunt.registerTask('default', ['clean', 'copy', 'cssmin', 'uglify']);
-        //grunt.registerTask('default', ['clean', 'cssmin', 'uglify']);
     } else {
         grunt.registerTask('default', ['clean', 'jshint', 'csslint', 'concurrent']);
     }

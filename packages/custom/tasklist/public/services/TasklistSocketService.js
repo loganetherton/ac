@@ -4,7 +4,7 @@
 var app = angular.module('mean.tasklist');
 
 app.factory('TasklistSocketService', ['$rootScope', 'AcSocketService', function ($rootScope, AcSocketService) {
-    var socket = io.connect('http://localhost:3000/task');
+    var socket = io.connect('http://' + document.location.hostname + '/task');
     // Inherit from parent
     var tasklistSocket = Object.create(AcSocketService);
     // Set the socket to this one

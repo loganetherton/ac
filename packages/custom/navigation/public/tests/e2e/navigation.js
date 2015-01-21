@@ -17,29 +17,9 @@ describe('navigation menu', function () {
     });
 
     describe('logged out', function () {
-        it('should have two menu items shown', function () {
+        it('should be hidden when logged out', function () {
             browser.get('/#!/auth/login');
-            var elementCount = 0;
-            navigationMenuItems = element.all(by.css('ul[data-smart-menu] li'));
-            // Make sure the right number are displayed
-            navigationMenuItems.each(function (element) {
-                element.isDisplayed().then(function () {
-                    elementCount++;
-                });
-            }).then(function () {
-                expect(elementCount).toBe(2);
-            });
-        });
-        it('should have register account as a menu item', function () {
-            navigationMenuItems.get(0).getText().then(function (text) {
-                expect(text).toBe('Register');
-            });
-        });
-
-        it('should have login as a menu item', function () {
-            navigationMenuItems.get(1).getText().then(function (text) {
-                expect(text).toBe('Login');
-            });
+            expect($('#nav-container').isDisplayed()).toBeFalsy();
         });
     });
 
@@ -50,7 +30,7 @@ describe('navigation menu', function () {
 
         it('should have five menu items', function () {
             var elementCount = 0;
-            navigationMenuItems = element.all(by.css('ul[data-smart-menu] li'));
+            navigationMenuItems = element.all(by.css('#nav li'));
             // Make sure the right number are displayed
             navigationMenuItems.each(function (element) {
                 element.isDisplayed().then(function () {
@@ -61,27 +41,27 @@ describe('navigation menu', function () {
             });
         });
 
-        it('should have tasklist as a menu item', function () {
+        it('should have project overview as a menu item', function () {
             navigationMenuItems.get(0).getText().then(function (text) {
-                expect(text).toBe('Tasklist');
+                expect(text).toBe('Project overview');
             });
         });
 
-        it('should have team as a menu item', function () {
+        it('should have tasklist as a menu item', function () {
             navigationMenuItems.get(1).getText().then(function (text) {
-                expect(text).toBe('Team');
+                expect(text).toMatch(/Tasklist/);
             });
         });
 
         it('should have team messages as a menu item', function () {
             navigationMenuItems.get(2).getText().then(function (text) {
-                expect(text).toBe('Team Messages');
+                expect(text).toBe('Insert task');
             });
         });
 
-        it('should have logout as a menu item', function () {
+        it('should have create tasks as a menu item', function () {
             navigationMenuItems.get(3).getText().then(function (text) {
-                expect(text).toBe('Logout');
+                expect(text).toBe('Create tasks');
             });
         });
 

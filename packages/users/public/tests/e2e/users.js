@@ -21,7 +21,7 @@ var testBadSubmit = function (loginPage) {
 };
 
 describe('registration page', function () {
-    var nameInput, emailInput, passwordInput, confirmInput;
+    var nameInput, emailInput, passwordInput;
 
     beforeEach(function () {
         backend = new global.HttpBackend(browser);
@@ -48,9 +48,6 @@ describe('registration page', function () {
         // password
         passwordInput = element(by.model('user.password'));
         expect(passwordInput).toBeTruthy();
-        // Confirm password
-        confirmInput = element(by.model('user.confirmPassword'));
-        expect(confirmInput).toBeTruthy();
     });
 
     it('should have a full name field and let the user type', function () {
@@ -68,12 +65,6 @@ describe('registration page', function () {
     it('should have a password field and let the user type', function () {
         passwordInput.sendKeys('password');
         expect(passwordInput.getAttribute('value')).toBe('password');
-        testBadSubmit();
-    });
-
-    it('should have a password confirm field', function () {
-        confirmInput.sendKeys('badpassword');
-        expect(confirmInput.getAttribute('value')).toBe('badpassword');
         testBadSubmit();
     });
 

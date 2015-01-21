@@ -112,8 +112,6 @@ var Helpers = function () {
             setInput('user.email', email);
             // password
             setInput('user.password', password);
-            // Confirm password
-            setInput('user.confirmPassword', password);
             // Submit
             submitButton = element(by.css('.submit_button'));
             submitButton.click().then(function () {

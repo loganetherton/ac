@@ -12,15 +12,30 @@ describe('Create task', function () {
         if (typeof taskNumber !== 'number') {
             expect(true).toBeFalsy();
         }
+        browser.get('/#!/insert-task');
+        //browser.getCurrentUrl().then(function (url) {
+        //    if (!url.match(/insert-task/)) {
+        //        browser.get('/#!/insert-task');
+        //    }
+        //});
+        var titleVal = '';
         // Input title
-        var title = element(by.model('tasklistInsert.title'));
+        var title = element(by.model('taskInsertCtrl.task.title'));
         expect(title).toBeTruthy();
         title.sendKeys('fake ass title ' + taskNumber);
-        expect(title.getAttribute('value')).toBe('fake ass title ' + taskNumber);
-        var content = element(by.model('tasklistInsert.content'));
+        // Get title and evaluate
+        title.getAttribute('value').then(function (value) {
+            expect(value).toBe('fake ass title ' + taskNumber);
+        });
+        //expect(title.getAttribute('value')).toBe('fake ass title ' + taskNumber);
+        var content = $('div[contenteditable]');
         expect(content).toBeTruthy();
         content.sendKeys('fake ass content ' + taskNumber);
-        expect(content.getAttribute('value')).toBe('fake ass content ' + taskNumber);
+        content.getInnerHtml().then(function (html) {
+            var regex = new RegExp(html);
+            expect(html).toMatch(regex);
+        });
+        //expect(content.getAttribute('value')).toBe('fake ass content ' + taskNumber);
         element(by.buttonText('Submit')).click();
     };
 
@@ -31,13 +46,19 @@ describe('Create task', function () {
      * @param taskNumber
      */
     var evaluateTask = function (taskNumber) {
-        element(by.repeater('task in tasks').row(0).column('task.title')).getText().then(function (text) {
+        browser.driver.manage().window().maximize();
+        var repeater = element.all(by.repeater('task in taskListCtrl.tasks'));
+        repeater.get(0).element(by.binding('task.title')).getText().then(function (text) {
             expect(text).toBe('fake ass title ' + taskNumber);
         });
 
-        element(by.repeater('task in tasks').row(0).column('task.content')).getText().then(function (text) {
-            expect(text).toBe('fake ass content ' + taskNumber);
-        });
+        //repeater.get(0).element(by.binding('task.estimate')).getText().then(function (text) {
+        //    expect(text).toBe('Bigdick von Monstercock');
+        //});
+        //
+        //repeater.get(0).element(by.binding('task.dependencies_string')).getText().then(function (text) {
+        //    expect(text).toBe('Bigdick von Monstercock');
+        //});
     };
 
     beforeEach(function () {

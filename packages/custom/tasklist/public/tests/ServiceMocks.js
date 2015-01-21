@@ -70,17 +70,32 @@ var MockTasklistService = function ($q) {
             $$hashKey: 'object:13'
         }
     ];
-    // Fake something to return
-    this.created = {user: "5434f0215d1bbcf87764b996", title: "mock title", content: "mock content"};
 
     var that = this;
 
     return {
+        // Mock init method
         init: function () {
             var defer = $q.defer();
             defer.resolve(that.data);
             return defer.promise;
-        },
+        }
+    };
+};
+
+/**
+ * Mock task insertion
+ * @param $q
+ * @returns {{create: Function}}
+ * @constructor
+ */
+var MockTaskInsertService = function ($q) {
+    // Fake something to return
+    this.created = {user: "5434f0215d1bbcf87764b996", title: "mock title", content: "mock content", dependencies: []};
+    var that = this;
+
+    return {
+        // Mock the create method
         create: function () {
             var deferred = $q.defer();
             deferred.resolve(that.created);

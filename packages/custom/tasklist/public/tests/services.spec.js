@@ -53,7 +53,7 @@
     });
 
     describe('Service: TasklistService', function () {
-        var scope, tasklistService, httpBackend, socketService, logService, q, global, user;
+        var scope, taskInsertService, httpBackend, socketService, logService, q, global, user;
         beforeEach(function () {
             module('mean');
             module('mean.system');
@@ -66,7 +66,7 @@
 
         beforeEach(inject(function ($rootScope, TasklistService, $httpBackend, Global, LogService, $q, TasklistSocketService, User) {
             scope = $rootScope.$new();
-            tasklistService = TasklistService;
+            taskInsertService = TasklistService;
             httpBackend = $httpBackend;
             logService = LogService;
             socketService = TasklistSocketService;
@@ -89,7 +89,7 @@
         describe('init()', function () {
             it('should return an initial listing of tasks: init()', function () {
                 httpBackend.whenGET(/tasks\/team\/.*/).respond({data: 'data'});
-                var responsePromise = tasklistService.init();
+                var responsePromise = taskInsertService.init();
                 httpBackend.flush();
                 responsePromise.then(function (data) {
                     expect(data).toEqual({data: 'data'});
@@ -102,75 +102,12 @@
             it('should return an error message if failing to retrieve initial tasklist: init()', function () {
                 httpBackend.whenGET(/tasks\/team\/.*/).respond(400, {data: 'failed'});
                 spyOn(logService, 'error');
-                var responsePromise = tasklistService.init();
+                var responsePromise = taskInsertService.init();
                 httpBackend.flush();
                 responsePromise.then(function (data) {
                     expect(data).not.toBeDefined();
                 }, function (error) {
                     expect(angular.equals(error, {data:{error:"Could not get tasklist"}})).toBe(true);
-                });
-            });
-        });
-
-        describe('create()', function () {
-            describe('success', function () {
-                var deferred, task;
-
-                beforeEach(function () {
-                    deferred = q.defer();
-                    // Make fake post
-                    httpBackend.whenPOST('/newTask').respond('ok');
-                    task = {
-                        title: 'title',
-                        content: 'content'
-                    };
-                });
-
-                it('should not allow invalid content to proceed', function () {
-                    var responsePromise = tasklistService.create(false);
-                    responsePromise.then(function () {}, function (error) {
-                        expect(error).toEqual('Invalid task model');
-                    });
-                });
-
-                it('should emit the newly submitted task on success', function () {
-                    spyOn(socketService, 'emit');
-                    tasklistService.create(true, task.title, task.content).then(function () {
-                        expect(socketService.emit).toHaveBeenCalled();
-                    });
-                    httpBackend.flush();
-                });
-            });
-
-            describe('failure', function () {
-                var task;
-                beforeEach(function () {
-                    // Mock failure
-                    httpBackend.whenPOST('/newTask').respond(500);
-                    task = {
-                        user: 1,
-                        title: 'title',
-                        content: 'content'
-                    };
-                });
-
-                it('should write to log on failure to save model: create()', function () {
-                    spyOn(logService, 'error');
-
-                    tasklistService.create(true, task.title, task.content);
-                    httpBackend.flush();
-                    expect(logService.error).toHaveBeenCalled();
-                });
-
-                it('should return an error message on failure to save model: create()', function () {
-                    var responsePromise = tasklistService.create(true, task.title, task.content);
-                    //Handle response
-                    responsePromise.then(function (data) {
-
-                    }, function (error) {
-                        expect(error).toEqual('Failed to save new task');
-                    });
-                    httpBackend.flush();
                 });
             });
         });

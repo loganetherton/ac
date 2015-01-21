@@ -81,25 +81,26 @@
         });
     });
 
-    describe('TasklistInsertController', function () {
-        var scope, controller, global, tasklistService;
+    describe('TaskInsertController', function () {
+        var scope, controller, global, taskInsertService;
 
         beforeEach(function () {
             module('mean');
             module('mean.system');
-            module('mean.tasklist', function ($provide) {
+            module('mean.acsocket');
+            module('mean.taskinsert', function ($provide) {
                 $provide.factory('Global', GlobalMock);
-                $provide.factory('TasklistService', MockTasklistService);
+                $provide.factory('TaskInsertService', MockTaskInsertService);
                 $provide.factory('User', UserMock);
             });
         });
 
-        beforeEach(inject(function ($rootScope, $controller, Global, TasklistService) {
+        beforeEach(inject(function ($rootScope, $controller, Global, TaskInsertService) {
             scope = $rootScope.$new();
-            tasklistService = TasklistService;
+            taskInsertService = TaskInsertService;
 
-            spyOn(tasklistService, 'create').andCallThrough();
-            controller = $controller('TasklistInsertController', {$scope: scope});
+            spyOn(TaskInsertService, 'create').andCallThrough();
+            controller = $controller('TaskInsertController', {$scope: scope});
 
             global = Global;
         }));
@@ -109,12 +110,13 @@
             expect(controller.strings.project).toBeDefined();
         });
 
-        it('should call TasklistService.create() when a new task is submitted', function () {
-            controller.title = 'fakeTitle';
-            controller.content = 'fakeContent';
+        it('should call TaskInsertService.create() when a new task is submitted', function () {
+            controller.task.title = 'fakeTitle';
+            controller.task.content = 'fakeContent';
             controller.create(true);
 
-            expect(tasklistService.create).toHaveBeenCalledWith(true, 'fakeTitle', 'fakeContent');
+            expect(taskInsertService.create).toHaveBeenCalledWith(true,
+                {dependencies: [], title: 'fakeTitle', content: 'fakeContent'});
         });
     });
 }());

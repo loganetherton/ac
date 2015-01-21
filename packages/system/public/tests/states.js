@@ -37,7 +37,8 @@ describe('States', function () {
     });
 
     describe('task', function () {
-        var objectId = Array.apply(null, Array(23)).map(function(){return 1}).join('');
+        // Create an object ID of 24 ones
+        var objectId = Array.apply(null, Array(24)).map(function(){return 1}).join('');
         it('should call authorizationService on state change', function () {
             authorizationServiceMock.authorize = jasmine.createSpy('authorize');
             state.go('site.task');
@@ -46,7 +47,7 @@ describe('States', function () {
         });
 
         it('should be able to parse the taskId', function () {
-            expect(state.href('site.task', {taskId: objectId})).toEqual('/task/' + objectId);
+            expect(state.href('site.task', {taskId: objectId})).toEqual('#!/task/' + objectId);
         });
 
         //// Fucking hell, state params is not accessible within karma...

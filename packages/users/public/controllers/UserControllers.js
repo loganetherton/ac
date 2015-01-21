@@ -1,4 +1,3 @@
-/*global Pace:false */
 (function () {
     'use strict';
     // To avoid displaying unneccesary social logins
@@ -32,11 +31,6 @@
                     $state.go(response.redirect);
                 } else {
                     $state.go('site.tasklist');
-                }
-                // Todo Debug why Pace never completed on login
-                // This is a temporary fix -- 11/20/14
-                if (typeof Pace === 'object' && typeof Pace.restart === 'function') {
-                    Pace.restart();
                 }
             });
         });

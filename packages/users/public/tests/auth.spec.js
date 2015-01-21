@@ -52,7 +52,7 @@
             // test scope value
             //expect($rootScope.user).toEqual('Fred');
             expect($rootScope.$emit).toHaveBeenCalledWith('loggedin', { user : 'Fred' });
-            expect($location.url()).toEqual('/tasklist');
+            expect($location.url()).toEqual('/overview');
         });
 
         it('should fail to log in ', function () {
@@ -112,7 +112,7 @@
             // test scope value
             expect(RegisterCtrl.registerError).toEqual(0);
             expect($rootScope.$emit).toHaveBeenCalledWith('loggedin', 'Fred');
-            expect($location.url()).toBe('/tasklist');
+            expect($location.url()).toBe('/overview');
         });
 
         it('should fail to register with non-matching passwords', function () {
@@ -170,12 +170,5 @@
             rootScope.$digest();
             expect($state.go).toHaveBeenCalledWith('site.tasklist');
         }));
-
-        it('should call Pace.restart() after login', function () {
-            spyOn(Pace, 'restart');
-            rootScope.$emit('loggedin');
-            rootScope.$digest();
-            expect(Pace.restart).toHaveBeenCalled();
-        });
     });
 }());

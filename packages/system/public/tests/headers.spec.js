@@ -4,6 +4,7 @@
     describe('HeaderController', function () {
         beforeEach(function () {
             module('mean');
+            module('mean.header');
             module('mean.system', function ($provide) {
                 $provide.factory('User', UserMock);
             });
@@ -20,7 +21,7 @@
         }));
 
         it('should expose some global scope', function () {
-            expect(scope.global).toBeTruthy();
+            expect(HeaderController.global).toBeTruthy();
         });
     });
 })();

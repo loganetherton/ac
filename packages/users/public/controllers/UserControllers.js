@@ -99,6 +99,15 @@
         };
     };
 
+    /**
+     * Allow the user to handle forgotten passwords
+     * @param $scope
+     * @param $rootScope
+     * @param $http
+     * @param $location
+     * @param Global
+     * @constructor
+     */
     var ForgotPasswordCtrl = function($scope, $rootScope, $http, $location, Global) {
         $scope.user = {};
         $scope.global = Global;
@@ -116,6 +125,16 @@
         };
     };
 
+    /**
+     * Controller for resetting passwords
+     * @param $scope
+     * @param $rootScope
+     * @param $http
+     * @param $location
+     * @param $stateParams
+     * @param Global
+     * @constructor
+     */
     var ResetPasswordCtrl = function($scope, $rootScope, $http, $location, $stateParams, Global) {
         $scope.user = {};
         $scope.global = Global;

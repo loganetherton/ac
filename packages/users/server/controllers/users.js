@@ -13,14 +13,14 @@ var mongoose = require('mongoose'),
     Team = mongoose.model('Team');
 
 /**
- * Auth callback
+ * Redirect to app as signed in user after SSO
  */
 exports.authCallback = function (req, res) {
     res.redirect('/');
 };
 
 /**
- * Show login form
+ * Redirect back to login form after SSO failure
  */
 exports.signin = function (req, res) {
     if (req.isAuthenticated()) {
@@ -30,17 +30,10 @@ exports.signin = function (req, res) {
 };
 
 /**
- * Logout
+ * Logout and redirect
  */
 exports.signout = function (req, res) {
     req.logout();
-    res.redirect('/');
-};
-
-/**
- * Session
- */
-exports.session = function (req, res) {
     res.redirect('/');
 };
 
@@ -55,23 +48,25 @@ exports.create = function (req, res, next) {
 
     user.provider = 'local';
 
-    // because we set our user.provider to local our models/user.js validation will always be true
+    // Because we set our user.provider to local our models/user.js validation will always be true
     req.assert('name', 'You must enter a name').notEmpty();
     req.assert('email', 'You must enter a valid email address').isEmail();
     req.assert('password', 'You must enter a password').notEmpty();
     req.assert('password', 'Password must be between 8-100 characters long').len(8, 100);
-
+    // Return errors if there were any
     var errors = req.validationErrors();
     if (errors) {
         return res.status(400).send(errors[0].msg);
     }
 
+    // Create the team, then add the user to the team
     team.save(function (err) {
         if (err) {
             return res.status(400).send(errors[0].msg);
         }
         user.roles = ['authenticated'];
         user.teams.push(team._id);
+        // Save the user
         user.save(function (err) {
             if (err) {
                 switch (err.code) {
@@ -84,6 +79,9 @@ exports.create = function (req, res, next) {
                         if (err.errors) {
 
                             for (var x in err.errors) {
+                                if (!err.errors.hasOwnProperty(x)) {
+                                    continue;
+                                }
                                 modelErrors.push({
                                     param: x, msg: err.errors[x].message, value: err.errors[x].value
                                 });
@@ -108,7 +106,7 @@ exports.create = function (req, res, next) {
     });
 };
 /**
- * Send User
+ * Get the current user (for exporting onto global object)
  */
 exports.me = function (req, res) {
     var user = null;
@@ -141,8 +139,8 @@ exports.user = function (req, res, next, id) {
 /**
  * Resets the password
  */
-
 exports.resetpassword = function (req, res, next) {
+    // Get the reset password token that matches this user
     User.findOne({
         resetPasswordToken: req.params.token, resetPasswordExpires: {
             $gt: Date.now()
@@ -153,13 +151,14 @@ exports.resetpassword = function (req, res, next) {
                 msg: err
             });
         }
+        // If none was found, return error
         if (!user) {
             return res.status(400).json({
                 msg: 'Token invalid or expired'
             });
         }
         req.assert('password', 'Password must be between 8-20 characters long').len(8, 20);
-        req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
+        // Check any additional errors
         var errors = req.validationErrors();
         if (errors) {
             return res.status(400).send(errors);
@@ -167,7 +166,12 @@ exports.resetpassword = function (req, res, next) {
         user.password = req.body.password;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
+        // Save new information
         user.save(function (err) {
+            if (err) {
+                return next(err);
+            }
+            // Log the user in
             req.logIn(user, function (err) {
                 if (err) {
                     return next(err);
@@ -197,8 +201,8 @@ function sendMail(mailOptions) {
  * Callback for forgot password link
  */
 exports.forgotpassword = function (req, res, next) {
+    // Execute in a series
     async.waterfall([
-
         function (done) {
             crypto.randomBytes(20, function (err, buf) {
                 var token = buf.toString('hex');
@@ -240,4 +244,11 @@ exports.forgotpassword = function (req, res, next) {
         }
         res.json(response);
     });
+};
+
+/**
+ * Session (not entirely sure what this does - remove?)
+ */
+exports.session = function (req, res) {
+    res.redirect('/');
 };

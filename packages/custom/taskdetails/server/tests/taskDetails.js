@@ -208,7 +208,7 @@ describe('POST /task/:taskId', function () {
             });
         });
 
-        it('should not do anything if neither title or content is updates', function (done) {
+        it('should not do anything if neither title or content is updated', function (done) {
             findMostRecentTask().then(function (taskId) {
                 server
                 .post('/task/' + taskId)

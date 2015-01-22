@@ -38,7 +38,7 @@ module.exports = function (MeanUser, app, auth, database, passport) {
 
     // Setting the facebook oauth routes
     app.route('/auth/facebook').get(passport.authenticate('facebook', {
-        scope: ['email', 'user_about_me'], failureRedirect: '#!/login'
+        scope: ['email', 'public_profile'], failureRedirect: '#!/login'
     }), users.signin);
 
     app.route('/auth/facebook/callback').get(passport.authenticate('facebook', {

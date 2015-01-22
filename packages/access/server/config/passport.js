@@ -8,7 +8,8 @@ var mongoose = require('mongoose'),
     GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
     LinkedinStrategy = require('passport-linkedin').Strategy,
     User = mongoose.model('User'),
-    config = require('meanio').loadConfig();
+    config = require('meanio').loadConfig(),
+    Team = mongoose.model('Team');
 
 module.exports = function (passport) {
 
@@ -94,12 +95,31 @@ module.exports = function (passport) {
         User.findOne({
             'facebook.id': profile.id
         }, function (err, user) {
+            // Return on error
             if (err) {
                 return done(err);
             }
+            // If the user found, let's log that puppy in
             if (user) {
                 return done(err, user);
             }
+            // Find the user based on the first email returned
+            // @todo This is weak, need to check all emails
+            User.findOne({
+                email: profile.emails[0].value
+            }, function (err, user) {
+                // Return on error
+                if (err) {
+                    return done(err);
+                }
+                // If the user found, let's log that puppy in
+                if (user) {
+                    return done(null, false, {
+                        message: 'Facebook login failed, email already used by other login strategy'
+                    });
+                }
+            });
+            // If we've made it this far, go ahead and create the user
             user = new User({
                 name: profile.displayName,
                 email: profile.emails[0].value,
@@ -108,14 +128,28 @@ module.exports = function (passport) {
                 facebook: profile._json,
                 roles: ['authenticated']
             });
-            user.save(function (err) {
+            // Create a team for this user
+            var team = new Team({
+                name: user.name + '\'s Team'
+            });
+            // Save the team
+            team.save(function (err) {
                 if (err) {
-                    console.log(err);
-                    return done(null, false,
-                    {message: 'Facebook login failed, email already used by other login strategy'});
-                } else {
-                    return done(err, user);
+                    return res.status(400).send(errors[0].msg);
                 }
+                // Add user to team
+                user.teams.push(team._id);
+                // Save the user
+                user.save(function (err) {
+                    if (err) {
+                        // Done from passport takes three parameters: error, false for failure, something truthy for
+                        // success, and finally, object with info
+                        return done(null, false,
+                        {message: 'Facebook login failed, email already used by other login strategy'});
+                    } else {
+                        return done(err, user);
+                    }
+                });
             });
         });
     }));

@@ -9,7 +9,9 @@ var mongoose = require('mongoose'),
     LinkedinStrategy = require('passport-linkedin').Strategy,
     User = mongoose.model('User'),
     config = require('meanio').loadConfig(),
-    Team = mongoose.model('Team');
+    Team = mongoose.model('Team'),
+    _ = require('lodash'),
+    async = require('async');
 
 module.exports = function (passport) {
 
@@ -58,43 +60,23 @@ module.exports = function (passport) {
         consumerSecret: config.twitter.clientSecret,
         callbackURL: config.twitter.callbackURL
     }, function (token, tokenSecret, profile, done) {
-        User.findOne({
-            'twitter.id_str': profile.id
-        }, function (err, user) {
-            if (err) {
-                return done(err);
-            }
-            if (user) {
-                return done(err, user);
-            }
-            user = new User({
-                name: profile.displayName,
-                username: profile.username,
-                provider: 'twitter',
-                twitter: profile._json,
-                roles: ['authenticated']
-            });
-            user.save(function (err) {
-                if (err) {
-                    console.log(err);
-                    return done(null, false,
-                    {message: 'Twitter login failed, email already used by other login strategy'});
-                } else {
-                    return done(err, user);
-                }
-            });
-        });
+        return ssoAuth(profile, 'twitter', done);
     }));
 
-    // Use facebook strategy
-    passport.use(new FacebookStrategy({
-        clientID: config.facebook.clientID,
-        clientSecret: config.facebook.clientSecret,
-        callbackURL: config.facebook.callbackURL
-    }, function (accessToken, refreshToken, profile, done) {
-        User.findOne({
-            'facebook.id': profile.id
-        }, function (err, user) {
+    /**
+     * Generalize SSO authorization function
+     *
+     * @todo REFACTOR ME
+     *
+     * @param profile
+     * @param loginStrategy
+     * @param done
+     */
+    var ssoAuth = function (profile, loginStrategy, done) {
+        var userSearch = {};
+        // Search by the login strategy id (some are strings, some are ints...)
+        userSearch[loginStrategy + '.id'] = loginStrategy === 'twitter' ? parseInt(profile.id) : profile.id;
+        return User.findOne(userSearch, function (err, user) {
             // Return on error
             if (err) {
                 return done(err);
@@ -103,55 +85,99 @@ module.exports = function (passport) {
             if (user) {
                 return done(err, user);
             }
-            // Find the user based on the first email returned
-            // @todo This is weak, need to check all emails
-            User.findOne({
-                email: profile.emails[0].value
-            }, function (err, user) {
-                // Return on error
-                if (err) {
-                    return done(err);
-                }
-                // If the user found, let's log that puppy in
-                if (user) {
-                    return done(null, false, {
-                        message: 'Facebook login failed, email already used by other login strategy'
+            var multipleStrategyUser = null;
+            // Check for users this email, different strategy. Then create or log the user in
+            return async.series([function (callback) {
+                // If this strategy returns email, search by email. If not, such as Twitter, SORRY
+                if (_.has(profile, 'emails')) {
+                    // Find the user based on the first email returned
+                    // @todo This is weak, need to check all emails
+                    User.findOne({
+                        email: profile.emails[0].value
+                    }, function (err, user) {
+                        // Return on error
+                        if (err) {
+                            return callback('Error on finding user by email');
+                        }
+                        // If a user was found using a different login strategy
+                        if (user) {
+                            // Add this login strategy to this user's account
+                            user[loginStrategy] = profile;
+                            user.save(function (err) {
+                                if (err) {
+                                    return callback(new Error(err));
+                                }
+                                return callback(null, user);
+                            });
+                        } else {
+                            return callback();
+                        }
                     });
+                } else {
+                    return callback();
                 }
-            });
-            // If we've made it this far, go ahead and create the user
-            user = new User({
-                name: profile.displayName,
-                email: profile.emails[0].value,
-                username: profile.username || profile.emails[0].value.split('@')[0],
-                provider: 'facebook',
-                facebook: profile._json,
-                roles: ['authenticated']
-            });
-            // Create a team for this user
-            var team = new Team({
-                name: user.name + '\'s Team'
-            });
-            // Save the team
-            team.save(function (err) {
-                if (err) {
-                    return res.status(400).send(errors[0].msg);
+            }, function (callback) {
+                if (multipleStrategyUser) {
+                    return callback(null, multipleStrategyUser);
                 }
-                // Add user to team
-                user.teams.push(team._id);
-                // Save the user
-                user.save(function (err) {
-                    if (err) {
-                        // Done from passport takes three parameters: error, false for failure, something truthy for
-                        // success, and finally, object with info
-                        return done(null, false,
-                        {message: 'Facebook login failed, email already used by other login strategy'});
-                    } else {
-                        return done(err, user);
-                    }
+                // If we've made it this far, go ahead and create the user
+                var userObj = {
+                    name: profile.displayName,
+                    provider: loginStrategy,
+                    roles: ['authenticated']
+                };
+                // Add the details from the login strategy return
+                userObj[loginStrategy] = profile._json;
+                // Add email if this login strategy has it
+                if (_.has(profile, 'emails')) {
+                    userObj.email = profile.emails[0].value;
+                } else {
+                    // Handling twitter's dumb ass
+                    userObj.email = profile.id + '@twitter.com';
+                }
+                user = new User(userObj);
+                // Create a team for this user
+                var team = new Team({
+                    name: user.name + '\'s Team'
                 });
+                // Save the team
+                team.save(function (err) {
+                    if (err) {
+                        return callback(new Error(err));
+                    }
+                    // Add user to team
+                    user.teams.push(team._id);
+                    // Save the user
+                    user.save(function (err) {
+                        if (err) {
+                            // Done from passport takes three parameters: error, false for failure, something truthy for
+                            // success, and finally, object with info
+                            return callback(new Error(err));
+                        } else {
+                            return callback(null, user);
+                        }
+                    });
+                });
+            }],
+            // Log the user in, if one was found
+            function (err, user) {
+                if (err) {
+                    return done(null, false, {
+                        message: loginStrategy + ' login failed, email already used by other login strategy'}
+                    );
+                }
+                return done(err, user[1]);
             });
         });
+    };
+
+    // Use facebook strategy
+    passport.use(new FacebookStrategy({
+        clientID: config.facebook.clientID,
+        clientSecret: config.facebook.clientSecret,
+        callbackURL: config.facebook.callbackURL
+    }, function (accessToken, refreshToken, profile, done) {
+        ssoAuth(profile, 'facebook', done);
     }));
 
     // Use github strategy
@@ -192,30 +218,7 @@ module.exports = function (passport) {
         clientSecret: config.google.clientSecret,
         callbackURL: config.google.callbackURL
     }, function (accessToken, refreshToken, profile, done) {
-        User.findOne({
-            'google.id': profile.id
-        }, function (err, user) {
-            if (user) {
-                return done(err, user);
-            }
-            user = new User({
-                name: profile.displayName,
-                email: profile.emails[0].value,
-                username: profile.emails[0].value,
-                provider: 'google',
-                google: profile._json,
-                roles: ['authenticated']
-            });
-            user.save(function (err) {
-                if (err) {
-                    console.log(err);
-                    return done(null, false,
-                    {message: 'Google login failed, email already used by other login strategy'});
-                } else {
-                    return done(err, user);
-                }
-            });
-        });
+        return ssoAuth(profile, 'google', done);
     }));
 
     // use linkedin strategy

@@ -8,9 +8,6 @@ app.directive('userDropdown', [function () {
         restrict: 'E',
         controller: 'HeaderController',
         controllerAs: 'headerCtrl',
-        scope: {
-
-        },
         link: function (scope, element, attrs, controller) {
 
         }

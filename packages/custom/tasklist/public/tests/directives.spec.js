@@ -3,7 +3,7 @@ describe('directive: tasklist', function () {
     beforeEach(function () {
         module('mean');
         module('mean.system');
-        module("mean.templates");
+        module('mean.templates');
         module('mean.tasklist', function ($provide) {
             $provide.factory('TasklistService', MockTasklistService);
             $provide.factory('TasklistSocketService', SocketMock);

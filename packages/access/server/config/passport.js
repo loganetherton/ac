@@ -63,6 +63,94 @@ module.exports = function (passport) {
         return ssoAuth(profile, 'twitter', done);
     }));
 
+    var multipleStrategyUser = null,
+        loginStrategy;
+
+    /**
+     * If a user with this email has logged on before using another method, add this SSO id and log the user in
+     * @param callback
+     * @returns {*}
+     */
+    var checkMultipleSsoMethods = function (callback) {
+        // If this strategy returns email, search by email. If not, such as Twitter, SORRY
+        if (_.has(profile, 'emails')) {
+            // Find the user based on the first email returned
+            // @todo This is weak, need to check all emails
+            User.findOne({
+                email: profile.emails[0].value
+            }, function (err, user) {
+                // Return on error
+                if (err) {
+                    return callback('Error on finding user by email');
+                }
+                // If a user was found using a different login strategy
+                if (user) {
+                    // Add this login strategy to this user's account
+                    user[loginStrategy] = profile;
+                    user.save(function (err) {
+                        if (err) {
+                            return callback(new Error(err));
+                        }
+                        return callback(null, user);
+                    });
+                } else {
+                    return callback();
+                }
+            });
+        } else {
+            return callback();
+        }
+    };
+
+    /**
+     * If a user was not found using the current SSO method or via email, then create a new user
+     * @param callback
+     * @returns {*}
+     */
+    var createNewUserSso = function (callback) {
+        if (multipleStrategyUser) {
+            return callback(null, multipleStrategyUser);
+        }
+        // If we've made it this far, go ahead and create the user
+        var userObj = {
+            name: profile.displayName,
+            provider: loginStrategy,
+            roles: ['authenticated']
+        };
+        // Add the details from the login strategy return
+        userObj[loginStrategy] = profile._json;
+        // Add email if this login strategy has it
+        if (_.has(profile, 'emails')) {
+            userObj.email = profile.emails[0].value;
+        } else {
+            // Handling twitter's dumb ass
+            userObj.email = profile.id + '@twitter.com';
+        }
+        user = new User(userObj);
+        // Create a team for this user
+        var team = new Team({
+            name: user.name + '\'s Team'
+        });
+        // Save the team
+        team.save(function (err) {
+            if (err) {
+                return callback(new Error(err));
+            }
+            // Add user to team
+            user.teams.push(team._id);
+            // Save the user
+            user.save(function (err) {
+                if (err) {
+                    // Done from passport takes three parameters: error, false for failure, something truthy for
+                    // success, and finally, object with info
+                    return callback(new Error(err));
+                } else {
+                    return callback(null, user);
+                }
+            });
+        });
+    };
+
     /**
      * Generalize SSO authorization function
      *
@@ -74,6 +162,7 @@ module.exports = function (passport) {
      */
     var ssoAuth = function (profile, loginStrategy, done) {
         var userSearch = {};
+        loginStrategy = loginStrategy;
         // Search by the login strategy id (some are strings, some are ints...)
         userSearch[loginStrategy + '.id'] = loginStrategy === 'twitter' ? parseInt(profile.id) : profile.id;
         return User.findOne(userSearch, function (err, user) {
@@ -85,80 +174,8 @@ module.exports = function (passport) {
             if (user) {
                 return done(err, user);
             }
-            var multipleStrategyUser = null;
             // Check for users this email, different strategy. Then create or log the user in
-            return async.series([function (callback) {
-                // If this strategy returns email, search by email. If not, such as Twitter, SORRY
-                if (_.has(profile, 'emails')) {
-                    // Find the user based on the first email returned
-                    // @todo This is weak, need to check all emails
-                    User.findOne({
-                        email: profile.emails[0].value
-                    }, function (err, user) {
-                        // Return on error
-                        if (err) {
-                            return callback('Error on finding user by email');
-                        }
-                        // If a user was found using a different login strategy
-                        if (user) {
-                            // Add this login strategy to this user's account
-                            user[loginStrategy] = profile;
-                            user.save(function (err) {
-                                if (err) {
-                                    return callback(new Error(err));
-                                }
-                                return callback(null, user);
-                            });
-                        } else {
-                            return callback();
-                        }
-                    });
-                } else {
-                    return callback();
-                }
-            }, function (callback) {
-                if (multipleStrategyUser) {
-                    return callback(null, multipleStrategyUser);
-                }
-                // If we've made it this far, go ahead and create the user
-                var userObj = {
-                    name: profile.displayName,
-                    provider: loginStrategy,
-                    roles: ['authenticated']
-                };
-                // Add the details from the login strategy return
-                userObj[loginStrategy] = profile._json;
-                // Add email if this login strategy has it
-                if (_.has(profile, 'emails')) {
-                    userObj.email = profile.emails[0].value;
-                } else {
-                    // Handling twitter's dumb ass
-                    userObj.email = profile.id + '@twitter.com';
-                }
-                user = new User(userObj);
-                // Create a team for this user
-                var team = new Team({
-                    name: user.name + '\'s Team'
-                });
-                // Save the team
-                team.save(function (err) {
-                    if (err) {
-                        return callback(new Error(err));
-                    }
-                    // Add user to team
-                    user.teams.push(team._id);
-                    // Save the user
-                    user.save(function (err) {
-                        if (err) {
-                            // Done from passport takes three parameters: error, false for failure, something truthy for
-                            // success, and finally, object with info
-                            return callback(new Error(err));
-                        } else {
-                            return callback(null, user);
-                        }
-                    });
-                });
-            }],
+            return async.series([checkMultipleSsoMethods, createNewUserSso],
             // Log the user in, if one was found
             function (err, user) {
                 if (err) {

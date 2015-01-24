@@ -64,7 +64,7 @@ module.exports = function (passport) {
     }));
 
     var multipleStrategyUser = null,
-        loginStrategy;
+        loginStrategy, profile, user;
 
     /**
      * If a user with this email has logged on before using another method, add this SSO id and log the user in
@@ -163,6 +163,7 @@ module.exports = function (passport) {
     var ssoAuth = function (profile, loginStrategy, done) {
         var userSearch = {};
         loginStrategy = loginStrategy;
+        profile = profile;
         // Search by the login strategy id (some are strings, some are ints...)
         userSearch[loginStrategy + '.id'] = loginStrategy === 'twitter' ? parseInt(profile.id) : profile.id;
         return User.findOne(userSearch, function (err, user) {

@@ -1,12 +1,17 @@
 'use strict';
 
+/**
+ * Changes ignored using git update-index --assume-unchanged
+ * https://coderwall.com/p/aoowpg/prevent-sensitive-data-credentials-being-committed
+ */
+
 var path = require('path'),
   rootPath = path.normalize(__dirname + '/../..');
 
 module.exports = {
   root: rootPath,
   http: {
-    port: process.env.PORT || 3000
+    port: 3000
   },
   https: {
     port: false,

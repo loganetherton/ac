@@ -2,9 +2,11 @@ var should = require('should'),
     mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Task = mongoose.model('Task'),
+    Team = mongoose.model('Team'),
     q = require('q');
 
-var user, task;
+var user, task, team;
+var deferred;
 
 /**
  * Clear the tasks collection
@@ -35,6 +37,21 @@ var removeUsers = function () {
         }
     });
     deferred.resolve('tasks cleared');
+    return deferred.promise;
+};
+
+/**
+ * Remove any teams currently in the DB
+ * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
+ */
+var removeTeams = function () {
+    var deferred = q.defer();
+    Team.remove({}, function (err) {
+        if (err) {
+            deferred.reject('Could not clear teams collection');
+        }
+    });
+    deferred.resolve('teams cleared');
     return deferred.promise;
 };
 
@@ -106,38 +123,38 @@ var createTask = exports.createTask = function (taskCount, thisUser) {
 };
 
 /**
+ * Clear the users collection and create a test user
+ *
+ * @returns {Promise.promise|*}
+ */
+var initUsers = function () {
+    var deferred = q.defer();
+    // Create a user
+    user = new User({
+        name: 'Full name',
+        email: 'test@test.com',
+        password: 'password',
+        teams: [mongoose.Types.ObjectId()]
+    });
+    /**
+     * Clear the collection
+     */
+    user.save(function (err) {
+        if (err) {
+            deferred.reject('Could not save user');
+        }
+        deferred.resolve('Saved user');
+    });
+    return deferred.promise;
+};
+
+/**
  * Ensures that only a single user and task exist in the database
  *
  * @param done
  */
 exports.createUserAndTask = function (done) {
-    var deferred = q.defer();
-    /**
-     * Clear the users collection and create a test user
-     *
-     * @returns {Promise.promise|*}
-     */
-    var initUsers = function () {
-        var deferred = q.defer();
-        // Create a user
-        user = new User({
-            name: 'Full name',
-            email: 'test@test.com',
-            password: 'password',
-            teams: [mongoose.Types.ObjectId()]
-        });
-        /**
-         * Clear the collection
-         */
-        user.save(function (err) {
-            if (err) {
-                deferred.reject('Could not save user');
-            }
-            deferred.resolve('Saved user');
-        });
-        return deferred.promise;
-    };
-
+    deferred = q.defer();
     removeUsersAndTasks().then(function () {
         /**
          * Create user and task
@@ -146,6 +163,72 @@ exports.createUserAndTask = function (done) {
             deferred.resolve({
                 user: user,
                 task: task
+            });
+            if (typeof done === 'function') {
+                done();
+            }
+        }).fail(function (err) {
+            console.log(err);
+            should.not.exist(err);
+        });
+    });
+    return deferred.promise;
+};
+
+/**
+ * Create a team and place the test user into it
+ * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
+ */
+var createTeam = function () {
+    var deferred = q.defer();
+
+    // Create a user
+    team = new Team({
+        name: user.name + '\'s team'
+    });
+    /**
+     * Clear the collection
+     */
+    team.save(function (err) {
+        if (err) {
+            deferred.reject('Could not save user');
+        }
+        // Save the team
+        team.save(function (err) {
+            if (err) {
+                return callback(new Error(err));
+            }
+            // Add user to team
+            user.teams.push(team._id);
+            // Save the user
+            user.save(function (err) {
+                if (err) {
+                    // Done from passport takes three parameters: error, false for failure, something truthy for
+                    // success, and finally, object with info
+                    deferred.reject('Could not save team');
+                }
+                deferred.resolve('Saved team');
+            });
+        });
+    });
+    return deferred.promise;
+};
+
+/**
+ * Ensures that only a single user and task exist in the database
+ *
+ * @param done
+ */
+exports.createUserAndTeam = function (done) {
+    deferred = q.defer();
+    removeUsersAndTeams().then(function () {
+        /**
+         * Create user and task
+         */
+        q.all([initUsers(), createTeam()]).then(function () {
+            deferred.resolve({
+                user: user,
+                team: team
             });
             if (typeof done === 'function') {
                 done();
@@ -173,3 +256,28 @@ var removeUsersAndTasks = exports.removeUsersAndTasks = function (done) {
     return deferred.promise;
 };
 
+/**
+ * Cleanup the user and task
+ * @param done
+ */
+var removeUsersAndTeams = exports.removeUsersAndTeams = function (done) {
+    var deferred = q.defer();
+    q.all(removeUsers(), removeTeams()).then(function () {
+        deferred.resolve();
+        if (typeof done !== 'undefined') {
+            done();
+        }
+    });
+    return deferred.promise;
+};
+
+/**
+ * Create a fake Object ID for testing
+ * @type {Function}
+ */
+var createFakeObjectId = exports.createFakeObjectId = function () {
+    var possible = 'abcdef0123456789';
+    return Array.apply(null, Array(24)).map(function () {
+        return possible.charAt(Math.floor(Math.random() * possible.length));
+    }).join('');
+};

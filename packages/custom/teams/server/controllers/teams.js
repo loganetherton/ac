@@ -3,6 +3,8 @@
 var mongoose = require('mongoose'),
     Team = mongoose.model('Team');
 
+var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
+
 //exports.create = function(req, res) {
 //
 //    //User.where({teams: '547553c75de542cb3a5252ce'}).count(function (err, count) {
@@ -95,10 +97,29 @@ exports.getTeamById = function(req, res, next) {
     if (!req.params.hasOwnProperty('teamId')) {
         return next(new Error('A user ID must be passed in to this query'));
     }
-    Team.getById(req.params.teamId, function (err, task) {
+    // Make sure a valid object ID was passed in
+    if (!serverCtrlHelpers.checkValidObjectId(req.params.teamId)) {
+        return res.status(400).send('Invalid object ID');
+    }
+    // Make sure the user is on the team that is being requested
+    if (req.user.teams.indexOf(req.params.teamId) === -1) {
+        return res.status(401).send('Users can only request information on teams to which they belong');
+    }
+    // If all is good, return info on the team
+    Team.getById(req.params.teamId, function (err, team) {
         if (err) {
             return next(err);
         }
-        return res.json(task);
+        return res.json(team);
     });
+};
+
+/**
+ * Invite a new user to a team
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.inviteToTeam = function (req, res, next) {
+
 };

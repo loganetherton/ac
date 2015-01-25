@@ -160,10 +160,10 @@ module.exports = function (passport) {
      * @param loginStrategy
      * @param done
      */
-    var ssoAuth = function (profile, loginStrategy, done) {
+    var ssoAuth = function (thisProfile, loginStrategy, done) {
         var userSearch = {};
         loginStrategy = loginStrategy;
-        profile = profile;
+        profile = thisProfile;
         // Search by the login strategy id (some are strings, some are ints...)
         userSearch[loginStrategy + '.id'] = loginStrategy === 'twitter' ? parseInt(profile.id) : profile.id;
         return User.findOne(userSearch, function (err, user) {

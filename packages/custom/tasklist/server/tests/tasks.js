@@ -112,7 +112,7 @@ describe('Task model', function () {
     });
 
     afterEach(function (done) {
-        userTaskHelper.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks(done);
     });
 });
 

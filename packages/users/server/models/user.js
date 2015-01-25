@@ -102,6 +102,16 @@ UserSchema.pre('save', function (next) {
 });
 
 /**
+ * Statics
+ */
+// Find user by email
+UserSchema.statics.findByEmail = function (email, cb) {
+    this.findOne({
+        email: email
+    }).exec(cb);
+};
+
+/**
  * Methods
  */
 UserSchema.methods = {

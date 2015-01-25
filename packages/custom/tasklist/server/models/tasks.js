@@ -96,7 +96,7 @@ TaskSchema.virtual('dependencies_string').get(function () {
 /**
  * Statics
  */
-    // Query task by ID
+// Query task by ID
 TaskSchema.statics.load = function (id, cb) {
     this.findOne({
         _id: id

@@ -112,7 +112,7 @@ describe('Team model', function () {
     });
 });
 
-describe('POST /team/:teamId', function () {
+describe('GET /team/:teamId', function () {
     // Create user and task only once
     before(function (done) {
         userTaskHelper.createUserAndTeam(done).then(function (userTask) {
@@ -190,7 +190,9 @@ describe('POST /team/:teamId', function () {
     });
 });
 
-describe('Invite to a team', function () {
+var secondUser;
+
+describe('POST /inviteToTeam', function () {
     // Create user and task only once
     before(function (done) {
         userTaskHelper.createUserAndTask(done).then(function (userTask) {
@@ -198,15 +200,17 @@ describe('Invite to a team', function () {
             task = userTask['task'];
         });
     });
+
+    before(function (done) {
+        secondUser = userTaskHelper.createOtherUser(done);
+    });
     // Remove user and task at the end
     after(function (done) {
-        // Need to make these async and call done
-        user.remove();
-        task.remove();
+        userTaskHelper.removeUsersAndTasks(done);
         done();
     });
 
-    describe('POST /inviteToTeam', function () {
+    describe('Unauthenticated', function () {
         it('should deny unauthenticated requests to /inviteToTeam', function (done) {
             server
             .post('/inviteToTeam')
@@ -216,6 +220,112 @@ describe('Invite to a team', function () {
                     return done(err);
                 }
                 res.status.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    describe('Authenticated', function () {
+        before(function (done) {
+            loginUser(server, 'test@test.com', 'password', done);
+        });
+
+        it('should deny requests which do not have a team ID passed in', function (done) {
+            server
+            .post('/inviteToTeam')
+            .send({})
+            .expect(400)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(400);
+                done();
+            });
+        });
+
+        it('should deny requests that do not have an email address', function (done) {
+            server
+            .post('/inviteToTeam')
+            .send({teamId: user.teams[0]})
+            .expect(400)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(400);
+                done();
+            });
+        });
+
+        it('should deny requests for teams to which the user does not belong', function (done) {
+            server
+            .post('/inviteToTeam')
+            .send({teamId: userTaskHelper.createFakeObjectId(), email: 'fake@fake.com'})
+            .expect(401)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(401);
+                done();
+            });
+        });
+
+        it('should deny requests for invalid emails', function (done) {
+            server
+            .post('/inviteToTeam')
+            .send({teamId: user.teams[0], email: 'NOTANEMAIL'})
+            .expect(400)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(400);
+                done();
+            });
+        });
+
+        it('should deny requests to invite yourself', function (done) {
+            server
+            .post('/inviteToTeam')
+            .send({teamId: user.teams[0], email: user.email})
+            .expect(400)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(400);
+                done();
+            });
+        });
+
+        it('should invite users who have an account to join this team', function (done) {
+            server
+            .post('/inviteToTeam')
+            .send({teamId: user.teams[0], email: secondUser.email})
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(200);
+                res.text.should.equal('Existing user invited to team');
+                done();
+            });
+        });
+
+        it('should invite users who do not have an account to join this team', function (done) {
+            server
+            .post('/inviteToTeam')
+            .send({teamId: user.teams[0], email: 'newguy@test.com'})
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                res.status.should.equal(200);
+                res.text.should.equal('New user invited to team');
                 done();
             });
         });

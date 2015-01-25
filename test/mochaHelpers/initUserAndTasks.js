@@ -63,17 +63,26 @@ exports.createOtherUser = function (done) {
     user = new User({
         name: 'Full name',
         email: 'test2@test.com',
-        password: 'password',
-        teams: [mongoose.Types.ObjectId()]
+        password: 'password'
     });
-    /**
-     * Clear the collection
-     */
-    user.save(function (err) {
+    // Create a team for this user
+    team = new Team({
+        name: user.name + '\'s team'
+    });
+    // Save the team
+    team.save(function (err) {
         if (err) {
-            throw new Error('Could not create other user');
+            new Error('Could not save team');
         }
-        done();
+        // Add user to team
+        user.teams.push(team._id);
+        // Save the user
+        user.save(function (err) {
+            if (err) {
+                new Error('Could not save user');
+            }
+            done();
+        });
     });
     return user;
 };
@@ -217,7 +226,7 @@ exports.createUserAndTeam = function (done) {
 };
 
 /**
- * Cleanup the user and task
+ * Remove all users and tasks from DB
  * @param done
  */
 var removeUsersAndTasks = exports.removeUsersAndTasks = function (done) {

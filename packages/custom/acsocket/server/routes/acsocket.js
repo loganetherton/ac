@@ -11,7 +11,7 @@ module.exports = function(Acsocket, io) {
 
     // Connection to socket
     io.on('connection', function (socket) {
-        console.log('User connected to socket');
+        console.log('User connected to socket without a room');
 
         // Socket disconnect
         socket.on('disconnect', function () {

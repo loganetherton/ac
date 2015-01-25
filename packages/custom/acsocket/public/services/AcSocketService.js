@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('mean.acsocket').factory('AcSocketService', ['$rootScope', function ($rootScope) {
-    var socket = io.connect('http://' + document.location.hostname + ':3000/');
+    var socket = io.connect('http://' + document.location.hostname + '/');
     return {
         getSocket: function () {
             return socket;

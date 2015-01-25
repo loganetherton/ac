@@ -176,10 +176,7 @@ describe('POST /team/:teamId', function () {
 
         it('should allow users to retrieve information on their own teams', function (done) {
             server
-            // @todo Don't be an idiot
-            // I have to call team[1] because I wrote the helper scripts in a shitty way that required
-            // that I add the team manually. Need to revise, duh.
-            .get('/team/' + user.teams[1])
+            .get('/team/' + user.teams[0])
             .expect(200)
             .end(function (err, res) {
                 if (err) {

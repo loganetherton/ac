@@ -1,4 +1,4 @@
-ddescribe('Header directives', function () {
+describe('Header directives', function () {
     var scope, element;
     beforeEach(function () {
         module('mean');

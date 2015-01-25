@@ -93,6 +93,7 @@ var createTask = exports.createTask = function (taskCount, thisUser) {
         if (typeof thisUser !== 'undefined') {
             user = thisUser;
         }
+        // Create task
         task = new Task({
             title: taskTitle,
             content: taskContent,
@@ -129,21 +130,30 @@ var createTask = exports.createTask = function (taskCount, thisUser) {
  */
 var initUsers = function () {
     var deferred = q.defer();
-    // Create a user
+    // Create user
     user = new User({
         name: 'Full name',
         email: 'test@test.com',
-        password: 'password',
-        teams: [mongoose.Types.ObjectId()]
+        password: 'password'
     });
-    /**
-     * Clear the collection
-     */
-    user.save(function (err) {
+    // Create a team for this user
+    team = new Team({
+        name: user.name + '\'s team'
+    });
+    // Save the team
+    team.save(function (err) {
         if (err) {
-            deferred.reject('Could not save user');
+            deferred.reject('Could not save team');
         }
-        deferred.resolve('Saved user');
+        // Add user to team
+        user.teams.push(team._id);
+        // Save the user
+        user.save(function (err) {
+            if (err) {
+                deferred.reject('Could not save user');
+            }
+            deferred.resolve('Saved user');
+        });
     });
     return deferred.promise;
 };
@@ -159,7 +169,11 @@ exports.createUserAndTask = function (done) {
         /**
          * Create user and task
          */
-        q.all([initUsers(), createTask()]).then(function () {
+        var init = initUsers().then(function () {
+            return createTask();
+        });
+        init.then(function () {
+            // Send back the user and task
             deferred.resolve({
                 user: user,
                 task: task
@@ -167,48 +181,9 @@ exports.createUserAndTask = function (done) {
             if (typeof done === 'function') {
                 done();
             }
-        }).fail(function (err) {
+        }, function (err) {
             console.log(err);
             should.not.exist(err);
-        });
-    });
-    return deferred.promise;
-};
-
-/**
- * Create a team and place the test user into it
- * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
- */
-var createTeam = function () {
-    var deferred = q.defer();
-
-    // Create a user
-    team = new Team({
-        name: user.name + '\'s team'
-    });
-    /**
-     * Clear the collection
-     */
-    team.save(function (err) {
-        if (err) {
-            deferred.reject('Could not save user');
-        }
-        // Save the team
-        team.save(function (err) {
-            if (err) {
-                return callback(new Error(err));
-            }
-            // Add user to team
-            user.teams.push(team._id);
-            // Save the user
-            user.save(function (err) {
-                if (err) {
-                    // Done from passport takes three parameters: error, false for failure, something truthy for
-                    // success, and finally, object with info
-                    deferred.reject('Could not save team');
-                }
-                deferred.resolve('Saved team');
-            });
         });
     });
     return deferred.promise;
@@ -225,7 +200,7 @@ exports.createUserAndTeam = function (done) {
         /**
          * Create user and task
          */
-        q.all([initUsers(), createTeam()]).then(function () {
+        initUsers().then(function () {
             deferred.resolve({
                 user: user,
                 team: team
@@ -275,7 +250,7 @@ var removeUsersAndTeams = exports.removeUsersAndTeams = function (done) {
  * Create a fake Object ID for testing
  * @type {Function}
  */
-var createFakeObjectId = exports.createFakeObjectId = function () {
+exports.createFakeObjectId = function () {
     var possible = 'abcdef0123456789';
     return Array.apply(null, Array(24)).map(function () {
         return possible.charAt(Math.floor(Math.random() * possible.length));

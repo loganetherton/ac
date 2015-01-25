@@ -18,6 +18,7 @@ describe('navigation menu', function () {
 
     describe('logged out', function () {
         it('should be hidden when logged out', function () {
+            browser.get('/logout');
             browser.get('/#!/auth/login');
             expect($('#nav-container').isDisplayed()).toBeFalsy();
         });
@@ -37,7 +38,7 @@ describe('navigation menu', function () {
                     elementCount++;
                 });
             }).then(function () {
-                expect(elementCount).toBe(4);
+                expect(elementCount).toBe(5);
             });
         });
 
@@ -59,8 +60,14 @@ describe('navigation menu', function () {
             });
         });
 
-        it('should have create tasks as a menu item', function () {
+        it('should have team as a menu item', function () {
             navigationMenuItems.get(3).getText().then(function (text) {
+                expect(text).toBe('Team');
+            });
+        });
+
+        it('should have create tasks as a menu item', function () {
+            navigationMenuItems.get(4).getText().then(function (text) {
                 expect(text).toBe('Create tasks');
             });
         });

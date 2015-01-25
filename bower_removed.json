@@ -1,0 +1,19 @@
+{
+  "name": "mean",
+  "version": "0.4.0",
+  "dependencies": {
+    "flot": "~0.8.3",
+    "flot.orderbars": "*",
+    "flot.tooltip": "~0.8.4",
+    "pace": "~1.0.2",
+    "raphael": "~2.1.2",
+    "morris.js": "~0.5.1",
+    "dygraphs": "~1.0.1"
+  },
+  "devDependencies": {
+    "angular-mocks": "latest",
+    "angular-scenario": "latest",
+    "responsive-tables": "*",
+    "bootstrap-sass-official": "~3.3.0"
+  }
+}

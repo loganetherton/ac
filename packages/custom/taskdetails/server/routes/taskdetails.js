@@ -10,6 +10,9 @@ module.exports = function(Taskdetails, app, auth, database) {
     post(taskDetails.updateTask).
     get(taskDetails.singleTaskAsJson);
 
+    app.route('/checkValidObjectId').
+    post(taskDetails.checkValidObjectId);
+
     // Connection to socket
     Taskdetails.io.of('/task').on('connection', function (socket) {
         //console.log('teams in taskdetails');

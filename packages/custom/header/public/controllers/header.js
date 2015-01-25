@@ -9,6 +9,10 @@ angular.module('mean.header').controller('HeaderController',
 
     // Update authenticated value
     $rootScope.$on('loggedin', function () {
-        vm.user = User.getIdentity();
+        User.refreshIdentity().then(function (user) {
+            vm.user = user;
+        }, function (error) {
+            // @todo Error handling
+        });
     });
 }]);

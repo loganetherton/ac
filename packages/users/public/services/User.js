@@ -6,7 +6,7 @@ var app = angular.module('mean.users');
  * I'm going to leave identity as a private property, accessible only via the
  * fake getter and setter functions to maintain object integrity
  */
-app.factory('User', ['$rootScope', '$state', function ($rootScope, $state) {
+app.factory('User', ['$rootScope', '$state', '$http', '$q', function ($rootScope, $state, $http, $q) {
     // Initialize the user identity on service creation
     var _identity = window.user;
     _identity.authenticated = false;
@@ -32,6 +32,16 @@ app.factory('User', ['$rootScope', '$state', function ($rootScope, $state) {
         },
         getIdentity: function () {
             return _identity;
+        },
+        refreshIdentity: function () {
+            var deferred = $q.defer();
+            $http.get('/users/me').then(function (user) {
+                _identity = user.data;
+                deferred.resolve(_identity);
+            }, function (error) {
+                console.log(error);
+            });
+            return deferred.promise;
         },
         setIdentity: function (user) {
             // Make accessible to rootScope (this will eventually be removed)

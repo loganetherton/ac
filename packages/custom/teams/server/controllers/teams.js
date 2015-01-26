@@ -97,7 +97,7 @@ var serverCtrlHelpers = require('../../../../system/server/controllers/helpers')
  * @returns {boolean}
  */
 var checkUserOnThisTeam = function (userTeams, teamId) {
-    return userTeams.indexOf(teamId) !== -1
+    return userTeams.indexOf(teamId) !== -1;
 };
 
 /**

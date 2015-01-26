@@ -12,7 +12,7 @@ var mongoose = require('mongoose'),
     Team = mongoose.model('Team'),
     _ = require('lodash'),
     async = require('async');
-
+// Test
 module.exports = function (passport) {
 
     // Serialize the user id to push into the session

@@ -13,4 +13,4 @@ before_script:
   - 'npm install'
   - 'bower install'
 
-script: grunt test
+script: "grunt test"

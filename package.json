@@ -37,7 +37,7 @@
   },
   "scripts": {
     "start": "node node_modules/grunt-cli/bin/grunt",
-    "test": "node node_modules/grunt-cli/bin/grunt test && node node_modules/grunt-cli/bin/grunt test",
+    "test": "node node_modules/grunt-cli/bin/grunt mocha && node node_modules/grunt-cli/bin/grunt karma",
     "postinstall": "node node_modules/meanio/bin/mean-postinstall"
   },
   "dependencies": {

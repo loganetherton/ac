@@ -72,6 +72,8 @@ module.exports = function (passport) {
      * @returns {*}
      */
     var checkMultipleSsoMethods = function (callback) {
+        console.log('**************PROFILE IN CHECKMULTIPLESSOMETHODS**********');
+        console.log(profile);
         // If this strategy returns email, search by email. If not, such as Twitter, SORRY
         if (_.has(profile, 'emails')) {
             // Find the user based on the first email returned
@@ -81,14 +83,20 @@ module.exports = function (passport) {
             }, function (err, user) {
                 // Return on error
                 if (err) {
+                    console.log('**************ERR IN USER FIND IN MULTI SSO METHODS**********');
+                    console.log(err);
                     return callback('Error on finding user by email');
                 }
+                console.log('**************USER FOUDN IN MULTI SSO METHODS**********');
+                console.log(user);
                 // If a user was found using a different login strategy
                 if (user) {
                     // Add this login strategy to this user's account
                     user[loginStrategy] = profile;
                     user.save(function (err) {
                         if (err) {
+                            console.log('**************ERROR IN SAVING USER IN MULTI SSO METHODS**********');
+                            console.log(err);
                             return callback(new Error(err));
                         }
                         return callback(null, user);
@@ -108,6 +116,8 @@ module.exports = function (passport) {
      * @returns {*}
      */
     var createNewUserSso = function (callback) {
+        console.log('**************MULTIPLE STRATEGY USER IN CREATE NEW USER SSO**********');
+        console.log(multipleStrategyUser);
         if (multipleStrategyUser) {
             return callback(null, multipleStrategyUser);
         }
@@ -134,6 +144,8 @@ module.exports = function (passport) {
         // Save the team
         team.save(function (err) {
             if (err) {
+                console.log('**************ERROR SAVING TEAM IN CREATENEWUSERSSO**********');
+                console.log(err);
                 return callback(new Error(err));
             }
             // Add user to team
@@ -141,10 +153,14 @@ module.exports = function (passport) {
             // Save the user
             user.save(function (err) {
                 if (err) {
+                    console.log('**************ERR SAVING USER IN CREATENEWUSERSSO**********');
+                    console.log(err);
                     // Done from passport takes three parameters: error, false for failure, something truthy for
                     // success, and finally, object with info
                     return callback(new Error(err));
                 } else {
+                    console.log('**************USER AT END OF CREATENEWUSERSSO**********');
+                    console.log(user);
                     return callback(null, user);
                 }
             });
@@ -156,7 +172,7 @@ module.exports = function (passport) {
      *
      * @todo REFACTOR ME
      *
-     * @param profile
+     * @param thisProfile
      * @param loginStrategy
      * @param done
      */
@@ -169,10 +185,14 @@ module.exports = function (passport) {
         return User.findOne(userSearch, function (err, user) {
             // Return on error
             if (err) {
+                console.log('**************ERROR IN USER FIND ONE IN SSOAUTH**********');
+                console.log(err);
                 return done(err);
             }
             // If the user found, let's log that puppy in
             if (user) {
+                console.log('**************USER FOUDN**********');
+                console.log(user);
                 return done(err, user);
             }
             // Check for users this email, different strategy. Then create or log the user in
@@ -180,10 +200,14 @@ module.exports = function (passport) {
             // Log the user in, if one was found
             function (err, user) {
                 if (err) {
+                    console.log('**************ERROR AFTER ASYNC SERIES**********');
+                    console.log(err);
                     return done(null, false, {
                         message: loginStrategy + ' login failed, email already used by other login strategy'}
                     );
                 }
+                console.log('**************USER AT END**********');
+                console.log(user);
                 return done(err, user[1]);
             });
         });

@@ -13,4 +13,5 @@ before_script:
   - 'npm install'
   - 'bower install'
 
-script: "grunt test"
+# Until I can get things moved for protractor to work in Firefox
+script: "grunt mocha && grunt karma"

@@ -13,9 +13,11 @@ before_script:
   - 'npm install'
   - 'bower install'
 
-# Disable emails for now
 notifications:
-  email: false
+  email:
+    recipients:
+      - loganetherton@gmail.com
+    on_failure: change # default: always
 
 # Until I can get things moved for protractor to work in Firefox
 script: "grunt mocha && grunt karma"

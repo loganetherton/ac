@@ -3,6 +3,7 @@ var should = require('should'),
     User = mongoose.model('User'),
     Task = mongoose.model('Task'),
     Team = mongoose.model('Team'),
+    Invite = mongoose.model('Invite'),
     q = require('q');
 
 var user, task, team;
@@ -256,12 +257,43 @@ var removeUsersAndTeams = exports.removeUsersAndTeams = function (done) {
 };
 
 /**
+ * Clear the database of invites
+ * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
+ */
+exports.removeInvites = function () {
+    var deferred = q.defer();
+    Invite.remove({}, function (err) {
+        if (err) {
+            deferred.reject();
+        }
+        deferred.resolve();
+    });
+    return deferred.promise;
+};
+
+/**
+ * Create a random string for invites or fake object IDs
+ * @param length
+ * @returns {*|Socket|string}
+ */
+var createString = function (length) {
+    var possible = 'abcdef0123456789';
+    return Array.apply(null, Array(length)).map(function () {
+        return possible.charAt(Math.floor(Math.random() * possible.length));
+    }).join('');
+};
+
+/**
  * Create a fake Object ID for testing
  * @type {Function}
  */
 exports.createFakeObjectId = function () {
-    var possible = 'abcdef0123456789';
-    return Array.apply(null, Array(24)).map(function () {
-        return possible.charAt(Math.floor(Math.random() * possible.length));
-    }).join('');
+    return createString(24);
+};
+
+/**
+ * Create an invite string
+ */
+exports.createInviteString = function () {
+    return createString(45);
 };

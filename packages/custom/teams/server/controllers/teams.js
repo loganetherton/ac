@@ -4,6 +4,7 @@
 var mongoose = require('mongoose'),
     Team = mongoose.model('Team'),
     User = mongoose.model('User'),
+    Invite = mongoose.model('Invite'),
     nodeMailer = require('nodemailer'),
     // For testing
     stubTransport = require('nodemailer-stub-transport'),
@@ -128,13 +129,35 @@ exports.getTeamById = function(req, res, next) {
 };
 
 /**
+ * Create invite
+ * @param inviterId
+ * @param inviteEmail
+ * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
+ */
+var createInvite = function (inviterId, inviteEmail) {
+    var deferred = q.defer();
+    var invite = new Invite({
+        inviter: inviterId,
+        inviteEmail: inviteEmail
+    });
+    invite.save(function (err, invite) {
+        if (err) {
+            deferred.reject('Could not create invitation');
+        }
+        deferred.resolve(invite);
+    });
+    return deferred.promise;
+};
+
+/**
  * Invite a user to join your team like you're some kind of superhero crime fighter or something
  * @param email
  * @param team
  * @param newUser
+ * @param invitingUser
  * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
  */
-var inviteUserToTeam = function (email, team, newUser) {
+var inviteUserToTeam = function (email, team, invitingUser, newUser) {
     var deferred = q.defer(),
         transport, transporter, mailOptions, body;
     // newUser default false
@@ -154,26 +177,31 @@ var inviteUserToTeam = function (email, team, newUser) {
     }
     // Find team for which this invitation pertains
     Team.getById(team, function (err, team) {
-        // Create body
-        body = '<p>You\'ve been invited to join ' + team.name + '</p>';
-        if (newUser) {
-            body = body + '\r\n<p>But first you have to sign up!</p>';
-        }
-        // Create transporter
-        transporter = nodeMailer.createTransport(transport);
-        // Set mail options
-        mailOptions = {
-            from: 'Logan Etherton <logan@loganswalk.com>',
-            to: email,
-            subject: 'Hello',
-            html: body
-        };
-        // send mail with defined transport object
-        transporter.sendMail(mailOptions, function(error, info){
-            if(error){
-                deferred.reject('Could not send email');
+        // Create invite
+        createInvite(email, invitingUser._id).then(function (response) {
+            // Create body
+            body = '<p>You\'ve been invited to join ' + team.name + '</p>';
+            if (newUser) {
+                body = body + '\r\n<p>But first you have to sign up!</p>';
             }
-            deferred.resolve('Message sent: ' + info.response);
+            // Create transporter
+            transporter = nodeMailer.createTransport(transport);
+            // Set mail options
+            mailOptions = {
+                from: 'Logan Etherton <logan@loganswalk.com>',
+                to: email,
+                subject: 'You\'ve been invited to join ' + invitingUser.name + '\'s team on DRY',
+                html: body
+            };
+            // Send mail with defined transport object
+            transporter.sendMail(mailOptions, function(error, info){
+                if(error){
+                    deferred.reject('Could not send email');
+                }
+                deferred.resolve('Message sent: ' + info.response);
+            });
+        }, function (err) {
+            // @todo Handle invitation creation errors
         });
     });
     return deferred.promise;
@@ -185,7 +213,7 @@ var inviteUserToTeam = function (email, team, newUser) {
  * @param teamId
  * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
  */
-var handleInvite = function (email, teamId) {
+var handleInvite = function (email, teamId, invitingUser) {
     var deferred = q.defer();
     // See if the requested user already has an account
     User.findByEmail(email, function (err, user) {
@@ -199,7 +227,7 @@ var handleInvite = function (email, teamId) {
                 deferred.resolve('This user is already on this team');
             }
             // Invite existing user
-            return inviteUserToTeam(user.email, teamId).then(function (response) {
+            return inviteUserToTeam(user.email, teamId, invitingUser).then(function (response) {
                 // Email send
                 deferred.resolve(response);
             }, function (error) {
@@ -208,8 +236,7 @@ var handleInvite = function (email, teamId) {
             });
         } else {
             // Send email to new user
-            // Invite existing user
-            return inviteUserToTeam(email, teamId, true).then(function (response) {
+            return inviteUserToTeam(email, teamId, invitingUser, true).then(function (response) {
                 // Email send
                 deferred.resolve(response);
             }, function (error) {
@@ -252,7 +279,7 @@ exports.inviteToTeam = function (req, res) {
         return res.status(400).send('You can\'t invite yourself, silly');
     }
     // Invite
-    return handleInvite(req.body.email, req.body.teamId).then(function (response) {
+    return handleInvite(req.body.email, req.body.teamId, req.user).then(function (response) {
         return res.status(200).send(response);
     }, function (error) {
         return res.status(400).send(error);

@@ -195,9 +195,13 @@ var secondUser;
 describe.only('POST /inviteToTeam', function () {
     // Create user and task only once
     before(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
-            user = userTask['user'];
-            task = userTask['task'];
+        // Remove invites
+        userTaskHelper.removeInvites().then(function () {
+            // Create a fake user and task
+            userTaskHelper.createUserAndTask(done).then(function (userTask) {
+                user = userTask['user'];
+                task = userTask['task'];
+            });
         });
     });
 

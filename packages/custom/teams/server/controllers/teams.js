@@ -179,6 +179,48 @@ var inviteUserToTeam = function (email, team, newUser) {
 };
 
 /**
+ * If all error checking has passed, send the actual invitation
+ * @param email
+ * @param teamId
+ * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
+ */
+var handleInvite = function (email, teamId) {
+    var deferred = q.defer();
+    // See if the requested user already has an account
+    User.findByEmail(email, function (err, user) {
+        if (err) {
+            return next(new Error('Could not query user by email'));
+        }
+        // If the requested user exists in DB, send message about invite to this team
+        if (user) {
+            // Make sure the user being invited isn't already on the team that's inviting them
+            if (checkUserOnThisTeam(user.teams, teamId)) {
+                return res.status(200).send('This user is already on this team');
+            }
+            // Invite existing user
+            return inviteUserToTeam(user.email, teamId).then(function (response) {
+                // Email send
+                deferred.resolve(response);
+            }, function (error) {
+                // Error
+                deferred.reject('Unable to send invite: ' + error);
+            });
+        } else {
+            // Send email to new user
+            // Invite existing user
+            return inviteUserToTeam(email, teamId, true).then(function (response) {
+                // Email send
+                deferred.resolve(response);
+            }, function (error) {
+                // Error
+                deferred.reject('Unable to send invite: ' + error);
+            });
+        }
+    });
+    return deferred.promise;
+};
+
+/**
  * Invite a new user to a team
  * @param req
  * @param res
@@ -208,35 +250,10 @@ exports.inviteToTeam = function (req, res, next) {
     if (req.body.email.toLowerCase() === req.user.email.toLowerCase()) {
         return res.status(400).send('You can\'t invite yourself, silly');
     }
-    // See if the requested user already has an account
-    User.findByEmail(req.body.email, function (err, user) {
-        if (err) {
-            return next(new Error('Could not query user by email'));
-        }
-        // If the requested user exists in DB, send message about invite to this team
-        if (user) {
-            // Make sure the user being invited isn't already on the team that's inviting them
-            if (checkUserOnThisTeam(user.teams, req.body.teamId)) {
-                return res.status(200).send('This user is already on this team');
-            }
-            // Invite existing user
-            inviteUserToTeam(user.email, req.body.teamId).then(function (response) {
-                // Email send
-                return res.status(200).send(response);
-            }, function (error) {
-                // Error
-                return res.status(400).send('Unable to send invite: ' + error);
-            });
-        } else {
-            // Send email to new user
-            // Invite existing user
-            inviteUserToTeam(req.body.email, req.body.teamId, true).then(function (response) {
-                // Email send
-                return res.status(200).send(response);
-            }, function (error) {
-                // Error
-                return res.status(400).send('Unable to send invite: ' + error);
-            });
-        }
+    // Invite
+    return handleInvite(req.body.email, req.body.teamId).then(function (response) {
+        return res.status(200).send(response);
+    }, function (error) {
+        return res.status(400).send(error);
     });
 };

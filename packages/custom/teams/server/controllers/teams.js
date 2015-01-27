@@ -226,7 +226,7 @@ var handleInvite = function (email, teamId) {
  * @param res
  * @param next
  */
-exports.inviteToTeam = function (req, res, next) {
+exports.inviteToTeam = function (req, res) {
     // Ensure a valid team
     if (!req.body.hasOwnProperty('teamId') || !serverCtrlHelpers.checkValidObjectId(req.body.teamId)) {
         return res.status(400).send('A valid team ID must be passed in to this query');

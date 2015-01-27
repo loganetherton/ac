@@ -196,7 +196,7 @@ var handleInvite = function (email, teamId) {
         if (user) {
             // Make sure the user being invited isn't already on the team that's inviting them
             if (checkUserOnThisTeam(user.teams, teamId)) {
-                return res.status(200).send('This user is already on this team');
+                deferred.resolve('This user is already on this team');
             }
             // Invite existing user
             return inviteUserToTeam(user.email, teamId).then(function (response) {

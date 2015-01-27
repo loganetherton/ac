@@ -339,7 +339,26 @@ describe.only('POST /inviteToTeam', function () {
         });
 
         it('should deny requests to users already on this team', function (done) {
-            done();
+            // Add second user to first user's team
+            secondUser.teams.push(user.teams[0]);
+            secondUser.save(function (err, secondUser) {
+                if (err) {
+                    return done(err);
+                }
+                server
+                .post('/inviteToTeam')
+                .send({teamId: user.teams[0], email: secondUser.email})
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        should.not.exist(err);
+                        return done(err);
+                    }
+                    res.status.should.equal(200);
+                    res.text.should.equal('This user is already on this team');
+                    done();
+                });
+            });
         });
     });
 });

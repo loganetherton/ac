@@ -4,7 +4,6 @@
 var mongoose = require('mongoose'),
     Team = mongoose.model('Team'),
     User = mongoose.model('User'),
-    Invite = mongoose.model('Invite'),
     nodeMailer = require('nodemailer'),
     // For testing
     stubTransport = require('nodemailer-stub-transport'),
@@ -252,7 +251,6 @@ var handleInvite = function (email, teamId, invitingUser) {
  * Invite a new user to a team
  * @param req
  * @param res
- * @param next
  */
 exports.inviteToTeam = function (req, res) {
     // Ensure a valid team

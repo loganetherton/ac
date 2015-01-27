@@ -3,7 +3,6 @@ var should = require('should'),
     User = mongoose.model('User'),
     Task = mongoose.model('Task'),
     Team = mongoose.model('Team'),
-    Invite = mongoose.model('Invite'),
     q = require('q');
 
 var user, task, team;
@@ -252,21 +251,6 @@ var removeUsersAndTeams = exports.removeUsersAndTeams = function (done) {
         if (typeof done !== 'undefined') {
             done();
         }
-    });
-    return deferred.promise;
-};
-
-/**
- * Clear the database of invites
- * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
- */
-exports.removeInvites = function () {
-    var deferred = q.defer();
-    Invite.remove({}, function (err) {
-        if (err) {
-            deferred.reject();
-        }
-        deferred.resolve();
     });
     return deferred.promise;
 };

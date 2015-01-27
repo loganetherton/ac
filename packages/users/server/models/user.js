@@ -6,7 +6,8 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     crypto = require('crypto'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    userTaskHelper = require('../../../../test/mochaHelpers/initUserAndTasks');
 
 /**
  * Ensure that a password is given for local strategy only
@@ -40,6 +41,22 @@ var validateUniqueEmail = function (value, callback) {
 };
 
 /**
+ * Invitation schema
+ * @type {Schema}
+ */
+var InviteSchema = new Schema({
+    invitedEmail: {
+        type: String, required: true
+    },
+    inviteString: {
+        type: String
+    },
+    expires: {
+        type: Date
+    }
+});
+
+/**
  * User Schema
  */
 var UserSchema = new Schema({
@@ -66,6 +83,8 @@ var UserSchema = new Schema({
     provider: {
         type: String, default: 'local'
     },
+    // Invitations sent by this user
+    invites: [InviteSchema],
     salt: String,
     resetPasswordToken: String,
     resetPasswordExpires: Date,
@@ -89,6 +108,19 @@ UserSchema.virtual('password').set(function (password) {
     this.hashed_password = this.hashPassword(password);
 }).get(function () {
     return this._password;
+});
+
+/**
+ * Invitation pre-save
+ */
+InviteSchema.pre('save', function (next) {
+    // Invite expires 7 days from now
+    var date = new Date();
+    date.setDate(date.getDate() + 7);
+    this.expires = date;
+    // Create an invite string
+    this.inviteString = userTaskHelper.createInviteString();
+    next();
 });
 
 /**

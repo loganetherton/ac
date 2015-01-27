@@ -147,7 +147,7 @@ describe('GET /team/:teamId', function () {
         before(function (done) {
             loginUser(server, 'test@test.com', 'password', done);
         });
-        
+
         it('should prevent the user from passing in a invalid object ID', function (done) {
             server
             .get('/team/fakeAsHell')

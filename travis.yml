@@ -13,5 +13,9 @@ before_script:
   - 'npm install'
   - 'bower install'
 
+# Disable emails for now
+notifications:
+  email: false
+
 # Until I can get things moved for protractor to work in Firefox
 script: "grunt mocha && grunt karma"

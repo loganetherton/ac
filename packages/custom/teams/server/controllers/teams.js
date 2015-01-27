@@ -1,8 +1,13 @@
+/*global process:false */
 'use strict';
 
 var mongoose = require('mongoose'),
     Team = mongoose.model('Team'),
-    User = mongoose.model('User');
+    User = mongoose.model('User'),
+    nodeMailer = require('nodemailer'),
+    // For testing
+    stubTransport = require('nodemailer-stub-transport'),
+    q = require('q');
 
 var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
 
@@ -122,6 +127,58 @@ exports.getTeamById = function(req, res, next) {
 };
 
 /**
+ * Invite a user to join your team like you're some kind of superhero crime fighter or something
+ * @param email
+ * @param team
+ * @param newUser
+ * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
+ */
+var inviteUserToTeam = function (email, team, newUser) {
+    var deferred = q.defer(),
+        transport, transporter, mailOptions, body;
+    // newUser default false
+    newUser = newUser || false;
+    // Don't send emails for testing
+    if (process.env.NODE_ENV === 'test') {
+        transport = stubTransport();
+    } else {
+        // Send emails for real
+        transport = {
+            service: 'Gmail',
+            auth: {
+                user: 'logan@loganswalk.com',
+                pass: 'xxxxxx'
+            }
+        };
+    }
+    // Find team for which this invitation pertains
+    Team.getById(team, function (err, team) {
+        // Create body
+        body = '<p>You\'ve been invited to join ' + team.name + '</p>';
+        if (newUser) {
+            body = body + '\r\n<p>But first you have to sign up!</p>';
+        }
+        // Create transporter
+        transporter = nodeMailer.createTransport(transport);
+        // Set mail options
+        mailOptions = {
+            from: 'Logan Etherton <logan@loganswalk.com>',
+            to: email,
+            subject: 'Hello',
+            html: body
+        };
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, function(error, info){
+            if(error){
+                deferred.reject('Could not send email');
+            }
+            deferred.resolve('Message sent: ' + info.response);
+        });
+    });
+    return deferred.promise;
+};
+
+/**
  * Invite a new user to a team
  * @param req
  * @param res
@@ -158,10 +215,28 @@ exports.inviteToTeam = function (req, res, next) {
         }
         // If the requested user exists in DB, send message about invite to this team
         if (user) {
-            // Send email to existing user
-            return res.status(200).send('Existing user invited to team');
+            // Make sure the user being invited isn't already on the team that's inviting them
+            if (checkUserOnThisTeam(user.teams, req.body.teamId)) {
+                return res.status(200).send('This user is already on this team');
+            }
+            // Invite existing user
+            inviteUserToTeam(user.email, req.body.teamId).then(function (response) {
+                // Email send
+                return res.status(200).send(response);
+            }, function (error) {
+                // Error
+                return res.status(400).send('Unable to send invite: ' + error);
+            });
+        } else {
+            // Send email to new user
+            // Invite existing user
+            inviteUserToTeam(req.body.email, req.body.teamId, true).then(function (response) {
+                // Email send
+                return res.status(200).send(response);
+            }, function (error) {
+                // Error
+                return res.status(400).send('Unable to send invite: ' + error);
+            });
         }
-        // Send email to new user
-        return res.status(200).send('New user invited to team');
     });
 };

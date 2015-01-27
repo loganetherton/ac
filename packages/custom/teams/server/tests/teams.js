@@ -192,7 +192,7 @@ describe('GET /team/:teamId', function () {
 
 var secondUser;
 
-describe('POST /inviteToTeam', function () {
+describe.only('POST /inviteToTeam', function () {
     // Create user and task only once
     before(function (done) {
         userTaskHelper.createUserAndTask(done).then(function (userTask) {
@@ -310,7 +310,14 @@ describe('POST /inviteToTeam', function () {
                     return done(err);
                 }
                 res.status.should.equal(200);
-                res.text.should.equal('Existing user invited to team');
+                // Check message sent
+                res.text.should.match(/Message sent/);
+                // From
+                res.text.should.match(/From: Logan Etherton <logan@loganswalk.com>/);
+                // To
+                res.text.should.match(/To: test2@test.com/);
+                // Body text
+                res.text.should.match(/<p>You've been invited to join Full name's team<\/p>/);
                 done();
             });
         });
@@ -325,9 +332,14 @@ describe('POST /inviteToTeam', function () {
                     return done(err);
                 }
                 res.status.should.equal(200);
-                res.text.should.equal('New user invited to team');
+                // Make sure the email requests sign up
+                res.text.should.match(/<p>But first you have to sign up!<\/p>/);
                 done();
             });
+        });
+
+        it('should deny requests to users already on this team', function (done) {
+            done();
         });
     });
 });

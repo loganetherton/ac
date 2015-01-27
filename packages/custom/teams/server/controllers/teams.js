@@ -7,7 +7,8 @@ var mongoose = require('mongoose'),
     nodeMailer = require('nodemailer'),
     // For testing
     stubTransport = require('nodemailer-stub-transport'),
-    q = require('q');
+    q = require('q'),
+    config = require('../../../../../config/env/production');
 
 var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
 
@@ -147,7 +148,7 @@ var inviteUserToTeam = function (email, team, newUser) {
             service: 'Gmail',
             auth: {
                 user: 'logan@loganswalk.com',
-                pass: 'xxxxxx'
+                pass: config.emailPassword
             }
         };
     }

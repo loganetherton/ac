@@ -8,7 +8,8 @@ var mongoose = require('mongoose'),
     // For testing
     stubTransport = require('nodemailer-stub-transport'),
     q = require('q'),
-    config = require('../../../../../config/env/production');
+    config = require('../../../../../config/env/production'),
+    _ = require('lodash');
 
 var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
 
@@ -129,21 +130,21 @@ exports.getTeamById = function(req, res, next) {
 
 /**
  * Create invite
- * @param inviterId
  * @param inviteEmail
+ * @param invitingUser
  * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
  */
-var createInvite = function (inviterId, inviteEmail) {
+var createInvite = function (inviteEmail, invitingUser) {
     var deferred = q.defer();
-    var invite = new Invite({
-        inviter: inviterId,
-        inviteEmail: inviteEmail
+    // Add this invite
+    invitingUser.invites.push({
+        invitedEmail: inviteEmail
     });
-    invite.save(function (err, invite) {
+    invitingUser.save(function (err, user) {
         if (err) {
             deferred.reject('Could not create invitation');
         }
-        deferred.resolve(invite);
+        deferred.resolve(user);
     });
     return deferred.promise;
 };
@@ -177,7 +178,7 @@ var inviteUserToTeam = function (email, team, invitingUser, newUser) {
     // Find team for which this invitation pertains
     Team.getById(team, function (err, team) {
         // Create invite
-        createInvite(email, invitingUser._id).then(function (response) {
+        createInvite(email, invitingUser).then(function (response) {
             // Create body
             body = '<p>You\'ve been invited to join ' + team.name + '</p>';
             if (newUser) {
@@ -207,13 +208,43 @@ var inviteUserToTeam = function (email, team, invitingUser, newUser) {
 };
 
 /**
+ * Determine if the current email has already received an invite from this user
+ * @param email
+ * @param invitingUser
+ * @returns {*}
+ */
+var checkUserReceivedInvite = function (email, invitingUser) {
+    if (invitingUser.invites) {
+        var regex = new RegExp('invitedEmail":"' + email);
+        // Determine if the current email has already received an invitation from this user
+        var found = invitingUser.invites.map(function (invite) {
+            if (regex.test(JSON.stringify(invite))) {
+                return invite;
+            }
+        }).filter(function (invites) {
+            return !!invites;
+        });
+        console.log('**************FOUND**********');
+        console.log(found);
+        return found.length;
+    }
+    return false;
+};
+
+/**
  * If all error checking has passed, send the actual invitation
  * @param email
  * @param teamId
+ * @param invitingUser
  * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
  */
 var handleInvite = function (email, teamId, invitingUser) {
     var deferred = q.defer();
+    // See if the user being invited has already received an invite from this user
+    if (checkUserReceivedInvite(email, invitingUser)) {
+        deferred.resolve('This user has already received an invite from you');
+        return deferred.promise;
+    }
     // See if the requested user already has an account
     User.findByEmail(email, function (err, user) {
         if (err) {
@@ -223,7 +254,7 @@ var handleInvite = function (email, teamId, invitingUser) {
         if (user) {
             // Make sure the user being invited isn't already on the team that's inviting them
             if (checkUserOnThisTeam(user.teams, teamId)) {
-                deferred.resolve('This user is already on this team');
+                return deferred.resolve('This user is already on this team');
             }
             // Invite existing user
             return inviteUserToTeam(user.email, teamId, invitingUser).then(function (response) {
@@ -268,7 +299,7 @@ exports.inviteToTeam = function (req, res) {
     if (errors) {
         return res.status(400).send(errors);
     }
-    // Make sure the user is on the team that is being requested
+    // Make sure the user is on the team for which the invite is being sent
     if (!checkUserOnThisTeam(req.user.teams, req.body.teamId)) {
         return res.status(401).send('Users can only invite to teams to which they belong');
     }

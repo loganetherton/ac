@@ -274,10 +274,3 @@ var createString = function (length) {
 exports.createFakeObjectId = function () {
     return createString(24);
 };
-
-/**
- * Create an invite string
- */
-exports.createInviteString = function () {
-    return createString(45);
-};

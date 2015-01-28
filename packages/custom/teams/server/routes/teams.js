@@ -10,7 +10,10 @@ module.exports = function (Teams, app, auth, database) {
     all(auth.requiresLogin).
     get(teams.getTeamById);
 
+    // Invite an email address to a team
     app.route('/inviteToTeam').
     all(auth.requiresLogin).
     post(teams.inviteToTeam);
+
+    // Show outstanding invitations
 };

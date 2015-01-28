@@ -6,8 +6,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     crypto = require('crypto'),
-    _ = require('lodash'),
-    userTaskHelper = require('../../../../test/mochaHelpers/initUserAndTasks');
+    _ = require('lodash');
 
 /**
  * Ensure that a password is given for local strategy only
@@ -111,6 +110,19 @@ UserSchema.virtual('password').set(function (password) {
 });
 
 /**
+ * Create a random invite string
+ *
+ * @param length
+ * @returns {*|Socket|string}
+ */
+var createString = function (length) {
+    var possible = 'abcdef0123456789';
+    return Array.apply(null, Array(length)).map(function () {
+        return possible.charAt(Math.floor(Math.random() * possible.length));
+    }).join('');
+};
+
+/**
  * Invitation pre-save
  */
 InviteSchema.pre('save', function (next) {
@@ -119,7 +131,7 @@ InviteSchema.pre('save', function (next) {
     date.setDate(date.getDate() + 7);
     this.expires = date;
     // Create an invite string
-    this.inviteString = userTaskHelper.createInviteString();
+    this.inviteString = createString(45);
     next();
 });
 

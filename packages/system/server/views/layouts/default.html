@@ -21,7 +21,7 @@
     <!--</div>-->
 
     <div data-ng-controller="IndexController as indexCtrl">
-        <div data-ng-hide="indexCtrl.isSpecificPage()" data-ng-cloak>
+        <div data-ng-hide="indexCtrl.noNavPage()" data-ng-cloak>
             <section data-ng-include=" 'header/views/flat_header.html' " id="header" class="top-header"></section>
 
             <aside data-ng-include=" 'navigation/views/flat_nav.html' " id="nav-container"></aside>
@@ -30,7 +30,7 @@
         <div class="view-container">
             <!--<section class="animate-fade-up">-->
                 <!--<section data-ui-view ></section>-->
-            <section id="content" data-ui-view ng-class="{'animate-fade-up': true, 'full-screen': indexCtrl.isSpecificPage()}"></section>
+            <section id="content" data-ui-view ng-class="{'animate-fade-up': true, 'full-screen': indexCtrl.noNavPage()}"></section>
             <script type="text/javascript">
                 window.user = {{user|json|safe}};
                 window.modules = {{modules|json|safe}};

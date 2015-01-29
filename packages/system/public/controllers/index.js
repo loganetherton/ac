@@ -12,9 +12,26 @@ function ($scope, Global, $location) {
     var vm = this;
     $scope.global = Global;
 
-    vm.isSpecificPage = function() {
+    /**
+     * Determine whether the current page should have the navigation pane displayed
+     * @returns {boolean}
+     */
+    vm.noNavPage = function() {
         var path = $location.path();
-        return _.contains(['/404', '/pages/500', '/pages/login', '/pages/signin', '/pages/signin1', '/pages/signin2', '/pages/signup', '/pages/signup1', '/pages/signup2', '/pages/lock-screen', '/auth/login', '/auth/register'], path);
+        var noNavigationPages = ['/404', '/pages/500', '/auth/login', '/auth/register/*'];
+        return !!noNavigationPages.map(function (page) {
+            // Exact match
+            if (page === path) {
+                return true;
+            }
+            // Match * patterns on regex
+            if (page.indexOf('*') !== -1) {
+                var regex = new RegExp(path.substring(0, path.lastIndexOf('/')));
+                return regex.test(path);
+            }
+        }).filter(function (page) {
+            return !!page;
+        });
     };
 
     // Determine the size of the right pane

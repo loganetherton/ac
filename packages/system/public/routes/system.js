@@ -42,7 +42,7 @@ function ($stateProvider, $urlRouterProvider) {
         templateUrl: 'users/views/login.html'
     })
     .state('auth.register', {
-        url: '/register',
+        url: '/register/:regCode',
         templateUrl: 'users/views/signup.html'
     }).state('forgot-password', {
         url: '/forgot-password',

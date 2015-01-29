@@ -190,23 +190,49 @@ describe('GET /team/:teamId', function () {
     });
 });
 
-var secondUser;
+var secondUser, thirdUser;
 
-describe.only('POST /inviteToTeam', function () {
+/**
+ * Check the number of invites the user currently has
+ * @param inviteCount
+ * @param done
+ */
+var checkInvites = function (inviteCount, done) {
+    // Find the current user
+    User.findOne({_id: user._id}, function (err, modifiedUser) {
+        if (err) {
+            should.not.exist(err);
+            done();
+        }
+        // Check the number of invites the user has
+        modifiedUser.invites.length.should.equal(inviteCount);
+        // Examine the individual invite content
+        switch (inviteCount) {
+            case 2:
+                modifiedUser.invites[1].invitedEmail.should.equal('newguy@test.com');
+            case 1:
+                modifiedUser.invites[0].invitedEmail.should.equal('test2@test.com');
+                break;
+            default:
+                false.should.be.equal(true);
+        }
+        done();
+    });
+};
+
+describe('POST /inviteToTeam', function () {
     // Create user and task only once
     before(function (done) {
-        // Remove invites
-        userTaskHelper.removeInvites().then(function () {
-            // Create a fake user and task
-            userTaskHelper.createUserAndTask(done).then(function (userTask) {
-                user = userTask['user'];
-                task = userTask['task'];
-            });
+        // Create a fake user and task
+        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+            user = userTask['user'];
+            task = userTask['task'];
         });
     });
 
     before(function (done) {
-        secondUser = userTaskHelper.createOtherUser(done);
+        secondUser = userTaskHelper.createOtherUser();
+        thirdUser = userTaskHelper.createOtherUser(done, 'test3@test.com');
     });
     // Remove user and task at the end
     after(function (done) {
@@ -322,7 +348,7 @@ describe.only('POST /inviteToTeam', function () {
                 res.text.should.match(/To: test2@test.com/);
                 // Body text
                 res.text.should.match(/<p>You've been invited to join Full name's team<\/p>/);
-                done();
+                checkInvites(1, done);
             });
         });
 
@@ -338,29 +364,43 @@ describe.only('POST /inviteToTeam', function () {
                 res.status.should.equal(200);
                 // Make sure the email requests sign up
                 res.text.should.match(/<p>But first you have to sign up!<\/p>/);
-                done();
+                checkInvites(2, done);
+            });
+        });
+
+        it('should prevent the user from sending multiple emails to the same address', function (done) {
+            server
+            .post('/inviteToTeam')
+            .send({teamId: user.teams[0], email: 'newguy@test.com'})
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                // Make sure the email requests sign up
+                res.text.should.equal('This user has already received an invite from you');
+                checkInvites(2, done);
             });
         });
 
         it('should deny requests to users already on this team', function (done) {
             // Add second user to first user's team
-            secondUser.teams.push(user.teams[0]);
-            secondUser.save(function (err, secondUser) {
+            thirdUser.teams.push(user.teams[0]);
+            thirdUser.save(function (err, thirdUser) {
                 if (err) {
                     return done(err);
                 }
-                server
-                .post('/inviteToTeam')
-                .send({teamId: user.teams[0], email: secondUser.email})
-                .expect(200)
-                .end(function (err, res) {
+                server.post('/inviteToTeam').send({
+                    teamId: user.teams[0],
+                    email: thirdUser.email
+                }).expect(200).end(function (err, res) {
                     if (err) {
                         should.not.exist(err);
                         return done(err);
                     }
                     res.status.should.equal(200);
                     res.text.should.equal('This user is already on this team');
-                    done();
+                    checkInvites(2, done)
                 });
             });
         });

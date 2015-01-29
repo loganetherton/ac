@@ -224,8 +224,6 @@ var checkUserReceivedInvite = function (email, invitingUser) {
         }).filter(function (invites) {
             return !!invites;
         });
-        console.log('**************FOUND**********');
-        console.log(found);
         return found.length;
     }
     return false;

@@ -58,11 +58,12 @@ var removeTeams = function () {
 /**
  * Create another user
  */
-exports.createOtherUser = function (done) {
+exports.createOtherUser = function (done, email) {
+    email = email || 'test2@test.com';
     // Create a user
     user = new User({
         name: 'Full name',
-        email: 'test2@test.com',
+        email: email,
         password: 'password'
     });
     // Create a team for this user
@@ -81,7 +82,10 @@ exports.createOtherUser = function (done) {
             if (err) {
                 new Error('Could not save user');
             }
-            done();
+            // Call done if necessary
+            if (typeof done === 'function') {
+                done();
+            }
         });
     });
     return user;

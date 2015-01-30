@@ -19,7 +19,7 @@ describe('navigation menu', function () {
     describe('logged out', function () {
         it('should be hidden when logged out', function () {
             browser.get('/logout');
-            browser.get('/#!/auth/login');
+            browser.get('/#!/login');
             expect($('#nav-container').isDisplayed()).toBeFalsy();
         });
     });
@@ -74,7 +74,7 @@ describe('navigation menu', function () {
 
         it('should allow the user to logout', function () {
             browser.get('/logout');
-            helpers.testUrl('auth/login');
+            helpers.testUrl('login');
         });
     });
 });

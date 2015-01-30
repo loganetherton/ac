@@ -1,7 +1,7 @@
 /*global inject:false */
 'use strict';
 
-ddescribe('IndexController', function () {
+describe('IndexController', function () {
     var scope, controller;
 
     beforeEach(function () {

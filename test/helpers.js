@@ -69,9 +69,9 @@ var Helpers = function () {
                     return;
                 }
                 // Go to the login page
-                browser.get('/#!/auth/login');
+                browser.get('/#!/login');
                 // Verify login page
-                self.testUrl('auth/login');
+                self.testUrl('login');
                 // Find submit button
                 submitButton = element(by.css('.submit_button'));
                 expect(submitButton).toBeTruthy();
@@ -105,7 +105,7 @@ var Helpers = function () {
                 password = 'password';
             }
             // Go to register page
-            browser.get('/#!/auth/register');
+            browser.get('/#!/register');
             // Name
             setInput('user.name', name);
             // Email

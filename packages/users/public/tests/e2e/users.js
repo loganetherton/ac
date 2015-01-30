@@ -14,9 +14,9 @@ var testBadSubmit = function (loginPage) {
     }
     submitButton.click();
     if (loginPage) {
-        helpers.testUrl('auth/login');
+        helpers.testUrl('login');
     } else {
-        helpers.testUrl('auth/register');
+        helpers.testUrl('register');
     }
 };
 
@@ -38,7 +38,7 @@ describe('registration page', function () {
 
     it('should find all of the registration elements', function () {
         //browser.ignoreSynchronization = true;
-        browser.get('/#!/auth/register');
+        browser.get('/#!/register');
         // Name
         nameInput = element(by.model('user.name'));
         expect(nameInput).toBeTruthy();
@@ -74,7 +74,7 @@ describe('registration page', function () {
 
     it('should allow the user to logout', function () {
         browser.get('/logout');
-        helpers.testUrl('auth/login');
+        helpers.testUrl('login');
     });
 });
 
@@ -97,7 +97,7 @@ describe('login page', function () {
     it('should find all of the login page elements', function () {
         // Need to find this page's submit button
         submitButton = null;
-        browser.get('/#!/auth/login');
+        browser.get('/#!/login');
         // Email
         emailInput = element(by.model('user.email'));
         expect(emailInput).toBeTruthy();

@@ -17,8 +17,9 @@ function ($scope, Global, $location) {
      */
     vm.noNavPage = function() {
         var path = $location.path();
-        var noNavigationPages = ['/404', '/pages/500', '/auth/login', '/auth/register/*'];
-        return !!noNavigationPages.map(function (page) {
+        var noNavigationPages = ['/404', '/pages/500', '/login', '/register', '/register/*'];
+        // Determine whether the current path should display navigation or not
+        var noNavResult = noNavigationPages.map(function (page) {
             // Exact match
             if (page === path) {
                 return true;
@@ -26,11 +27,16 @@ function ($scope, Global, $location) {
             // Match * patterns on regex
             if (page.indexOf('*') !== -1) {
                 var regex = new RegExp(path.substring(0, path.lastIndexOf('/')));
+                // Don't include items which can't be regex
+                if (!path.lastIndexOf('/')) {
+                    return false;
+                }
                 return regex.test(path);
             }
         }).filter(function (page) {
             return !!page;
         });
+        return noNavResult.length;
     };
 
     // Determine the size of the right pane

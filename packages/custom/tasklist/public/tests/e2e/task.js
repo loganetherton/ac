@@ -100,6 +100,6 @@ describe('Create task', function () {
 
     it('should allow the user to logout', function () {
         browser.get('/logout');
-        helpers.testUrl('auth/login');
+        helpers.testUrl('login');
     });
 });

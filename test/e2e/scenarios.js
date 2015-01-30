@@ -68,7 +68,6 @@ describe('initial setup', function () {
 
     afterEach(function() {
         browser.manage().logs().get('browser').then(function(browserLog) {
-            //expect(browserLog.length).toEqual(0);
             if (browserLog.length) {
                 console.log('log: ' + require('util').inspect(browserLog));
             }
@@ -82,18 +81,18 @@ describe('initial setup', function () {
         });
 
         it('should allow the user to visit the registration page when not logged in', function () {
-            browser.get('/#!/auth/register');
-            testUrl('auth/register');
+            browser.get('/#!/register');
+            testUrl('register');
         });
 
         it('should allow the user to visit the login page when not logged in', function () {
-            browser.get('/#!/auth/login');
-            testUrl('auth/login');
+            browser.get('/#!/login');
+            testUrl('login');
         });
 
         it('should not let the user access any page other than the login page when not logged in', function () {
             browser.get('/#!/tasklist');
-            testUrl('auth/login');
+            testUrl('login');
         });
     });
 

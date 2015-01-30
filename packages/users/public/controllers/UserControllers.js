@@ -1,10 +1,10 @@
 (function () {
     'use strict';
-    // To avoid displaying unneccesary social logins
+    // To avoid displaying unnecessary social logins
     var clientIdProperty = 'clientID',
     defaultPrefix = 'DEFAULT_';
 
-    var AuthCtrl = function ($scope, $rootScope, $http, $location, Global, AuthorizationService, $state, User) {
+    var AuthCtrl = function ($scope, $rootScope, $http, $location, Global, AuthorizationService, $state) {
         // This object will contain list of available social buttons to authorize
         $scope.socialButtons = {
             facebook: true, twitter: true, google: true
@@ -21,7 +21,6 @@
                 }
             }
         });
-
         /**
          * Make sure authorization is updated after login, then redirect
          */
@@ -67,7 +66,7 @@
     /**
      * Handle state and register function
      */
-    var RegisterCtrl = function($scope, $rootScope, $http, Global, acRegisterService) {
+    var RegisterCtrl = function($scope, $rootScope, $http, Global, acRegisterService, $state) {
         var vm = this;
         $scope.user = {};
         $scope.global = Global;
@@ -168,9 +167,9 @@
     };
 
 angular.module('mean.users')
-.controller('AuthCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', 'AuthorizationService', '$state', 'User', AuthCtrl])
+.controller('AuthCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', 'AuthorizationService', '$state', AuthCtrl])
 .controller('LoginCtrl', ['$scope', '$rootScope', 'Global', 'acLoginService', LoginCtrl])
-.controller('RegisterCtrl', ['$scope', '$rootScope', '$http', 'Global', 'acRegisterService', RegisterCtrl])
+.controller('RegisterCtrl', ['$scope', '$rootScope', '$http', 'Global', 'acRegisterService', '$state', RegisterCtrl])
 .controller('ForgotPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', ForgotPasswordCtrl])
 .controller('ResetPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'Global', ResetPasswordCtrl]);
 })();

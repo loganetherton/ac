@@ -117,7 +117,7 @@ UserSchema.virtual('password').set(function (password) {
  */
 var createString = function (length) {
     var possible = 'abcdef0123456789';
-    return Array.apply(null, Array(length)).map(function () {
+    return Array.apply(null, new Array(length)).map(function () {
         return possible.charAt(Math.floor(Math.random() * possible.length));
     }).join('');
 };

@@ -8,8 +8,7 @@ var mongoose = require('mongoose'),
     // For testing
     stubTransport = require('nodemailer-stub-transport'),
     q = require('q'),
-    config = require('../../../../../config/env/production'),
-    _ = require('lodash');
+    config = require('../../../../../config/env/production');
 
 var serverCtrlHelpers = require('../../../../system/server/controllers/helpers');
 
@@ -246,7 +245,7 @@ var handleInvite = function (email, teamId, invitingUser) {
     // See if the requested user already has an account
     User.findByEmail(email, function (err, user) {
         if (err) {
-            return next(new Error('Could not query user by email'));
+            deferred.reject('Could not query user by email');
         }
         // If the requested user exists in DB, send message about invite to this team
         if (user) {

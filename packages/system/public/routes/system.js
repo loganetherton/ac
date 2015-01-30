@@ -8,7 +8,7 @@ app.config(['$stateProvider', '$urlRouterProvider',
 function ($stateProvider, $urlRouterProvider) {
 
     // For unmatched routes:
-    $urlRouterProvider.otherwise('/auth/login');
+    $urlRouterProvider.otherwise('/login');
 
     // Always redirect to overview if nothing is selected
     $urlRouterProvider.when('', '/overview');
@@ -38,16 +38,18 @@ function ($stateProvider, $urlRouterProvider) {
         }
     })
     .state('auth.login', {
-        url: '/login',
+        url: '^/login',
         templateUrl: 'users/views/login.html'
     })
     .state('auth.register', {
-        url: '/register/:regCode',
+        url: '^/register?regCode',
         templateUrl: 'users/views/signup.html'
-    }).state('forgot-password', {
+    })
+    .state('forgot-password', {
         url: '/forgot-password',
         templateUrl: 'users/views/forgot-password.html'
-    }).state('reset-password', {
+    })
+    .state('reset-password', {
         url: '/reset/:tokenId',
         templateUrl: 'users/views/reset-password.html'
     })

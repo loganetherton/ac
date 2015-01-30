@@ -18,7 +18,7 @@ function ($scope, Global, $location) {
     vm.noNavPage = function() {
         var path = $location.path();
         var noNavigationPages = ['/404', '/pages/500', '/login', '/register', '/register/*'];
-        // Determine whether the current path should display navigation or not
+        // Find matches against the current page and pages without navigation
         var noNavResult = noNavigationPages.map(function (page) {
             // Exact match
             if (page === path) {

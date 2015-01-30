@@ -278,3 +278,32 @@ var createString = function (length) {
 exports.createFakeObjectId = function () {
     return createString(24);
 };
+
+/**
+ * Check the number of invites the user currently has
+ * @param inviteCount
+ * @param user
+ * @param done
+ */
+exports.checkInvites = function (inviteCount, user, done) {
+    // Find the current user
+    User.findOne({_id: user._id}, function (err, modifiedUser) {
+        if (err) {
+            should.not.exist(err);
+            done();
+        }
+        // Check the number of invites the user has
+        modifiedUser.invites.length.should.equal(inviteCount);
+        // Examine the individual invite content
+        switch (inviteCount) {
+            case 2:
+                modifiedUser.invites[1].invitedEmail.should.equal('newguy@test.com');
+            case 1:
+                modifiedUser.invites[0].invitedEmail.should.equal('test2@test.com');
+                break;
+            default:
+                false.should.be.equal(true);
+        }
+        done();
+    });
+};

@@ -192,34 +192,6 @@ describe('GET /team/:teamId', function () {
 
 var secondUser, thirdUser;
 
-/**
- * Check the number of invites the user currently has
- * @param inviteCount
- * @param done
- */
-var checkInvites = function (inviteCount, done) {
-    // Find the current user
-    User.findOne({_id: user._id}, function (err, modifiedUser) {
-        if (err) {
-            should.not.exist(err);
-            done();
-        }
-        // Check the number of invites the user has
-        modifiedUser.invites.length.should.equal(inviteCount);
-        // Examine the individual invite content
-        switch (inviteCount) {
-            case 2:
-                modifiedUser.invites[1].invitedEmail.should.equal('newguy@test.com');
-            case 1:
-                modifiedUser.invites[0].invitedEmail.should.equal('test2@test.com');
-                break;
-            default:
-                false.should.be.equal(true);
-        }
-        done();
-    });
-};
-
 describe('POST /inviteToTeam', function () {
     // Create user and task only once
     before(function (done) {
@@ -348,7 +320,7 @@ describe('POST /inviteToTeam', function () {
                 res.text.should.match(/To: test2@test.com/);
                 // Body text
                 res.text.should.match(/<p>You've been invited to join Full name's team<\/p>/);
-                checkInvites(1, done);
+                userTaskHelper.checkInvites(1, user, done);
             });
         });
 
@@ -364,7 +336,7 @@ describe('POST /inviteToTeam', function () {
                 res.status.should.equal(200);
                 // Make sure the email requests sign up
                 res.text.should.match(/<p>But first you have to sign up!<\/p>/);
-                checkInvites(2, done);
+                userTaskHelper.checkInvites(2, user, done);
             });
         });
 
@@ -379,7 +351,7 @@ describe('POST /inviteToTeam', function () {
                 }
                 // Make sure the email requests sign up
                 res.text.should.equal('This user has already received an invite from you');
-                checkInvites(2, done);
+                userTaskHelper.checkInvites(2, user, done);
             });
         });
 
@@ -400,7 +372,7 @@ describe('POST /inviteToTeam', function () {
                     }
                     res.status.should.equal(200);
                     res.text.should.equal('This user is already on this team');
-                    checkInvites(2, done)
+                    userTaskHelper.checkInvites(2, user, done)
                 });
             });
         });

@@ -17,9 +17,19 @@ var mean = require('meanio'),
     helpers = require('view-helpers'),
     flash = require('connect-flash'),
     config = mean.loadConfig(),
-    _ = require('lodash');
+    _ = require('lodash'),
+    toobusy = require('toobusy');;
 
 module.exports = function (app, passport, db) {
+
+    // Prevent requests when the server is under too much strain
+    app.use(function(req, res, next) {
+        if (toobusy()) {
+            res.send(503, "Getting a little overwhelmed here. Try back soon.");
+        } else {
+            next();
+        }
+    });
 
     app.set('showStackError', true);
 

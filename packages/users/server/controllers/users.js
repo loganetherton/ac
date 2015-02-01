@@ -10,7 +10,10 @@ var mongoose = require('mongoose'),
     crypto = require('crypto'),
     nodemailer = require('nodemailer'),
     templates = require('../template'),
-    Team = mongoose.model('Team');
+    Team = mongoose.model('Team'),
+    q = require('q');
+
+var serverCtrlHelpers = require('../../../system/server/controllers/helpers');
 
 /**
  * Redirect to app as signed in user after SSO
@@ -38,71 +41,122 @@ exports.signout = function (req, res) {
 };
 
 /**
+ * Check the registration code on sign up and see if this user needs to be added to any teams
+ * @param regCode
+ */
+var checkRegistrationCode = function (regCode) {
+    var deferred = q.defer();
+    // If no reg code, continue
+    if (!regCode) {
+        deferred.resolve('No invite');
+    } else {
+        // Find the user that did the inviting
+        User.findByInviteCode(regCode, function (err, user) {
+            if (err) {
+                return deferred.reject('Error finding user by invite');
+            }
+            if (!user) {
+                return deferred.resolve('No matching invite');
+            }
+            // If a user was found by the invite string, find out which team to add this user to
+            user.invites.forEach(function (invite) {
+                if (invite.inviteString === regCode) {
+                    return deferred.resolve(invite.teamId);
+                }
+            });
+            return deferred.resolve('No matching invite');
+        });
+    }
+    // Add this user to the team for which they were invited
+    return deferred.promise;
+};
+
+/**
  * Create user
  */
 exports.create = function (req, res, next) {
-    var user = new User(req.body);
+    // Create user
+    var user = new User(req.body.user);
     var team = new Team({
         name: user.name + '\'s Team'
     });
 
     user.provider = 'local';
-
     // Because we set our user.provider to local our models/user.js validation will always be true
-    req.assert('name', 'You must enter a name').notEmpty();
-    req.assert('email', 'You must enter a valid email address').isEmail();
-    req.assert('password', 'You must enter a password').notEmpty();
-    req.assert('password', 'Password must be between 8-100 characters long').len(8, 100);
+    req.assert('user.name', 'You must enter a name').notEmpty();
+    req.assert('user.email', 'You must enter a valid email address').isEmail();
+    req.assert('user.password', 'You must enter a password').notEmpty();
+    req.assert('user.password', 'Password must be between 8-100 characters long').len(8, 100);
     // Return errors if there were any
     var errors = req.validationErrors();
     if (errors) {
         return res.status(400).send(errors[0].msg);
     }
 
-    // Create the team, then add the user to the team
-    team.save(function (err) {
-        if (err) {
-            return res.status(400).send(errors[0].msg);
+    // Check registration code and see if a team can be found
+    checkRegistrationCode(req.body.regCode).then(function (resolve) {
+        var deferred = q.defer();
+        var teamId = resolve.toString();
+        //If an object ID was returned, add the user to that team
+        if (serverCtrlHelpers.checkValidObjectId(teamId)) {
+            // Add the user to the team
+            deferred.resolve(teamId);
+        } else {
+            deferred.resolve();
         }
-        user.roles = ['authenticated'];
-        user.teams.push(team._id);
-        // Save the user
-        user.save(function (err) {
+        return deferred.promise;
+    // Continue on with creating the user
+    }).then(function (teamId) {
+        // Create the team, then add the user to the team
+        team.save(function (err) {
             if (err) {
-                switch (err.code) {
-                /**
-                 * Todo Handle specific index breaking errors
-                 */
-                    default:
-                        var modelErrors = [];
-
-                        if (err.errors) {
-
-                            for (var x in err.errors) {
-                                if (!err.errors.hasOwnProperty(x)) {
-                                    continue;
-                                }
-                                modelErrors.push({
-                                    param: x, msg: err.errors[x].message, value: err.errors[x].value
-                                });
-                            }
-                            res.status(400).send(modelErrors);
-                        }
-                }
-                return res.status(400);
+                return res.status(400).send(errors[0].msg);
             }
-            // Log the user in
-            req.logIn(user, function (err) {
+            user.roles = ['authenticated'];
+            user.teams.push(team._id);
+            // Add the user to any other teams
+            if (teamId) {
+                user.teams.push(teamId);
+            }
+            // Save the user
+            user.save(function (err) {
                 if (err) {
-                    console.log('error logging in');
-                    return next(err);
+                    switch (err.code) {
+                    /**
+                     * Todo Handle specific index breaking errors
+                     */
+                        default:
+                            var modelErrors = [];
+                            if (err.errors) {
+
+                                for (var x in err.errors) {
+                                    if (!err.errors.hasOwnProperty(x)) {
+                                        continue;
+                                    }
+                                    modelErrors.push({
+                                        param: x, msg: err.errors[x].message, value: err.errors[x].value
+                                    });
+                                }
+                                res.status(400).send(modelErrors);
+                            }
+                    }
+                    return res.status(400);
                 }
-                return res.send({
-                    user: req.user,
-                    redirectState: 'site.tasklist'
+                // Log the user in
+                req.logIn(user, function (err) {
+                    if (err) {
+                        console.log('error logging in');
+                        return next(err);
+                    }
+                    return res.send({
+                        user: req.user,
+                        redirectState: 'site.tasklist'
+                    });
                 });
             });
         });
+    }, function () {
+        // @TODO Error handling
     });
 };
 /**

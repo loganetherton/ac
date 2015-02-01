@@ -8,6 +8,10 @@ var mongoose = require('mongoose'),
     server = request.agent('http://localhost:3000'),
     should = require('should');
 
+// Helpers
+var userTaskHelper = require('../../../../test/mochaHelpers/initUserAndTasks'),
+    loginUser = require('../../../../test/mochaHelpers/loginUser');
+
 var user;
 
 // Clear the users collection
@@ -78,147 +82,204 @@ var createUser = function (done) {
     });
 };
 
-/**
- * Successful login attempt
- * @param done
- */
-var loginUser = function (done) {
-    server
-    .post('/login')
-    .send({ email: user.email, password: user.password })
-    .expect(200)
-    .end(function (err, res) {
-        should.not.exist(err);
-        // Check the user
-        var user = res.body.user;
-        should.exist(user);
-        user.name.should.be.equal('Full name');
-        user.email.should.be.equal('test@test.com');
-        user.teams.length.should.be.equal(1);
-        user.roles[0].should.be.equal('authenticated');
-        // Check redirect
-        res.body.redirect.should.be.equal('site.tasklist');
-        done();
-    });
-};
-
 
 describe('User controller', function () {
+
     describe('create()', function () {
         var user;
 
-        beforeEach(function (done) {
-            q.all([clearTeams(), clearUsers()]).then(function () {
-                done();
-            });
-        });
-
-        beforeEach(function () {
-            user = {
-                name: 'testy tester',
-                email: 'test@test.com',
-                password: 'password',
-                confirmPassword: 'password'
-            };
-        });
-
-        it('should require a name for the new user', function (done) {
-            delete user.name;
-            server
-            .post('/register')
-            .send(user)
-            .expect(400)
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-                res.error.text.should.be.equal('You must enter a name');
-                return done();
-            });
-        });
-
-        it('should require an email for the new user', function (done) {
-            delete user.email;
-            server
-            .post('/register')
-            .send(user)
-            .expect(400)
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-                res.error.text.should.be.equal('You must enter a valid email address');
-                return done();
-            });
-        });
-
-        it('should require a password for the new user', function (done) {
-            delete user.password;
-            server
-            .post('/register')
-            .send(user)
-            .expect(400)
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-                res.error.text.should.be.equal('You must enter a password');
-                return done();
-            });
-        });
-
-        it('should require a password that is between 8-100 characters', function (done) {
-            user.password = 'a';
-            server
-            .post('/register')
-            .send(user)
-            .expect(400)
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-                res.error.text.should.be.equal('Password must be between 8-100 characters long');
-            });
-            // 101 characters
-            user.password = 'fejwiofejoigneffwoignewignwoiengoiewngoiwgnewoingwoignewgoinoewingewoignoiwnoiwnwoignewoignewoignewoi';
-            server
-            .post('/register')
-            .send(user)
-            .expect(400)
-            .end(function (err, res) {
-                if (err) {
-                    return done(err);
-                }
-                res.error.text.should.be.equal('Password must be between 8-100 characters long');
-                return done();
-            });
-        });
-
-        it('should create a user and a team for that user together', function (done) {
-            server
-            .post('/register')
-            .send(user)
-            .expect(200)
-            .end(function (err, res) {
-                if (err) {
-                    should.not.exist(err);
-                    return done(err);
-                }
-                var user = res.body.user;
-                // User properties
-                user.name.should.be.equal('testy tester');
-                user.email.should.be.equal('test@test.com');
-                user.roles.length.should.be.equal(1);
-                user.roles[0].should.be.equal('authenticated');
-                // Check team exists
-                user.teams.length.should.be.equal(1);
-                // Query the new team and check name
-
-                Team.findOne({
-                    _id: user.teams[0]
-                }, function (err, team) {
-                    team.name.should.be.equal('testy tester\'s Team');
+        describe('register without registration code', function () {
+            beforeEach(function (done) {
+                q.all([clearTeams(), clearUsers()]).then(function () {
                     done();
+                });
+            });
+
+            beforeEach(function () {
+                user = {
+                    name: 'testy tester',
+                    email: 'test@test.com',
+                    password: 'password'
+                };
+            });
+
+            it('should require a name for the new user', function (done) {
+                delete user.name;
+                server
+                .post('/register')
+                .send({user: user})
+                .expect(400)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.error.text.should.be.equal('You must enter a name');
+                    return done();
+                });
+            });
+
+            it('should require an email for the new user', function (done) {
+                delete user.email;
+                server
+                .post('/register')
+                .send({user: user})
+                .expect(400)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.error.text.should.be.equal('You must enter a valid email address');
+                    return done();
+                });
+            });
+
+            it('should require a password for the new user', function (done) {
+                delete user.password;
+                server
+                .post('/register')
+                .send({user: user})
+                .expect(400)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.error.text.should.be.equal('You must enter a password');
+                    return done();
+                });
+            });
+
+            it('should require a password that is between 8-100 characters', function (done) {
+                user.password = 'a';
+                server
+                .post('/register')
+                .send({user: user})
+                .expect(400)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.error.text.should.be.equal('Password must be between 8-100 characters long');
+                });
+                // 101 characters
+                user.password = 'fejwiofejoigneffwoignewignwoiengoiewngoiwgnewoingwoignewgoinoewingewoignoiwnoiwnwoignewoignewoignewoi';
+                server
+                .post('/register')
+                .send({user: user})
+                .expect(400)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    res.error.text.should.be.equal('Password must be between 8-100 characters long');
+                    return done();
+                });
+            });
+
+            it('should create a user and a team for that user together', function (done) {
+                server
+                .post('/register')
+                .send({user: user})
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        should.not.exist(err);
+                        return done(err);
+                    }
+                    var user = res.body.user;
+                    // User properties
+                    user.name.should.be.equal('testy tester');
+                    user.email.should.be.equal('test@test.com');
+                    user.roles.length.should.be.equal(1);
+                    user.roles[0].should.be.equal('authenticated');
+                    // Check team exists
+                    user.teams.length.should.be.equal(1);
+                    // Query the new team and check name
+
+                    Team.findOne({
+                        _id: user.teams[0]
+                    }, function (err, team) {
+                        team.name.should.be.equal('testy tester\'s Team');
+                        done();
+                    });
+                });
+            });
+        });
+
+        describe('register with registration code', function () {
+            before(function (done) {
+                q.all([clearTeams(), clearUsers()]).then(function () {
+                    done();
+                });
+            });
+
+            it('should not match if no registration code is present', function (done) {
+                server
+                .post('/register')
+                .send({user: user, regCode: 'badRegCode'})
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        should.not.exist(err);
+                    }
+                    // Check that the user is only on one team
+                    res.body.user.teams.length.should.be.equal(1);
+                    // Check that it is their own team
+                    Team.findOne({
+                        _id: res.body.user.teams[0]
+                    }, function (err, team) {
+                        should.not.exist(err);
+                        team.name.should.match(/testy tester/);
+                    });
+                    user = res.body.user;
+                    done();
+                });
+            });
+
+            it('should join the inviting users team when a valid registration code is used', function (done) {
+                var newUser = {
+                    email: 'newguy@test.com',
+                    name: 'New Guy',
+                    password: 'password'
+                };
+                // Send an invite from the first user
+                server
+                .post('/inviteToTeam')
+                .send({teamId: user.teams[0], email: 'newguy@test.com'})
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    res.status.should.equal(200);
+                    // Find the updated user so we have the invite code
+                    User.findOne({
+                        _id: user._id
+                    }, function (err, userWithInvite) {
+                        should.not.exist(err);
+                        // Join using that invite code
+                        server
+                        .post('/register')
+                        .send({user: newUser, regCode: userWithInvite.invites[0].inviteString})
+                        .expect(200)
+                        .end(function (err, res) {
+                            should.not.exist(err);
+                            // Check that the user is only both teams now
+                            res.body.user.teams.length.should.be.equal(2);
+                            // Check that the user is on their own team
+                            Team.findOne({
+                                _id: res.body.user.teams[0]
+                            }, function (err, team) {
+                                should.not.exist(err);
+                                team.name.should.match(/New Guy/);
+                            });
+                            // Check that the user is also on the first user's team
+                            Team.findOne({
+                                _id: res.body.user.teams[1]
+                            }, function (err, team) {
+                                should.not.exist(err);
+                                team.name.should.match(/testy tester/);
+                            });
+                            done();
+                        });
+                    });
                 });
             });
         });
@@ -227,7 +288,10 @@ describe('User controller', function () {
     describe('login()', function () {
         // Create user for login
         before(function (done) {
-            createUser(done);
+            //createUser(done);
+            userTaskHelper.createUserAndTask(done).then(function (userTask) {
+                user = userTask['user'];
+            });
         });
 
         // Remove the user
@@ -278,15 +342,16 @@ describe('User controller', function () {
         });
 
         it('should allow the user to login successfully', function (done) {
-            loginUser(done);
+            loginUser(server, user.email, user.password, done);
         });
     });
 
     describe('me()', function () {
         // Create a user
         before(function (done) {
-            createUser();
-            loginUser(done);
+            userTaskHelper.createUserAndTask().then(function (userTask) {
+                loginUser(server, user.email, user.password, done);
+            });
         });
 
         // Remove the user

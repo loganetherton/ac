@@ -279,6 +279,11 @@ exports.createFakeObjectId = function () {
     return createString(24);
 };
 
+//// See what Mongoose is up to
+//mongoose.set('debug', function (coll, method, query, doc) {
+//    console.log(coll + " " + method + " " + JSON.stringify(query) + " " + JSON.stringify(doc));
+//});
+
 /**
  * Check the number of invites the user currently has
  * @param inviteCount

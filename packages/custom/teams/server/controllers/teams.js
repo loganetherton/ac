@@ -131,13 +131,15 @@ exports.getTeamById = function(req, res, next) {
  * Create invite
  * @param inviteEmail
  * @param invitingUser
+ * @param team The ID of the team for which this user is being invited
  * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
  */
-var createInvite = function (inviteEmail, invitingUser) {
+var createInvite = function (inviteEmail, invitingUser, team) {
     var deferred = q.defer();
     // Add this invite
     invitingUser.invites.push({
-        invitedEmail: inviteEmail
+        invitedEmail: inviteEmail,
+        teamId: team
     });
     invitingUser.save(function (err, user) {
         if (err) {
@@ -177,7 +179,7 @@ var inviteUserToTeam = function (email, team, invitingUser, newUser) {
     // Find team for which this invitation pertains
     Team.getById(team, function (err, team) {
         // Create invite
-        createInvite(email, invitingUser).then(function (response) {
+        createInvite(email, invitingUser, team).then(function (response) {
             // Create body
             body = '<p>You\'ve been invited to join ' + team.name + '</p>';
             if (newUser) {

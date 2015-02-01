@@ -8,6 +8,11 @@ var mongoose = require('mongoose'),
  * @returns {*}
  */
 exports.checkValidObjectId = function (id) {
+    // If we're passing in an ID right from the db, check that it's valid that way
+    if (typeof id === 'object' && id.hasOwnProperty('_bsontype')) {
+        return id._bsontype === 'ObjectID'
+    }
+    // Otherwise, go through the mongoose regex (^[0-9a-fA-F]{24}$)
     return mongoose.Types.ObjectId.isValid(id);
 };
 

@@ -50,6 +50,11 @@ var InviteSchema = new Schema({
     inviteString: {
         type: String
     },
+    teamId: {
+        type: Schema.ObjectId,
+        ref: 'Team',
+        required: true
+    },
     expires: {
         type: Date
     }
@@ -153,6 +158,18 @@ UserSchema.statics.findByEmail = function (email, cb) {
     this.findOne({
         email: email
     }).exec(cb);
+};
+
+/**
+ * Find a user by an invite code
+ * @param regCode
+ * @param cb
+ */
+UserSchema.statics.findByInviteCode = function (regCode, cb) {
+    this.findOne()
+    .where('invites')
+    .elemMatch({inviteString : regCode})
+    .exec(cb);
 };
 
 /**

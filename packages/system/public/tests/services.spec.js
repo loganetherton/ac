@@ -275,3 +275,36 @@ describe('hasAuthorizationService', function () {
         expect(hasAuthorizationService(task)).toBeTruthy();
     }));
 });
+
+ddescribe('acSessionService', function () {
+    var acSessionService, httpBackend;
+
+    beforeEach(function () {
+        module('mean');
+        module('mean.system', function ($provide) {
+            $provide.factory('User', UserMock);
+        });
+    });
+
+    beforeEach(inject(function (_acSessionService_, $httpBackend) {
+        acSessionService = _acSessionService_;
+        httpBackend = $httpBackend;
+    }));
+
+    it('should have one method', function () {
+        expect(Object.keys(acSessionService).length).toBe(1);
+    });
+
+    describe('writeTeamToSession', function () {
+        beforeEach(function () {
+            httpBackend.whenPOST('/writeTeamToSession').respond('Written');
+        });
+
+        it('should make a call to /writeTeamToSession', function () {
+            acSessionService.writeTeamToSession('fakeTeam').then(function (response) {
+                expect(response.data).toBe('Written');
+            });
+            httpBackend.flush();
+        });
+    });
+});

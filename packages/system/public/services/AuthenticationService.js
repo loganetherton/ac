@@ -3,7 +3,7 @@
 var app = angular.module('mean.system');
 
 app.factory('AuthenticationService',
-['$q', '$timeout', '$http', 'User', '$rootScope', function ($q, $timeout, $http, User, $rootScope) {
+['$q', '$timeout', '$http', 'User', function ($q, $timeout, $http, User) {
     var _identity,
     _authenticated = false;
 

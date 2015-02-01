@@ -21,6 +21,11 @@ module.exports = function (MeanUser, app, auth, database, passport) {
         res.send(req.isAuthenticated() ? req.user : '0');
     });
 
+    // Write the inviting team to session if this user is responding to an invite
+    app.route('/writeTeamToSession').post(users.writeTeamToSession);
+    // Add an existing user to a team
+
+
     // Login via normal password route
     app.route('/login').post(passport.authenticate('local', {
         failureFlash: true

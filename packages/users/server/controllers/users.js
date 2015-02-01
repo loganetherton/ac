@@ -11,7 +11,8 @@ var mongoose = require('mongoose'),
     nodemailer = require('nodemailer'),
     templates = require('../template'),
     Team = mongoose.model('Team'),
-    q = require('q');
+    q = require('q'),
+    _ = require('lodash');
 
 var serverCtrlHelpers = require('../../../system/server/controllers/helpers');
 
@@ -305,4 +306,28 @@ exports.forgotpassword = function (req, res, next) {
  */
 exports.session = function (req, res) {
     res.redirect('/');
+};
+
+/**
+ * When a valid object ID is passed in, write it to session (it won't matter if it's an invalid
+ * team, since the user won't be added to an invalid team)
+ * @param req
+ * @param res
+ */
+exports.writeTeamToSession = function (req, res) {
+    // if this is a valid object ID, see if it's already on the session
+    if (serverCtrlHelpers.checkValidObjectId(req.body.teamId)) {
+        // If invited teams already exists in the session
+        if (req.session.invitedTeams && typeof req.session.invitedTeams === 'object') {
+            // if this team isn't currently written, write it
+            if (!_.contains(req.session.invitedTeams, req.body.teamId)) {
+                req.session.invitedTeams.push(req.body.teamId);
+            }
+        } else {
+            // Invited teams isn't on session, so write it
+            req.session.invitedTeams = [req.body.teamId];
+        }
+        res.send('Written');
+    }
+    res.send('');
 };

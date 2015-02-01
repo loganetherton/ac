@@ -38,7 +38,7 @@ function ($stateProvider, $urlRouterProvider) {
         }
     })
     .state('auth.login', {
-        url: '^/login',
+        url: '^/login?regCode',
         templateUrl: 'users/views/login.html'
     })
     .state('auth.register', {

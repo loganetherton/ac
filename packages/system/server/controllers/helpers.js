@@ -17,6 +17,15 @@ exports.checkValidObjectId = function (id) {
 };
 
 /**
+ * Check to see if a string is in fact an RFC4122 UUID
+ * @param id
+ * @returns {*|Boolean|SchemaType|Array|{index: number, input: string}}
+ */
+exports.checkValidUUID = function (id) {
+    return id.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
+};
+
+/**
  * Check that the requested team is one in which the user is a member
  */
 exports.checkTeam = function (teams, taskTeam) {

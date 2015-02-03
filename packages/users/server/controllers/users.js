@@ -12,7 +12,8 @@ var mongoose = require('mongoose'),
     templates = require('../template'),
     Team = mongoose.model('Team'),
     q = require('q'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    Promise = require('bluebird');
 
 var serverCtrlHelpers = require('../../../system/server/controllers/helpers');
 
@@ -46,30 +47,103 @@ exports.signout = function (req, res) {
  * @param regCode
  */
 var checkRegistrationCode = function (regCode) {
-    var deferred = q.defer();
-    // If no reg code, continue
-    if (!regCode) {
-        deferred.resolve('No invite');
-    } else {
-        // Find the user that did the inviting
-        User.findByInviteCode(regCode, function (err, user) {
-            if (err) {
-                return deferred.reject('Error finding user by invite');
-            }
-            if (!user) {
-                return deferred.resolve('No matching invite');
-            }
-            // If a user was found by the invite string, find out which team to add this user to
-            user.invites.forEach(function (invite) {
-                if (invite.inviteString === regCode) {
-                    return deferred.resolve(invite.teamId);
+    return new Promise(function (resolve, reject) {
+        // If no reg code, continue
+        if (!regCode) {
+            resolve('No invite');
+        } else {
+            // Find the user that did the inviting
+            User.findByInviteCode(regCode, function (err, user) {
+                if (err) {
+                    return reject('Error finding user by invite');
                 }
+                if (!user) {
+                    return resolve('No matching invite');
+                }
+                // If a user was found by the invite string, find out which team to add this user to
+                user.invites.forEach(function (invite) {
+                    // Add this user to the team for which they were invited
+                    if (invite.inviteString === regCode) {
+                        return resolve(invite.teamId);
+                    }
+                });
+                resolve('No matching invite');
             });
-            return deferred.resolve('No matching invite');
-        });
+        }
+    });
+};
+
+/**
+ * Create user
+ */
+exports.createAsync = function (req, res, next) {
+    // Create user
+    var user = new User(req.body.user);
+    var team = new Team({
+        name: user.name + '\'s Team'
+    });
+
+    user.provider = 'local';
+    // Because we set our user.provider to local our models/user.js validation will always be true
+    req.assert('user.name', 'You must enter a name').notEmpty();
+    req.assert('user.email', 'You must enter a valid email address').isEmail();
+    req.assert('user.password', 'You must enter a password').notEmpty();
+    req.assert('user.password', 'Password must be between 8-100 characters long').len(8, 100);
+    // Return errors if there were any
+    var errors = req.validationErrors();
+    if (errors) {
+        return res.status(400).send(errors[0].msg);
     }
-    // Add this user to the team for which they were invited
-    return deferred.promise;
+    // Create the team, then add the user to the team
+    team.save(function (err) {
+        if (err) {
+            return res.status(400).send(errors[0].msg);
+        }
+        // Push this user's team
+        user.teams.push(team._id);
+        // Concat additional teams
+        if (req.session.invitedTeams) {
+            user.teams = user.teams.concat(req.session.invitedTeams);
+            // Keep only unique utems
+            user.teams = _.uniq(user.teams);
+        }
+        // Save the user
+        user.save(function (err) {
+            if (err) {
+                switch (err.code) {
+                /**
+                 * Todo Handle specific index breaking errors
+                 */
+                    default:
+                        var modelErrors = [];
+                        if (err.errors) {
+
+                            for (var x in err.errors) {
+                                if (!err.errors.hasOwnProperty(x)) {
+                                    continue;
+                                }
+                                modelErrors.push({
+                                    param: x, msg: err.errors[x].message, value: err.errors[x].value
+                                });
+                            }
+                            res.status(400).send(modelErrors);
+                        }
+                }
+                return res.status(400);
+            }
+            // Log the user in
+            req.logIn(user, function (err) {
+                if (err) {
+                    console.log('error logging in');
+                    return next(err);
+                }
+                return res.send({
+                    user: req.user,
+                    redirectState: 'site.tasklist'
+                });
+            });
+        });
+    });
 };
 
 /**
@@ -314,20 +388,37 @@ exports.session = function (req, res) {
  * @param req
  * @param res
  */
-exports.writeTeamToSession = function (req, res) {
-    // if this is a valid object ID, see if it's already on the session
-    if (serverCtrlHelpers.checkValidObjectId(req.body.teamId)) {
-        // If invited teams already exists in the session
-        if (req.session.invitedTeams && typeof req.session.invitedTeams === 'object') {
-            // if this team isn't currently written, write it
-            if (!_.contains(req.session.invitedTeams, req.body.teamId)) {
-                req.session.invitedTeams.push(req.body.teamId);
-            }
-        } else {
-            // Invited teams isn't on session, so write it
-            req.session.invitedTeams = [req.body.teamId];
-        }
-        res.send('Written');
+exports.writeInviteToSession = function (req, res) {
+    // If no team ID is passed in, return nothing
+    if (!req.body.hasOwnProperty('regCode')) {
+        return res.send('');
     }
-    res.send('');
+    // if this is a valid object ID, see if it's already on the session
+    if (serverCtrlHelpers.checkValidUUID(req.body.regCode)) {
+        // Check to make sure that this invite string actually exists
+        return checkRegistrationCode(req.body.regCode).then(function (response) {
+            // Make sure a valid team was returned before continuing
+            if(serverCtrlHelpers.checkValidObjectId(response)) {
+                // If invited teams already exists in the session
+                if (req.session.invitedTeams && typeof req.session.invitedTeams === 'object') {
+                    // if this team isn't currently written, write it
+                    if (!_.contains(req.session.invitedTeams, response.toString())) {
+                        req.session.invitedTeams.push(response);
+                    }
+                } else {
+                    // Invited teams isn't on session, so write it
+                    req.session.invitedTeams = [response];
+                }
+                // Added this team to session
+                return res.json({
+                    invitedTeams: req.session.invitedTeams
+                });
+            }
+            return res.status(400).send('');
+        }, function (err) {
+            // @todo Error handling
+        });
+    }
+    // Nothing written
+    return res.status(400).send('');
 };

@@ -6,7 +6,8 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     crypto = require('crypto'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    uuid = require('node-uuid');
 
 /**
  * Ensure that a password is given for local strategy only
@@ -136,7 +137,7 @@ InviteSchema.pre('save', function (next) {
     date.setDate(date.getDate() + 7);
     this.expires = date;
     // Create an invite string
-    this.inviteString = createString(45);
+    this.inviteString = uuid.v4();
     next();
 });
 

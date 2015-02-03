@@ -10,7 +10,7 @@ module.exports = function (MeanUser, app, auth, database, passport) {
     // Get user info
     app.route('/users/me').get(users.me);
     // Register an account
-    app.route('/register').post(users.create);
+    app.route('/register').post(users.createAsync);
     // Email the user a password reset request
     app.route('/forgot-password').post(users.forgotpassword);
     // Allow the user to reset their password
@@ -22,7 +22,7 @@ module.exports = function (MeanUser, app, auth, database, passport) {
     });
 
     // Write the inviting team to session if this user is responding to an invite
-    app.route('/writeTeamToSession').post(users.writeTeamToSession);
+    app.route('/writeInviteToSession').post(users.writeInviteToSession);
     // Add an existing user to a team
 
 

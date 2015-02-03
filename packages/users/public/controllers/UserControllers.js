@@ -38,7 +38,7 @@
     /**
      * Handle state for login form, as well as login requests
      */
-    var LoginCtrl = function ($scope, $rootScope, Global, acLoginService) {
+    var LoginCtrl = function ($scope, $rootScope, Global, acLoginService, $state, acSessionService) {
         var vm = this;
         // This object will be filled by the form
         $scope.user = {};
@@ -47,10 +47,14 @@
         $scope.passwordInput = {
             type: 'password',
             placeholder: 'Password',
-            iconClass: '',
-            tooltipText: 'Show password'
+            iconClass: ''
         };
-
+        // If there's a registration code, save that team ID to the user's session
+        if ($state.params.regCode) {
+            acSessionService.writeTeamToSession($state.params.regCode).then(function (response) {
+                console.log(response);
+            });
+        }
         /**
          * Login to the application
          */
@@ -168,7 +172,7 @@
 
 angular.module('mean.users')
 .controller('AuthCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', 'AuthorizationService', '$state', AuthCtrl])
-.controller('LoginCtrl', ['$scope', '$rootScope', 'Global', 'acLoginService', LoginCtrl])
+.controller('LoginCtrl', ['$scope', '$rootScope', 'Global', 'acLoginService', '$state', 'acSessionService', LoginCtrl])
 .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', 'Global', 'acRegisterService', '$state', RegisterCtrl])
 .controller('ForgotPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global', ForgotPasswordCtrl])
 .controller('ResetPasswordCtrl', ['$scope', '$rootScope', '$http', '$location', '$stateParams', 'Global', ResetPasswordCtrl]);

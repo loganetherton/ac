@@ -3,7 +3,8 @@ var should = require('should'),
     User = mongoose.model('User'),
     Task = mongoose.model('Task'),
     Team = mongoose.model('Team'),
-    q = require('q');
+    q = require('q'),
+    Promise = require('bluebird');
 
 var user, task, team;
 var deferred;
@@ -14,14 +15,14 @@ var deferred;
  * @returns {Promise.promise|*}
  */
 var removeTasks = exports.removeTasks = function () {
-    var deferred = q.defer();
-    Task.remove({}, function (err) {
-        if (err) {
-            deferred.reject('Could not clear tasks collection');
-        }
+    return new Promise(function (resolve, reject) {
+        Task.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear tasks collection');
+            }
+        });
+        resolve('Tasks collection cleared');
     });
-    deferred.resolve('tasks cleared');
-    return deferred.promise;
 };
 
 /**
@@ -30,14 +31,14 @@ var removeTasks = exports.removeTasks = function () {
  * @returns {Promise.promise|*}
  */
 var removeUsers = function () {
-    var deferred = q.defer();
-    User.remove({}, function (err) {
-        if (err) {
-            deferred.reject('Could not clear users collection');
-        }
+    return new Promise(function (resolve, reject) {
+        User.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear users collection');
+            }
+        });
+        resolve('Users collection cleared');
     });
-    deferred.resolve('tasks cleared');
-    return deferred.promise;
 };
 
 /**
@@ -57,8 +58,11 @@ var removeTeams = function () {
 
 /**
  * Create another user
+ *
+ * Poor planning, ugh
  */
-exports.createOtherUser = function (done, email) {
+exports.createOtherUser = function (done, email, defer) {
+    var deferred = q.defer();
     email = email || 'test2@test.com';
     // Create a user
     user = new User({
@@ -86,8 +90,12 @@ exports.createOtherUser = function (done, email) {
             if (typeof done === 'function') {
                 done();
             }
+            deferred.resolve(user);
         });
     });
+    if (defer) {
+        return deferred.promise;
+    }
     return user;
 };
 
@@ -177,29 +185,29 @@ var initUsers = function () {
  * @param done
  */
 exports.createUserAndTask = function (done) {
-    deferred = q.defer();
-    removeUsersAndTasks().then(function () {
-        /**
-         * Create user and task
-         */
-        var init = initUsers().then(function () {
-            return createTask();
-        });
-        init.then(function () {
-            // Send back the user and task
-            deferred.resolve({
-                user: user,
-                task: task
+    return new Promise(function (resolve, reject) {
+        removeUsersAndTasks().then(function () {
+            /**
+             * Create user and task
+             */
+            var init = initUsers().then(function () {
+                return createTask();
             });
-            if (typeof done === 'function') {
-                done();
-            }
-        }, function (err) {
-            console.log(err);
-            should.not.exist(err);
+            init.then(function () {
+                // Send back the user and task
+                resolve({
+                    user: user,
+                    task: task
+                });
+                if (typeof done === 'function') {
+                    done();
+                }
+            }, function (err) {
+                console.log(err);
+                should.not.exist(err);
+            });
         });
     });
-    return deferred.promise;
 };
 
 /**
@@ -234,15 +242,14 @@ exports.createUserAndTeam = function (done) {
  * @param done
  */
 var removeUsersAndTasks = exports.removeUsersAndTasks = function (done) {
-    var deferred = q.defer();
-    q.all(removeUsers(), removeTasks()).then(function () {
-        deferred.resolve();
+    Promise.all([removeUsers(), removeTasks()]).then(function () {
         if (typeof done !== 'undefined') {
             done();
         }
     });
-    return deferred.promise;
 };
+
+removeUsersAndTasks = Promise.promisify(removeUsersAndTasks);
 
 /**
  * Cleanup the user and task
@@ -311,4 +318,38 @@ exports.checkInvites = function (inviteCount, user, done) {
         }
         done();
     });
+};
+
+/**
+ * Helper function for sending an invite during testing
+ * @param server
+ * @param inputUser
+ * @param email
+ * @param done
+ * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|Tc.g.promise}
+ */
+exports.sendInvite = function (server, inputUser, email, done) {
+    // @TODO Try promisify
+    var deferred = q.defer();
+    email = email || 'newguy@test.com';
+    server
+    .post('/inviteToTeam')
+    .send({teamId: inputUser.teams[0], email: email})
+    .expect(200)
+    .end(function (err, res) {
+        should.not.exist(err);
+        res.status.should.equal(200);
+        // Get the updated user record
+        User.findOne({
+            email: inputUser.email
+        }, function (err, thisUser) {
+            should.not.exist(err);
+            if (typeof done === 'function') {
+                done();
+            } else {
+                deferred.resolve(thisUser);
+            }
+        });
+    });
+    return deferred.promise;
 };

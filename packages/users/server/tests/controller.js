@@ -3,95 +3,108 @@
 var mongoose = require('mongoose'),
     Team = mongoose.model('Team'),
     User = mongoose.model('User'),
-    q = require('q'),
     request = require('supertest'),
     server = request.agent('http://localhost:3000'),
-    should = require('should');
+    should = require('should'),
+    uuid = require('node-uuid'),
+    Promise = require('bluebird');
 
 // Helpers
 var userTaskHelper = require('../../../../test/mochaHelpers/initUserAndTasks'),
     loginUser = require('../../../../test/mochaHelpers/loginUser');
 
-var user;
+var user, secondUser;
 
 // Clear the users collection
 var clearUsers = function () {
-    var deferred = q.defer();
-    User.remove({}, function (err) {
-        if (err) {
-            deferred.reject('Could not clear users collection');
-        }
+    return new Promise(function (resolve, reject) {
+        User.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear users collection');
+            }
+        });
+        resolve('tasks cleared');
     });
-    deferred.resolve('tasks cleared');
-    return deferred.promise;
 };
 
 // Clear the teams collection
 var clearTeams = function () {
-    var deferred = q.defer();
-    Team.remove({}, function (err) {
-        if (err) {
-            deferred.reject('Could not clear teams collection');
-        }
+    return new Promise(function (resolve, reject) {
+        Team.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear teams collection');
+            }
+            resolve('tasks cleared');
+        });
     });
-    deferred.resolve('tasks cleared');
-    return deferred.promise;
 };
 
 /**
- * Ensures that only a single user exists in the database
- *
- * @param done
+ * Create users, invite, and logout each
+ * @returns {{firstUser: Function, sendInviteAndLogout: Function, otherUser: Function}}
  */
-var createUser = function (done) {
-    /**
-     * Clear the users collection and create a test user
-     *
-     * @returns {Promise.promise|*}
-     */
-    var initUsers = function () {
-        var deferred = q.defer();
-        // Create a user
-        user = new User({
-            name: 'Full name',
-            email: 'test@test.com',
-            password: 'password',
-            teams: [mongoose.Types.ObjectId()]
-        });
-        /**
-         * Clear the collection
-         */
-        clearUsers().then(function () {
-            user.save(function (err) {
-                if (err) {
-                    deferred.reject('Could not save user');
-                }
-                deferred.resolve('Saved user');
+var createUserAndSendInvite = function () {
+    return {
+        // Create first user, send invite, logout
+        firstUser: function () {
+            // Create the first user
+            return userTaskHelper.createUserAndTask().then(function (userTask) {
+                // Log the first user in
+                user = userTask['user'];
+                return loginUser(server, user.email, user.password);
+            })
+            .then(this.sendInviteAndLogout)
+            .then(function (invitingUser) {
+                user = invitingUser;
             });
-        });
-        return deferred.promise;
+        },
+        // Send invite for this user, then logout
+        sendInviteAndLogout: function (invitingUser) {
+            // Create an invite using the first user
+            return userTaskHelper.sendInvite(server, invitingUser)
+                // Log the first user out
+            .then(function (thisUser) {
+                return new Promise(function (resolve, reject) {
+                    server
+                    .get('/logout')
+                    .expect(302)
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        resolve(thisUser);
+                    });
+                });
+            })
+        },
+        // Create a second user, send an invite, logout
+        otherUser: function () {
+            // Create a second user
+            return userTaskHelper.createOtherUser(null, 'test2@test.com', true)
+                // Log the second user in
+            .then(function (thisUser) {
+                secondUser = thisUser;
+                return loginUser(server, secondUser.email, secondUser.password);
+            })
+                // Send the invite and log the user out
+            .then(this.sendInviteAndLogout)
+                // Keep reference to the second user
+            .then(function (invitingUser) {
+                secondUser = invitingUser;
+            });
+        }
     };
-
-    /**
-     * Create user and task
-     */
-    initUsers().then(function () {
-        done();
-    }).fail(function (err) {
-        should.not.exist(err);
-    });
 };
 
+var inviteHandler = createUserAndSendInvite();
 
 describe('User controller', function () {
 
-    describe('create()', function () {
-        var user;
-
+    describe('POST /register', function () {
         describe('register without registration code', function () {
             beforeEach(function (done) {
-                q.all([clearTeams(), clearUsers()]).then(function () {
+                Promise.all([clearTeams(), clearUsers()]).then(function () {
                     done();
+                }).catch(function (e) {
+                    should.not.exist(e);
                 });
             });
 
@@ -110,9 +123,7 @@ describe('User controller', function () {
                 .send({user: user})
                 .expect(400)
                 .end(function (err, res) {
-                    if (err) {
-                        return done(err);
-                    }
+                    should.not.exist(err);
                     res.error.text.should.be.equal('You must enter a name');
                     return done();
                 });
@@ -125,9 +136,7 @@ describe('User controller', function () {
                 .send({user: user})
                 .expect(400)
                 .end(function (err, res) {
-                    if (err) {
-                        return done(err);
-                    }
+                    should.not.exist(err);
                     res.error.text.should.be.equal('You must enter a valid email address');
                     return done();
                 });
@@ -140,9 +149,7 @@ describe('User controller', function () {
                 .send({user: user})
                 .expect(400)
                 .end(function (err, res) {
-                    if (err) {
-                        return done(err);
-                    }
+                    should.not.exist(err);
                     res.error.text.should.be.equal('You must enter a password');
                     return done();
                 });
@@ -155,9 +162,7 @@ describe('User controller', function () {
                 .send({user: user})
                 .expect(400)
                 .end(function (err, res) {
-                    if (err) {
-                        return done(err);
-                    }
+                    should.not.exist(err);
                     res.error.text.should.be.equal('Password must be between 8-100 characters long');
                 });
                 // 101 characters
@@ -167,9 +172,7 @@ describe('User controller', function () {
                 .send({user: user})
                 .expect(400)
                 .end(function (err, res) {
-                    if (err) {
-                        return done(err);
-                    }
+                    should.not.exist(err);
                     res.error.text.should.be.equal('Password must be between 8-100 characters long');
                     return done();
                 });
@@ -194,7 +197,6 @@ describe('User controller', function () {
                     // Check team exists
                     user.teams.length.should.be.equal(1);
                     // Query the new team and check name
-
                     Team.findOne({
                         _id: user.teams[0]
                     }, function (err, team) {
@@ -204,79 +206,190 @@ describe('User controller', function () {
                 });
             });
         });
+    });
 
-        describe('register with registration code', function () {
+    describe('POST /writeInviteToSession', function () {
+        var inviteString;
+        before(function (done) {
+            Promise.all([clearTeams(), clearUsers()]).then(function () {
+                done();
+            });
+        });
+
+        it('should return nothing if no team ID was passed in', function (done) {
+            server
+            .post('/writeInviteToSession')
+            .send({})
+            .expect(200)
+            .end(function (err, res) {
+                should.not.exist(err);
+                res.body.should.not.have.property('invitedTeams');
+                done();
+            });
+        });
+
+        it('should return an error if an invalid invite string was passed in', function (done) {
+            server
+            .post('/writeInviteToSession')
+            .send({regCode: 'FAKE'})
+            .expect(400)
+            .end(function (err, res) {
+                should.not.exist(err);
+                res.body.should.not.have.property('invitedTeams');
+                done();
+            });
+        });
+
+        it('should return an error if a non-matching invite string was passed in', function (done) {
+            inviteString = uuid.v4();
+            server
+            .post('/writeInviteToSession')
+            .send({regCode: inviteString})
+            .expect(400)
+            .end(function (err, res) {
+                should.not.exist(err);
+                res.body.should.not.have.property('invitedTeams');
+                done();
+            });
+        });
+
+        describe('existing invite', function () {
+            // Create two users and send an invite from each
             before(function (done) {
-                q.all([clearTeams(), clearUsers()]).then(function () {
+                inviteHandler.firstUser().then(function () {
+                    return inviteHandler.otherUser();
+                }).then(function () {
+                    done();
+                }).catch(function (err) {
+                    should.not.exist(err);
+                })
+            });
+
+            it('should save the inviting team to session if a valid string is passed in', function (done) {
+                server
+                .post('/writeInviteToSession')
+                .send({regCode: user.invites[0].inviteString})
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    res.body.should.have.property('invitedTeams');
+                    res.body.invitedTeams.should.have.length(1);
+                    res.body.invitedTeams[0].should.be.equal(user.teams[0].toString());
                     done();
                 });
             });
 
-            it('should not match if no registration code is present', function (done) {
+            it('should only save one invite string at a time to session', function (done) {
                 server
-                .post('/register')
-                .send({user: user, regCode: 'badRegCode'})
+                .post('/writeInviteToSession')
+                .send({regCode: secondUser.invites[0].inviteString})
                 .expect(200)
                 .end(function (err, res) {
-                    if (err) {
-                        should.not.exist(err);
-                    }
-                    // Check that the user is only on one team
-                    res.body.user.teams.length.should.be.equal(1);
-                    // Check that it is their own team
+                    should.not.exist(err);
+                    res.body.should.have.property('invitedTeams');
+                    res.body.invitedTeams.should.have.length(1);
+                    res.body.invitedTeams[0].should.be.equal(secondUser.teams[0].toString());
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('POST /register', function () {
+        //var user;
+
+        describe('register with registration code', function () {
+            it('should join the teams during registration when teams are on session', function (done) {
+                user = {
+                    name: 'Evil bad guy',
+                    email: 'testThisGuy@test.com',
+                    password: 'password'
+                };
+                server
+                .post('/register')
+                .send({user: user})
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    // Check that the user is only both teams now
+                    res.body.user.teams.length.should.be.equal(2);
+                    // Check that the user is on their own team
                     Team.findOne({
                         _id: res.body.user.teams[0]
                     }, function (err, team) {
                         should.not.exist(err);
-                        team.name.should.match(/testy tester/);
+                        team.name.should.match(/Evil bad guy/);
+                        // Check that the user is on the inviting user's team
+                        Team.findOne({
+                            _id: res.body.user.teams[1]
+                        }, function (err, team) {
+                            should.not.exist(err);
+                            team.name.should.match(/Full name/);
+                            done();
+                        });
                     });
-                    user = res.body.user;
-                    done();
                 });
             });
 
-            it('should join the inviting users team when a valid registration code is used', function (done) {
-                var newUser = {
-                    email: 'newguy@test.com',
-                    name: 'New Guy',
-                    password: 'password'
-                };
-                // Send an invite from the first user
-                server
-                .post('/inviteToTeam')
-                .send({teamId: user.teams[0], email: 'newguy@test.com'})
-                .expect(200)
-                .end(function (err, res) {
-                    should.not.exist(err);
-                    res.status.should.equal(200);
-                    // Find the updated user so we have the invite code
-                    User.findOne({
-                        _id: user._id
-                    }, function (err, userWithInvite) {
+            describe('non-existent team', function () {
+                // Delete the user and teams
+                before(function (done) {
+                    // Clear teams
+                    Promise.all([clearTeams(), clearUsers()]).then(function () {
+                        // Create first user and send invite
+                        return inviteHandler.firstUser()
+                    })
+                    // Write team to session
+                    .then(function () {
+                        return new Promise(function (resolve, reject) {
+                            server
+                            .post('/writeInviteToSession')
+                            .send({regCode: user.invites[0].inviteString})
+                            .expect(200)
+                            .end(function (err, res) {
+                                should.not.exist(err);
+                                res.body.should.have.property('invitedTeams');
+                                res.body.invitedTeams.should.have.length(1);
+                                res.body.invitedTeams[0].should.be.equal(user.teams[0].toString());
+                                resolve();
+                            });
+                        });
+                    })
+                    // Delete all teams
+                    .then(function () {
+                        return clearTeams()
+                    })
+                    // done
+                    .then(function () {
+                        Team.find({}, function (err, teams) {
+                            done();
+                        });
+                    })
+                    .catch(function (e) {
+                        should.not.exist(e);
+                    });
+                });
+
+                it('should not join a team which does not exist', function (done) {
+                    var secondUser = {
+                        email: 'second@test.com',
+                        name: 'Second user',
+                        password: 'password'
+                    };
+                    server
+                    .post('/register')
+                    .send({user: secondUser})
+                    .expect(200)
+                    .end(function (err, res) {
                         should.not.exist(err);
-                        // Join using that invite code
-                        server
-                        .post('/register')
-                        .send({user: newUser, regCode: userWithInvite.invites[0].inviteString})
-                        .expect(200)
-                        .end(function (err, res) {
+                        // Check that the user is only on one team
+                        res.body.user.teams.length.should.be.equal(1);
+                        // Check that the user is on their own team
+                        Team.findOne({
+                            _id: res.body.user.teams[0]
+                        }, function (err, team) {
                             should.not.exist(err);
-                            // Check that the user is only both teams now
-                            res.body.user.teams.length.should.be.equal(2);
-                            // Check that the user is on their own team
-                            Team.findOne({
-                                _id: res.body.user.teams[0]
-                            }, function (err, team) {
-                                should.not.exist(err);
-                                team.name.should.match(/New Guy/);
-                            });
-                            // Check that the user is also on the first user's team
-                            Team.findOne({
-                                _id: res.body.user.teams[1]
-                            }, function (err, team) {
-                                should.not.exist(err);
-                                team.name.should.match(/testy tester/);
-                            });
+                            team.name.should.match(/Second user/);
                             done();
                         });
                     });
@@ -288,7 +401,6 @@ describe('User controller', function () {
     describe('login()', function () {
         // Create user for login
         before(function (done) {
-            //createUser(done);
             userTaskHelper.createUserAndTask(done).then(function (userTask) {
                 user = userTask['user'];
             });
@@ -342,7 +454,9 @@ describe('User controller', function () {
         });
 
         it('should allow the user to login successfully', function (done) {
-            loginUser(server, user.email, user.password, done);
+            loginUser(server, user.email, user.password).then(function () {
+                done();
+            });
         });
     });
 
@@ -350,7 +464,9 @@ describe('User controller', function () {
         // Create a user
         before(function (done) {
             userTaskHelper.createUserAndTask().then(function (userTask) {
-                loginUser(server, user.email, user.password, done);
+                loginUser(server, user.email, user.password).then(function () {
+                    done();
+                });
             });
         });
 

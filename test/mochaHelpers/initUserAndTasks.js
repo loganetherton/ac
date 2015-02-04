@@ -325,31 +325,25 @@ exports.checkInvites = function (inviteCount, user, done) {
  * @param server
  * @param inputUser
  * @param email
- * @param done
- * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|Tc.g.promise}
+ * @returns {bluebird}
  */
-exports.sendInvite = function (server, inputUser, email, done) {
-    // @TODO Try promisify
-    var deferred = q.defer();
-    email = email || 'newguy@test.com';
-    server
-    .post('/inviteToTeam')
-    .send({teamId: inputUser.teams[0], email: email})
-    .expect(200)
-    .end(function (err, res) {
-        should.not.exist(err);
-        res.status.should.equal(200);
-        // Get the updated user record
-        User.findOne({
-            email: inputUser.email
-        }, function (err, thisUser) {
+exports.sendInvite = function (server, inputUser, email) {
+    return new Promise(function (resolve, reject) {
+        email = email || 'newguy@test.com';
+        server
+        .post('/inviteToTeam')
+        .send({teamId: inputUser.teams[0], email: email})
+        .expect(200)
+        .end(function (err, res) {
             should.not.exist(err);
-            if (typeof done === 'function') {
-                done();
-            } else {
-                deferred.resolve(thisUser);
-            }
+            res.status.should.equal(200);
+            // Get the updated user record
+            User.findOne({
+                email: inputUser.email
+            }, function (err, thisUser) {
+                should.not.exist(err);
+                resolve(thisUser);
+            });
         });
     });
-    return deferred.promise;
 };

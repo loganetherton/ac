@@ -1,11 +1,11 @@
 var Promise = require('bluebird');
 /**
  * Log the user in
+ * @param server
  * @param email
  * @param password
- * @param done
  */
-module.exports = function (server, email, password, done) {
+module.exports = function (server, email, password) {
     return new Promise(function (resolve, reject) {
         server
         .post('/login')
@@ -18,10 +18,7 @@ module.exports = function (server, email, password, done) {
                 return done(err);
             }
             res.body.user._id.should.be.ok;
-            resolve('got it');
-            if (typeof done === 'function') {
-                return done();
-            }
+            resolve(res.body.user);
         });
     });
 };

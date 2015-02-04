@@ -101,121 +101,27 @@ exports.createAsync = function (req, res, next) {
         }
         // Push this user's team
         user.teams.push(team._id);
-        // Concat additional teams
-        if (req.session.invitedTeams) {
-            user.teams = user.teams.concat(req.session.invitedTeams);
-            // Keep only unique utems
-            user.teams = _.uniq(user.teams);
+        var teamOnSession = '';
+        // Get the team to which this user was invited
+        if (req.session.hasOwnProperty('invitedTeams')) {
+            teamOnSession = req.session.invitedTeams[0];
         }
-        // Save the user
-        user.save(function (err) {
-            if (err) {
-                switch (err.code) {
-                /**
-                 * Todo Handle specific index breaking errors
-                 */
-                    default:
-                        var modelErrors = [];
-                        if (err.errors) {
-
-                            for (var x in err.errors) {
-                                if (!err.errors.hasOwnProperty(x)) {
-                                    continue;
-                                }
-                                modelErrors.push({
-                                    param: x, msg: err.errors[x].message, value: err.errors[x].value
-                                });
-                            }
-                            res.status(400).send(modelErrors);
-                        }
+        // Check to make sure the team exists
+        checkTeamExists(teamOnSession)
+        .then(function (teamId) {
+            return new Promise(function (resolve, reject) {
+                // Add the user to the team
+                if (teamId) {
+                    user.teams.push(teamId);
                 }
-                return res.status(400);
-            }
-            // Log the user in
-            req.logIn(user, function (err) {
-                if (err) {
-                    console.log('error logging in');
-                    return next(err);
-                }
-                return res.send({
-                    user: req.user,
-                    redirectState: 'site.tasklist'
-                });
+                resolve();
             });
-        });
-    });
-};
-
-/**
- * Create user
- */
-exports.create = function (req, res, next) {
-    // Create user
-    var user = new User(req.body.user);
-    var team = new Team({
-        name: user.name + '\'s Team'
-    });
-
-    user.provider = 'local';
-    // Because we set our user.provider to local our models/user.js validation will always be true
-    req.assert('user.name', 'You must enter a name').notEmpty();
-    req.assert('user.email', 'You must enter a valid email address').isEmail();
-    req.assert('user.password', 'You must enter a password').notEmpty();
-    req.assert('user.password', 'Password must be between 8-100 characters long').len(8, 100);
-    // Return errors if there were any
-    var errors = req.validationErrors();
-    if (errors) {
-        return res.status(400).send(errors[0].msg);
-    }
-
-    // Check registration code and see if a team can be found
-    checkRegistrationCode(req.body.regCode).then(function (resolve) {
-        var deferred = q.defer();
-        var teamId = resolve.toString();
-        //If an object ID was returned, add the user to that team
-        if (serverCtrlHelpers.checkValidObjectId(teamId)) {
-            // Add the user to the team
-            deferred.resolve(teamId);
-        } else {
-            deferred.resolve();
-        }
-        return deferred.promise;
-    // Continue on with creating the user
-    }).then(function (teamId) {
-        // Create the team, then add the user to the team
-        team.save(function (err) {
-            if (err) {
-                return res.status(400).send(errors[0].msg);
-            }
-            user.roles = ['authenticated'];
-            user.teams.push(team._id);
-            // Add the user to any other teams
-            if (teamId) {
-                user.teams.push(teamId);
-            }
+        })
+        .then(function () {
             // Save the user
             user.save(function (err) {
                 if (err) {
-                    switch (err.code) {
-                    /**
-                     * Todo Handle specific index breaking errors
-                     */
-                        default:
-                            var modelErrors = [];
-                            if (err.errors) {
-
-                                for (var x in err.errors) {
-                                    if (!err.errors.hasOwnProperty(x)) {
-                                        continue;
-                                    }
-                                    modelErrors.push({
-                                        param: x, msg: err.errors[x].message, value: err.errors[x].value
-                                    });
-                                }
-                                res.status(400).send(modelErrors);
-                            }
-                    }
-                    return res.status(400);
+                    res.status(400).send(err);
                 }
                 // Log the user in
                 req.logIn(user, function (err) {
@@ -229,11 +135,12 @@ exports.create = function (req, res, next) {
                     });
                 });
             });
+        }).catch(function (err) {
+            res.status(400).json(err);
         });
-    }, function () {
-        // @TODO Error handling
     });
 };
+
 /**
  * Get the current user (for exporting onto global object)
  */
@@ -383,6 +290,31 @@ exports.session = function (req, res) {
 };
 
 /**
+ * Check to see if a team exists by ID
+ * @param teamId
+ * @returns {bluebird}
+ */
+var checkTeamExists = function (teamId) {
+    return new Promise(function (resolve, reject) {
+        if (!teamId) {
+            return resolve();
+        }
+        Team.findOne({
+            _id: teamId
+        }, function (err, team) {
+            if (err) {
+                return false;
+            }
+            if (team) {
+                return resolve(teamId);
+            } else {
+                resolve();
+            }
+        });
+    });
+};
+
+/**
  * When a valid object ID is passed in, write it to session (it won't matter if it's an invalid
  * team, since the user won't be added to an invalid team)
  * @param req
@@ -399,24 +331,18 @@ exports.writeInviteToSession = function (req, res) {
         return checkRegistrationCode(req.body.regCode).then(function (response) {
             // Make sure a valid team was returned before continuing
             if(serverCtrlHelpers.checkValidObjectId(response)) {
-                // If invited teams already exists in the session
-                if (req.session.invitedTeams && typeof req.session.invitedTeams === 'object') {
-                    // if this team isn't currently written, write it
-                    if (!_.contains(req.session.invitedTeams, response.toString())) {
-                        req.session.invitedTeams.push(response);
-                    }
-                } else {
-                    // Invited teams isn't on session, so write it
+                return checkTeamExists(response).then(function () {
+                    // Save the invited team to session
                     req.session.invitedTeams = [response];
-                }
-                // Added this team to session
-                return res.json({
-                    invitedTeams: req.session.invitedTeams
+                    // Added this team to session
+                    return res.json({
+                        invitedTeams: req.session.invitedTeams
+                    });
                 });
             }
             return res.status(400).send('');
-        }, function (err) {
-            // @todo Error handling
+        }).catch(function (err) {
+            return res.status(400).send(err);
         });
     }
     // Nothing written

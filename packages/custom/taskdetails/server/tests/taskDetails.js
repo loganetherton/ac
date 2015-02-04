@@ -4,7 +4,7 @@ var should = require('should'),
     mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Task = mongoose.model('Task'),
-    q = require('q');
+    Promise = require('bluebird');
 
 // Superagent
 var request = require('supertest'),
@@ -16,16 +16,16 @@ var userTaskHelper = require('../../../../../test/mochaHelpers/initUserAndTasks'
 
 // Find a single task
 var findMostRecentTask = function () {
-    var defer = q.defer();
-    Task.findOne({}, function (err, data) {
-        if (err) {
-            should.not.exist(err);
-            defer.reject('Could not find task ID');
-        }
-        task = data;
-        defer.resolve(data._id);
+    return new Promise(function (resolve, reject) {
+        Task.findOne({}, function (err, data) {
+            if (err) {
+                should.not.exist(err);
+                reject('Could not find task ID');
+            }
+            task = data;
+            resolve(data._id);
+        });
     });
-    return defer.promise;
 };
 
 /**
@@ -37,14 +37,17 @@ var task;
 describe('GET /task/:taskId API', function () {
     // Create user and task only once
     before(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask().then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
+            done();
         });
     });
     // Remove user and task at the end
     after(function (done) {
-        userTaskHelper.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks().then(function () {
+            done();
+        });
     });
 
     describe('retrieve a single a task (unauthenticated)', function () {
@@ -68,7 +71,9 @@ describe('GET /task/:taskId API', function () {
     describe('retrieve a single a task (authenticated)', function () {
         describe('on team that created task', function () {
             before(function (done) {
-                loginUser(server, 'test@test.com', 'password', done);
+                loginUser(server, 'test@test.com', 'password').then(function () {
+                    done();
+                });
             });
             it('should prevent invalid object IDs from being passed in', function (done) {
                 server
@@ -107,10 +112,15 @@ describe('GET /task/:taskId API', function () {
 
         describe('not on team that created task', function () {
             before(function (done) {
-                user = userTaskHelper.createOtherUser(done);
+                userTaskHelper.createOtherUser().then(function (thisUser) {
+                    user = thisUser;
+                    done();
+                });
             });
             before(function (done) {
-                loginUser(server, 'test2@test.com', 'password', done);
+                loginUser(server, 'test2@test.com', 'password').then(function () {
+                    done();
+                });
             });
             it('should deny a user that is not on the team that created the task', function (done) {
                 findMostRecentTask().then(function (taskId) {
@@ -140,7 +150,9 @@ describe('POST /task/:taskId', function () {
     });
     // Remove user and task at the end
     after(function (done) {
-        userTaskHelper.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks().then(function () {
+            done();
+        });
     });
 
     describe('unauthenticated', function () {
@@ -164,10 +176,15 @@ describe('POST /task/:taskId', function () {
 
     describe('not on the team that owns the tasks', function () {
         before(function (done) {
-            user = userTaskHelper.createOtherUser(done);
+            userTaskHelper.createOtherUser().then(function (thisUser) {
+                user = thisUser;
+                done();
+            });
         });
         before(function (done) {
-            loginUser(server, 'test2@test.com', 'password', done);
+            loginUser(server, 'test2@test.com', 'password').then(function () {
+                done();
+            });
         });
         it('should deny the user access to edit the task', function (done) {
             findMostRecentTask().then(function (taskId) {
@@ -189,7 +206,9 @@ describe('POST /task/:taskId', function () {
 
     describe('on the team that owns the task', function () {
         before(function (done) {
-            loginUser(server, 'test@test.com', 'password', done);
+            loginUser(server, 'test@test.com', 'password').then(function () {
+                done();
+            });
         });
         it('should return an error if an invalid taskId is requested', function (done) {
             // Create 24 1s, it will match a valid object ID when a snowball rules hell

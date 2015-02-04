@@ -14,7 +14,9 @@ describe('server setup', function () {
     });
 
     after(function (done) {
-        userTaskHelper.removeUsersAndTasks(done);
+        userTaskHelper.removeUsersAndTasks().then(function () {
+            done();
+        });
     });
 
     it('should run the tests only after the server has been started', function () {

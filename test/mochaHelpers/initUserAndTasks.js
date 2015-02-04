@@ -20,8 +20,8 @@ var removeTasks = exports.removeTasks = function () {
             if (err) {
                 reject('Could not clear tasks collection');
             }
+            resolve('Tasks collection cleared');
         });
-        resolve('Tasks collection cleared');
     });
 };
 
@@ -61,42 +61,35 @@ var removeTeams = function () {
  *
  * Poor planning, ugh
  */
-exports.createOtherUser = function (done, email, defer) {
-    var deferred = q.defer();
-    email = email || 'test2@test.com';
-    // Create a user
-    user = new User({
-        name: 'Full name',
-        email: email,
-        password: 'password'
-    });
-    // Create a team for this user
-    team = new Team({
-        name: user.name + '\'s team'
-    });
-    // Save the team
-    team.save(function (err) {
-        if (err) {
-            new Error('Could not save team');
-        }
-        // Add user to team
-        user.teams.push(team._id);
-        // Save the user
-        user.save(function (err) {
+exports.createOtherUser = function (email) {
+    return new Promise(function (resolve, reject) {
+        email = email || 'test2@test.com';
+        // Create a user
+        user = new User({
+            name: 'Full name',
+            email: email,
+            password: 'password'
+        });
+        // Create a team for this user
+        team = new Team({
+            name: user.name + '\'s team'
+        });
+        // Save the team
+        team.save(function (err) {
             if (err) {
-                new Error('Could not save user');
+                new Error('Could not save team');
             }
-            // Call done if necessary
-            if (typeof done === 'function') {
-                done();
-            }
-            deferred.resolve(user);
+            // Add user to team
+            user.teams.push(team._id);
+            // Save the user
+            user.save(function (err) {
+                if (err) {
+                    new Error('Could not save user');
+                }
+                resolve(user);
+            });
         });
     });
-    if (defer) {
-        return deferred.promise;
-    }
-    return user;
 };
 
 /**
@@ -241,15 +234,9 @@ exports.createUserAndTeam = function (done) {
  * Remove all users and tasks from DB
  * @param done
  */
-var removeUsersAndTasks = exports.removeUsersAndTasks = function (done) {
-    Promise.all([removeUsers(), removeTasks()]).then(function () {
-        if (typeof done !== 'undefined') {
-            done();
-        }
-    });
+var removeUsersAndTasks = exports.removeUsersAndTasks = function () {
+    return Promise.all([removeUsers(), removeTasks()])
 };
-
-removeUsersAndTasks = Promise.promisify(removeUsersAndTasks);
 
 /**
  * Cleanup the user and task

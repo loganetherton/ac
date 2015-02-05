@@ -64,7 +64,11 @@ var checkRegistrationCode = function (regCode) {
                 user.invites.forEach(function (invite) {
                     // Add this user to the team for which they were invited
                     if (invite.inviteString === regCode) {
-                        return resolve(invite.teamId);
+                        // If the invite is still valid, proceed
+                        if (invite.expires > new Date()) {
+                            return resolve(invite.teamId);
+                        }
+                        return resolve('Expired');
                     }
                 });
                 resolve('No matching invite');
@@ -329,6 +333,12 @@ exports.writeInviteToSession = function (req, res) {
     if (serverCtrlHelpers.checkValidUUID(req.body.regCode)) {
         // Check to make sure that this invite string actually exists
         return checkRegistrationCode(req.body.regCode).then(function (response) {
+            // Return expired for expired invites
+            if (response === 'Expired') {
+                return res.send({
+                    inviteStatus: 'expired'
+                });
+            }
             // Make sure a valid team was returned before continuing
             if(serverCtrlHelpers.checkValidObjectId(response)) {
                 return checkTeamExists(response).then(function () {

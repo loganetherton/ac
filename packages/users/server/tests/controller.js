@@ -395,6 +395,59 @@ describe('User controller', function () {
                     });
                 });
             });
+
+            describe('expired invite', function () {
+                before(function (done) {
+                    // Clear teams
+                    Promise.all([clearTeams(), clearUsers()]).then(function () {
+                        // Create first user and send invite
+                        return inviteHandler.firstUser();
+                    })
+                    // Update the invite in the DB so that it is expired
+                    .then(function () {
+                        return new Promise(function (resolve, reject) {
+                            var date = new Date();
+                            // Expired yesterday
+                            date.setDate(date.getDate() - 1);
+                            user.invites[0].expires = date;
+                            user.save(function (err, thisUser) {
+                                if (err) {
+                                    return reject(err);
+                                }
+                                return resolve();
+                            });
+                        });
+                    })
+                    .then(function () {
+                        done();
+                    });
+                });
+
+                after(function (done) {
+                    Promise.all([clearTeams(), clearUsers()]).then(function () {
+                        done();
+                    })
+                });
+
+                it('should prevent the user from accepting an invitation that has expired', function (done) {
+                    // Write team to session
+                    server
+                    .post('/writeInviteToSession')
+                    .send({regCode: user.invites[0].inviteString})
+                    .expect(200)
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        res.body.should.not.have.property('invitedTeams');
+                        res.body.should.have.property('inviteStatus');
+                        res.body.inviteStatus.should.be.equal('expired');
+                        done();
+                    });
+                });
+
+                it('should create a notification for the user that they responded to an expired invite', function (done) {
+                    done();
+                });
+            });
         });
     });
 

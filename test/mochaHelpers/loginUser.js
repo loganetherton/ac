@@ -13,9 +13,7 @@ module.exports = function (server, email, password) {
         .expect(200)
         .end(function (err, res) {
             if (err) {
-                console.log('**************ERROR**********');
-                console.log(err);
-                return done(err);
+                new Error(err);
             }
             res.body.user._id.should.be.ok;
             resolve(res.body.user);

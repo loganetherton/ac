@@ -401,8 +401,9 @@ describe('User controller', function () {
     describe('login()', function () {
         // Create user for login
         before(function (done) {
-            userTaskHelper.createUserAndTask(done).then(function (userTask) {
+            userTaskHelper.createUserAndTask().then(function (userTask) {
                 user = userTask['user'];
+                done();
             });
         });
 

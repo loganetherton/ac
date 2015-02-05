@@ -145,7 +145,9 @@ describe('GET /team/:teamId', function () {
 
     describe('authenticated', function () {
         before(function (done) {
-            loginUser(server, 'test@test.com', 'password', done);
+            loginUser(server, 'test@test.com', 'password').then(function () {
+                done();
+            });
         });
 
         it('should prevent the user from passing in a invalid object ID', function (done) {
@@ -196,20 +198,27 @@ describe('POST /inviteToTeam', function () {
     // Create user and task only once
     before(function (done) {
         // Create a fake user and task
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask().then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
+            done();
         });
     });
 
     before(function (done) {
-        secondUser = userTaskHelper.createOtherUser();
-        thirdUser = userTaskHelper.createOtherUser(done, 'test3@test.com');
+        userTaskHelper.createOtherUser().then(function (response) {
+            secondUser = response;
+            return userTaskHelper.createOtherUser('test3@test.com');
+        }).then(function (response) {
+            thirdUser = response;
+            done();
+        });
     });
     // Remove user and task at the end
     after(function (done) {
-        userTaskHelper.removeUsersAndTasks(done);
-        done();
+        userTaskHelper.removeUsersAndTasks().then(function () {
+            done();
+        });
     });
 
     describe('Unauthenticated', function () {
@@ -229,7 +238,9 @@ describe('POST /inviteToTeam', function () {
 
     describe('Authenticated', function () {
         before(function (done) {
-            loginUser(server, 'test@test.com', 'password', done);
+            loginUser(server, 'test@test.com', 'password').then(function () {
+                done();
+            });
         });
 
         it('should deny requests which do not have a team ID passed in', function (done) {
@@ -375,6 +386,10 @@ describe('POST /inviteToTeam', function () {
                     userTaskHelper.checkInvites(2, user, done)
                 });
             });
+        });
+
+        it('should allow the user to join a team by clicking the link', function (done) {
+            done();
         });
     });
 });

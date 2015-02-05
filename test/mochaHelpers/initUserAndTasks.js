@@ -174,10 +174,8 @@ var initUsers = function () {
 
 /**
  * Ensures that only a single user and task exist in the database
- *
- * @param done
  */
-exports.createUserAndTask = function (done) {
+exports.createUserAndTask = function () {
     return new Promise(function (resolve, reject) {
         removeUsersAndTasks().then(function () {
             /**
@@ -192,9 +190,6 @@ exports.createUserAndTask = function (done) {
                     user: user,
                     task: task
                 });
-                if (typeof done === 'function') {
-                    done();
-                }
             }, function (err) {
                 console.log(err);
                 should.not.exist(err);

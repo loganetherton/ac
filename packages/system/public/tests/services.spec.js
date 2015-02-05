@@ -276,7 +276,7 @@ describe('hasAuthorizationService', function () {
     }));
 });
 
-ddescribe('acSessionService', function () {
+describe('acSessionService', function () {
     var acSessionService, httpBackend;
 
     beforeEach(function () {

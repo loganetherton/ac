@@ -25,9 +25,10 @@ var task;
  */
 describe('Task model', function () {
     beforeEach(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask().then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
+            done();
         });
     });
 
@@ -112,16 +113,19 @@ describe('Task model', function () {
     });
 
     afterEach(function (done) {
-        userTaskHelper.removeUsersAndTasks(done);
+        userTaskHelper.removeUsersAndTasks().then(function () {
+            done();
+        });
     });
 });
 
-describe('GET /tasklist API', function () {
+describe('GET /tasklist', function () {
     // Create user and task only once
     before(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask().then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
+            done();
         });
     });
     // Remove user and task at the end
@@ -150,7 +154,9 @@ describe('GET /tasklist API', function () {
     describe('GET /tasklist authenticated', function () {
 
         before(function (done) {
-            loginUser(server, 'test@test.com', 'password', done);
+            loginUser(server, 'test@test.com', 'password').then(function () {
+                done();
+            });
         });
 
         it('should allow authenticated requests to /tasklist and return the tasklist', function (done) {
@@ -178,14 +184,17 @@ describe('GET /task/user/:userId', function () {
     var firstUserId;
 
     before(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask().then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
+            done();
         });
     });
 
     after(function (done) {
-        userTaskHelper.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks().then(function () {
+            done();
+        });
     });
 
     describe('unauthenticated user', function () {
@@ -206,7 +215,9 @@ describe('GET /task/user/:userId', function () {
 
     describe('authenticated user, own tasks', function () {
         before(function (done) {
-            loginUser(server, 'test@test.com', 'password', done);
+            loginUser(server, 'test@test.com', 'password').then(function () {
+                done();
+            });
         });
         it('should prevent the user from querying a non-existant user ID', function (done) {
             // Save a reference to the first user
@@ -241,10 +252,15 @@ describe('GET /task/user/:userId', function () {
 
     describe('authenticated user, others tasks', function () {
         before(function (done) {
-            user = userTaskHelper.createOtherUser(done);
+            userTaskHelper.createOtherUser().then(function (response) {
+                user = response;
+                done();
+            });
         });
         before(function (done) {
-            loginUser(server, 'test2@test.com', 'password', done);
+            loginUser(server, 'test2@test.com', 'password').then(function () {
+                done();
+            });
         });
         it('should prevent users from querying the tasklists of others', function (done) {
             server
@@ -263,14 +279,17 @@ describe('GET /task/user/:userId', function () {
 
 describe('GET /task/team/:teamId', function () {
     before(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask().then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
+            done();
         });
     });
 
     after(function (done) {
-        userTaskHelper.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks().then(function () {
+            done();
+        });
     });
     describe('unauthenticated user', function () {
         it('should not allow unauthenticated users to query a teams tasks', function (done) {
@@ -292,7 +311,9 @@ describe('GET /task/team/:teamId', function () {
         var firstTeamId;
         describe('invalid team', function () {
             before(function (done) {
-                loginUser(server, 'test@test.com', 'password', done);
+                loginUser(server, 'test@test.com', 'password').then(function () {
+                    done();
+                });
             });
             it('should return an error for invalid team query', function (done) {
                 server
@@ -331,11 +352,16 @@ describe('GET /task/team/:teamId', function () {
         });
         describe('not on team being requested', function () {
             before(function (done) {
-                user = userTaskHelper.createOtherUser(done);
+                userTaskHelper.createOtherUser().then(function (response) {
+                    user = response;
+                    done();
+                });
             });
 
             before(function (done) {
-                loginUser(server, 'test2@test.com', 'password', done);
+                loginUser(server, 'test2@test.com', 'password').then(function () {
+                    done();
+                });
             });
 
             it('should not allow the user to query another teams tasks', function (done) {
@@ -357,14 +383,17 @@ describe('GET /task/team/:teamId', function () {
 
 describe('POST /newTask', function () {
     before(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask().then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
+            done();
         });
     });
 
     after(function (done) {
-        userTaskHelper.removeUsersAndTasks(done, user, task);
+        userTaskHelper.removeUsersAndTasks().then(function () {
+            done();
+        });
     });
 
     describe('unauthenticated user', function () {
@@ -403,7 +432,9 @@ describe('POST /newTask', function () {
             done();
         });
         before(function (done) {
-            loginUser(server, 'test@test.com', 'password', done);
+            loginUser(server, 'test@test.com', 'password').then(function () {
+                done();
+            });
         });
 
         it('should allow authenticated users to create tasks', function (done) {

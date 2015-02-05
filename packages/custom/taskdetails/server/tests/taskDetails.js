@@ -143,9 +143,10 @@ describe('GET /task/:taskId API', function () {
 describe('POST /task/:taskId', function () {
     // Create user and task only once
     before(function (done) {
-        userTaskHelper.createUserAndTask(done).then(function (userTask) {
+        userTaskHelper.createUserAndTask().then(function (userTask) {
             user = userTask['user'];
             task = userTask['task'];
+            done();
         });
     });
     // Remove user and task at the end

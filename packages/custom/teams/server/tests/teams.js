@@ -388,6 +388,7 @@ describe('POST /inviteToTeam', function () {
             });
         });
 
+        // @todo
         it('should create a notification for an existing user to allow them to join a team internally', function (done) {
             done();
         });

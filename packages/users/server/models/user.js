@@ -133,11 +133,15 @@ var createString = function (length) {
  */
 InviteSchema.pre('save', function (next) {
     // Invite expires 7 days from now
-    var date = new Date();
-    date.setDate(date.getDate() + 7);
-    this.expires = date;
-    // Create an invite string
-    this.inviteString = uuid.v4();
+    if (!this.expires) {
+        var date = new Date();
+        date.setDate(date.getDate() + 7);
+        this.expires = date;
+    }
+    // Create an invite string via UUID
+    if (!this.inviteString) {
+        this.inviteString = uuid.v4();
+    }
     next();
 });
 

@@ -388,8 +388,12 @@ describe('POST /inviteToTeam', function () {
             });
         });
 
-        it('should allow the user to join a team by clicking the link', function (done) {
+        it('should create a notification for an existing user to allow them to join a team internally', function (done) {
             done();
         });
     });
+});
+
+describe('GET /joinTeam', function () {
+
 });

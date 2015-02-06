@@ -12,11 +12,13 @@ var mongoose = require('mongoose'),
 // Helpers
 var userTaskHelper = require('../../../../test/mochaHelpers/initUserAndTasks'),
     loginUser = require('../../../../test/mochaHelpers/loginUser');
-
+// Users
 var user, secondUser;
+// Helper functions
+var clearUsers, clearTeams, createUserAndSendInvite, inviteHandler;
 
 // Clear the users collection
-var clearUsers = function () {
+clearUsers = function () {
     return new Promise(function (resolve, reject) {
         User.remove({}, function (err) {
             if (err) {
@@ -28,7 +30,7 @@ var clearUsers = function () {
 };
 
 // Clear the teams collection
-var clearTeams = function () {
+clearTeams = function () {
     return new Promise(function (resolve, reject) {
         Team.remove({}, function (err) {
             if (err) {
@@ -43,7 +45,7 @@ var clearTeams = function () {
  * Create users, invite, and logout each
  * @returns {{firstUser: Function, sendInviteAndLogout: Function, otherUser: Function}}
  */
-var createUserAndSendInvite = function () {
+createUserAndSendInvite = function () {
     return {
         // Create first user, send invite, logout
         firstUser: function () {
@@ -94,7 +96,7 @@ var createUserAndSendInvite = function () {
     };
 };
 
-var inviteHandler = createUserAndSendInvite();
+inviteHandler = createUserAndSendInvite();
 
 describe('User controller', function () {
 
@@ -184,10 +186,7 @@ describe('User controller', function () {
                 .send({user: user})
                 .expect(200)
                 .end(function (err, res) {
-                    if (err) {
-                        should.not.exist(err);
-                        return done(err);
-                    }
+                    should.not.exist(err);
                     var user = res.body.user;
                     // User properties
                     user.name.should.be.equal('testy tester');
@@ -205,6 +204,12 @@ describe('User controller', function () {
                     });
                 });
             });
+        });
+    });
+
+    describe('POST /changeEmail', function () {
+        it('should allow the user to change their email address', function (done) {
+            done();
         });
     });
 
@@ -274,7 +279,7 @@ describe('User controller', function () {
                     should.not.exist(err);
                     res.body.should.have.property('invitedTeams');
                     res.body.invitedTeams.should.have.length(1);
-                    res.body.invitedTeams[0].should.be.equal(user.teams[0].toString());
+                    res.body.invitedTeams[0].teamId.should.be.equal(user.teams[0].toString());
                     done();
                 });
             });
@@ -288,7 +293,7 @@ describe('User controller', function () {
                     should.not.exist(err);
                     res.body.should.have.property('invitedTeams');
                     res.body.invitedTeams.should.have.length(1);
-                    res.body.invitedTeams[0].should.be.equal(secondUser.teams[0].toString());
+                    res.body.invitedTeams[0].teamId.should.be.equal(secondUser.teams[0].toString());
                     done();
                 });
             });
@@ -299,6 +304,20 @@ describe('User controller', function () {
         //var user;
 
         describe('register with registration code', function () {
+
+            it('should have one invite on the registering users session', function (done) {
+                server
+                .get('/checkInvitesOnSession')
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    res.body.should.have.property('invites');
+                    res.body.invites.should.be.type('string');
+                    res.body.invites.length.should.be.equal(24);
+                    done();
+                });
+            });
+
             it('should join the teams during registration when teams are on session', function (done) {
                 user = {
                     name: 'Evil bad guy',
@@ -331,6 +350,28 @@ describe('User controller', function () {
                 });
             });
 
+            it('should remove the invite from the inviting user when it is successfully responded to', function (done) {
+                User.findOne({
+                    _id: secondUser._id
+                }, function (err, thisUser) {
+                    should.not.exist(err);
+                    thisUser.invites.should.have.length(0);
+                    done();
+                })
+            });
+
+            it('should remove an accepted invite from the registering users session', function (done) {
+                server
+                .get('/checkInvitesOnSession')
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    res.body.should.have.property('invites');
+                    res.body.invites.should.be.equal(false);
+                    done();
+                });
+            });
+
             describe('non-existent team', function () {
                 // Delete the user and teams
                 before(function (done) {
@@ -350,7 +391,7 @@ describe('User controller', function () {
                                 should.not.exist(err);
                                 res.body.should.have.property('invitedTeams');
                                 res.body.invitedTeams.should.have.length(1);
-                                res.body.invitedTeams[0].should.be.equal(user.teams[0].toString());
+                                res.body.invitedTeams[0].teamId.should.be.equal(user.teams[0].toString());
                                 resolve();
                             });
                         });
@@ -511,6 +552,10 @@ describe('User controller', function () {
             loginUser(server, user.email, user.password).then(function () {
                 done();
             });
+        });
+
+        it('should remove any expired invites from the users record', function (done) {
+            done();
         });
     });
 

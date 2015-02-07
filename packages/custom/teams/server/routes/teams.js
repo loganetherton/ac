@@ -15,5 +15,10 @@ module.exports = function (Teams, app, auth, database) {
     all(auth.requiresLogin).
     post(teams.inviteToTeam);
 
+    // Join invite a as a logged in user
+    app.route('/joinTeamWithInvite/:invite')
+    .all(auth.requiresLogin)
+    .post(teams.joinTeamWithInvite);
+
     // Show outstanding invitations
 };

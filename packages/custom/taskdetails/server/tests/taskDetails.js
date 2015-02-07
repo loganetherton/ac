@@ -11,7 +11,7 @@ var request = require('supertest'),
     server = request.agent('http://localhost:3000');
 
 // Helpers
-var userTaskHelper = require('../../../../../test/mochaHelpers/initUserAndTasks'),
+var userTaskHelper = require('../../../../../test/mochaHelpers/userTaskHelpers'),
     loginUser = require('../../../../../test/mochaHelpers/loginUser');
 
 // Find a single task

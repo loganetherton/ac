@@ -10,7 +10,7 @@ var mongoose = require('mongoose'),
     Promise = require('bluebird');
 
 // Helpers
-var userTaskHelper = require('../../../../test/mochaHelpers/initUserAndTasks'),
+var userTaskHelper = require('../../../../test/mochaHelpers/userTaskHelpers'),
     loginUser = require('../../../../test/mochaHelpers/loginUser');
 // Users
 var user, secondUser;

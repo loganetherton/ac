@@ -2,7 +2,7 @@
 // Trying out emit when server starts
 var mean = require('meanio');
 
-var userTaskHelper = require('../../../../test/mochaHelpers/initUserAndTasks');
+var userTaskHelper = require('../../../../test/mochaHelpers/userTaskHelpers');
 
 describe('server setup', function () {
     var serverUp = false;

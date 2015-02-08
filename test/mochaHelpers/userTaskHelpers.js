@@ -166,7 +166,7 @@ var initUsers = function (email) {
                 if (err) {
                     reject('Could not save user');
                 }
-                resolve('Saved user');
+                resolve(user);
             });
         });
     });
@@ -201,14 +201,16 @@ var createUserAndTask = exports.createUserAndTask = function () {
 /**
  * Ensures that only a single user and task exist in the database
  */
-exports.createUserAndTeam = function () {
+exports.createUserAndTeam = function (clear, email) {
+    clear = typeof clear !== 'undefined' ? clear : true;
+    email = email || 'test@test.com';
     return new Promise(function (resolve, reject) {
-        removeUsersAndTeams().then(function () {
+        removeUsersAndTeams(clear).then(function () {
             /**
              * Create user and task
              */
-            initUsers()
-            .then(function () {
+            initUsers(email)
+            .then(function (user) {
                 resolve({
                     user: user,
                     team: team
@@ -233,8 +235,11 @@ var removeUsersAndTasks = exports.removeUsersAndTasks = function () {
  * Cleanup the user and task
  * @param done
  */
-var removeUsersAndTeams = exports.removeUsersAndTeams = function () {
+var removeUsersAndTeams = exports.removeUsersAndTeams = function (clear) {
     return new Promise(function (resolve, reject) {
+        if (!clear) {
+            return resolve();
+        }
         return q.all(removeUsers(), removeTeams()).then(function () {
             resolve();
         });
@@ -373,9 +378,9 @@ exports.createUserAndSendInvite = function (thisServer) {
             .then(this.sendInviteAndLogout);
         },
         // Send invite for this user, then logout
-        sendInviteAndLogout: function (invitingUser) {
+        sendInviteAndLogout: function (invitingUser, invitedEmail) {
             // Create an invite using the first user
-            return sendInvite(server, invitingUser)
+            return sendInvite(server, invitingUser, invitedEmail)
                 // Log the first user out
             .then(function (thisUser) {
                 return new Promise(function (resolve, reject) {

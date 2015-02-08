@@ -313,3 +313,7 @@ exports.inviteToTeam = function (req, res) {
         return res.status(400).send(error);
     });
 };
+
+exports.joinTeamWithInvite = function (req, res) {
+
+};

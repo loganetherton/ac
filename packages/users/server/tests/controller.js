@@ -14,96 +14,14 @@ var userTaskHelper = require('../../../../test/mochaHelpers/userTaskHelpers'),
     loginUser = require('../../../../test/mochaHelpers/loginUser');
 // Users
 var user, secondUser;
-// Helper functions
-var clearUsers, clearTeams, createUserAndSendInvite, inviteHandler;
-
-// Clear the users collection
-clearUsers = function () {
-    return new Promise(function (resolve, reject) {
-        User.remove({}, function (err) {
-            if (err) {
-                reject('Could not clear users collection');
-            }
-        });
-        resolve('tasks cleared');
-    });
-};
-
-// Clear the teams collection
-clearTeams = function () {
-    return new Promise(function (resolve, reject) {
-        Team.remove({}, function (err) {
-            if (err) {
-                reject('Could not clear teams collection');
-            }
-            resolve('tasks cleared');
-        });
-    });
-};
-
-/**
- * Create users, invite, and logout each
- * @returns {{firstUser: Function, sendInviteAndLogout: Function, otherUser: Function}}
- */
-createUserAndSendInvite = function () {
-    return {
-        // Create first user, send invite, logout
-        firstUser: function () {
-            // Create the first user
-            return userTaskHelper.createUserAndTask().then(function (userTask) {
-                // Log the first user in
-                user = userTask['user'];
-                return loginUser(server, user.email, user.password);
-            })
-            .then(this.sendInviteAndLogout)
-            .then(function (invitingUser) {
-                user = invitingUser;
-            });
-        },
-        // Send invite for this user, then logout
-        sendInviteAndLogout: function (invitingUser) {
-            // Create an invite using the first user
-            return userTaskHelper.sendInvite(server, invitingUser)
-                // Log the first user out
-            .then(function (thisUser) {
-                return new Promise(function (resolve, reject) {
-                    server
-                    .get('/logout')
-                    .expect(302)
-                    .end(function (err, res) {
-                        should.not.exist(err);
-                        resolve(thisUser);
-                    });
-                });
-            })
-        },
-        // Create a second user, send an invite, logout
-        otherUser: function () {
-            // Create a second user
-            return userTaskHelper.createOtherUser(null, 'test2@test.com', true)
-                // Log the second user in
-            .then(function (thisUser) {
-                secondUser = thisUser;
-                return loginUser(server, secondUser.email, secondUser.password);
-            })
-                // Send the invite and log the user out
-            .then(this.sendInviteAndLogout)
-                // Keep reference to the second user
-            .then(function (invitingUser) {
-                secondUser = invitingUser;
-            });
-        }
-    };
-};
-
-inviteHandler = createUserAndSendInvite();
+// Helper functions for login/sending invites
+var inviteHandler = userTaskHelper.createUserAndSendInvite(server);
 
 describe('User controller', function () {
-
     describe('POST /register', function () {
         describe('register without registration code', function () {
             beforeEach(function (done) {
-                Promise.all([clearTeams(), clearUsers()]).then(function () {
+                Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
                     done();
                 }).catch(function (e) {
                     should.not.exist(e);
@@ -216,7 +134,7 @@ describe('User controller', function () {
     describe('POST /writeInviteToSession', function () {
         var inviteString;
         before(function (done) {
-            Promise.all([clearTeams(), clearUsers()]).then(function () {
+            Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
                 done();
             });
         });
@@ -261,9 +179,11 @@ describe('User controller', function () {
         describe('existing invite', function () {
             // Create two users and send an invite from each
             before(function (done) {
-                inviteHandler.firstUser().then(function () {
+                inviteHandler.firstUser().then(function (thisUser) {
+                    user = thisUser;
                     return inviteHandler.otherUser();
-                }).then(function () {
+                }).then(function (thisUser) {
+                    secondUser = thisUser;
                     done();
                 }).catch(function (err) {
                     should.not.exist(err);
@@ -376,9 +296,11 @@ describe('User controller', function () {
                 // Delete the user and teams
                 before(function (done) {
                     // Clear teams
-                    Promise.all([clearTeams(), clearUsers()]).then(function () {
+                    Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
                         // Create first user and send invite
-                        return inviteHandler.firstUser()
+                        return inviteHandler.firstUser().then(function (thisUser) {
+                            user = thisUser;
+                        })
                     })
                     // Write team to session
                     .then(function () {
@@ -398,7 +320,7 @@ describe('User controller', function () {
                     })
                     // Delete all teams
                     .then(function () {
-                        return clearTeams()
+                        return userTaskHelper.clearTeams()
                     })
                     // done
                     .then(function () {
@@ -440,9 +362,11 @@ describe('User controller', function () {
             describe('expired invite', function () {
                 before(function (done) {
                     // Clear teams
-                    Promise.all([clearTeams(), clearUsers()]).then(function () {
+                    Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
                         // Create first user and send invite
-                        return inviteHandler.firstUser();
+                        return inviteHandler.firstUser().then(function (thisUser) {
+                            user = thisUser;
+                        });
                     })
                     // Update the invite in the DB so that it is expired
                     .then(function () {
@@ -461,11 +385,14 @@ describe('User controller', function () {
                     })
                     .then(function () {
                         done();
-                    });
+                    })
+                    .catch(function (err) {
+                        should.not.exist(err);
+                    })
                 });
 
                 after(function (done) {
-                    Promise.all([clearTeams(), clearUsers()]).then(function () {
+                    Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
                         done();
                     })
                 });

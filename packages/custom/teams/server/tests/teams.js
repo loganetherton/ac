@@ -14,8 +14,11 @@ var request = require('supertest'),
     server = request.agent('http://localhost:3000');
 
 // Helpers
-var userTaskHelper = require('../../../../../test/mochaHelpers/initUserAndTasks'),
+var userTaskHelper = require('../../../../../test/mochaHelpers/userTaskHelpers'),
     loginUser = require('../../../../../test/mochaHelpers/loginUser');
+
+// Helper functions for login/sending invites
+var inviteHandler = userTaskHelper.createUserAndSendInvite(server);
 
 describe('Team model', function () {
 
@@ -115,9 +118,10 @@ describe('Team model', function () {
 describe('GET /team/:teamId', function () {
     // Create user and task only once
     before(function (done) {
-        userTaskHelper.createUserAndTeam(done).then(function (userTask) {
+        userTaskHelper.createUserAndTeam().then(function (userTask) {
             user = userTask['user'];
             team = userTask['team'];
+            done();
         });
     });
     // Remove user and task at the end
@@ -395,6 +399,81 @@ describe('POST /inviteToTeam', function () {
     });
 });
 
-describe('GET /joinTeam', function () {
+describe.only('GET joinTeamWithInvite/:invite', function () {
+    var mean = require("meanio");
+    before(function (done) {
+        mean.events.on('serverStarted', function () {
+            done();
+        });
+    });
 
+    // Create a user that will receive the invite
+    before(function (done) {
+        userTaskHelper.createUserAndTeam().then(function (thisUser) {
+            user = thisUser.user;
+            return userTaskHelper.createUserAndTeam(false, 'test2@test.com');
+        }).then(function (thisUser) {
+            secondUser = thisUser.user;
+            done();
+        });
+    });
+
+    it('should deny requested to unauthenticated users', function (done) {
+        done();
+    });
+
+    describe('invite not found', function () {
+        it('should return null if no invite code was sent', function (done) {
+            done();
+        });
+
+        it('should return an error message if an invite invite string was passed in', function (done) {
+            done();
+        });
+
+        it('should return an error message if the invite was not found', function (done) {
+
+        });
+    });
+
+    describe('invite found', function () {
+        // Log in the first user and send invite to the second user
+        before(function (done) {
+            loginUser(server, 'test@test.com', 'password').then(function () {
+                // Send invite
+                return inviteHandler.sendInviteAndLogout(user, secondUser.email);
+            }).then(function () {
+                done();
+            });
+        });
+
+        it('should have both users created and an invite sent', function (done) {
+            User.find({}, function (err, users) {
+                should.not.exist(err);
+                // Check both users exists
+                users[0].email.should.be.equal('test@test.com');
+                users[1].email.should.be.equal('test2@test.com');
+                // Check invite created
+                users[0].invites.should.have.length(1);
+                users[0].invites[0].invitedEmail.should.be.equal('test2@test.com');
+            });
+            done();
+        });
+
+        it('should allow the user to join the team to which they were invited', function (done) {
+            done();
+        });
+
+        it('should remove the invite from the inviting users record on accepted', function (done) {
+            done();
+        });
+
+        it('should prevent a user from joining a team multiple times', function (done) {
+            done();
+        });
+
+        it('should prevent users from accepting expired invites', function (done) {
+            done();
+        });
+    });
 });

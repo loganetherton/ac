@@ -6,8 +6,9 @@ var should = require('should'),
     q = require('q'),
     Promise = require('bluebird');
 
-var user, task, team;
-var deferred;
+var user, secondUser, task, team;
+
+var loginUser = require('../mochaHelpers/loginUser');
 
 /**
  * Clear the tasks collection
@@ -43,17 +44,17 @@ var removeUsers = function () {
 
 /**
  * Remove any teams currently in the DB
- * @returns {promise.promise|jQuery.promise|promise|Q.promise|jQuery.ready.promise|qFactory.Deferred.promise|*}
+ * @returns {bluebird}
  */
 var removeTeams = function () {
-    var deferred = q.defer();
-    Team.remove({}, function (err) {
-        if (err) {
-            deferred.reject('Could not clear teams collection');
-        }
+    return new Promise(function (resolve, reject) {
+        Team.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear teams collection');
+            }
+        });
+        resolve('teams cleared');
     });
-    deferred.resolve('teams cleared');
-    return deferred.promise;
 };
 
 /**
@@ -61,7 +62,7 @@ var removeTeams = function () {
  *
  * Poor planning, ugh
  */
-exports.createOtherUser = function (email) {
+var createOtherUser = exports.createOtherUser = function (email) {
     return new Promise(function (resolve, reject) {
         email = email || 'test2@test.com';
         // Create a user
@@ -94,47 +95,45 @@ exports.createOtherUser = function (email) {
 
 /**
  * Create a task
- *
- * @returns {Promise.promise|*}
+ * @type {Function}
  */
 var createTask = exports.createTask = function (taskCount, thisUser) {
-    var deferred = q.defer();
-    var taskTitle = 'Task Title',
+    return new Promise(function (resolve, reject) {
+        var taskTitle = 'Task Title',
         taskContent = 'Task Content';
 
-    var makeSingleTask = function () {
-        // Set the user
-        if (typeof thisUser !== 'undefined') {
-            user = thisUser;
-        }
-        // Create task
-        task = new Task({
-            title: taskTitle,
-            content: taskContent,
-            user: user,
-            team: user.teams[0]
-        });
-        task.save(function (err) {
-            if (err) {
-                deferred.reject('Failed to save task');
+        var makeSingleTask = function () {
+            // Set the user
+            if (typeof thisUser !== 'undefined') {
+                user = thisUser;
             }
-            deferred.resolve('Saved task');
-        });
-    };
+            // Create task
+            task = new Task({
+                title: taskTitle,
+                content: taskContent,
+                user: user,
+                team: user.teams[0]
+            });
+            task.save(function (err) {
+                if (err) {
+                    reject('Failed to save task');
+                }
+                resolve('Saved task');
+            });
+        };
 
-    // For iteration
-    if (typeof taskCount !== 'undefined') {
-        for (var i = 0; i < taskCount; i++) {
-            taskTitle = 'Task Title' + i;
-            taskContent = 'Task Content' + i;
+        // For iteration
+        if (typeof taskCount !== 'undefined') {
+            for (var i = 0; i < taskCount; i++) {
+                taskTitle = 'Task Title' + i;
+                taskContent = 'Task Content' + i;
+                makeSingleTask();
+            }
+            // Make single task
+        } else {
             makeSingleTask();
         }
-    // Make single task
-    } else {
-        makeSingleTask();
-    }
-
-    return deferred.promise;
+    });
 };
 
 /**
@@ -142,40 +141,41 @@ var createTask = exports.createTask = function (taskCount, thisUser) {
  *
  * @returns {Promise.promise|*}
  */
-var initUsers = function () {
-    var deferred = q.defer();
-    // Create user
-    user = new User({
-        name: 'Full name',
-        email: 'test@test.com',
-        password: 'password'
-    });
-    // Create a team for this user
-    team = new Team({
-        name: user.name + '\'s team'
-    });
-    // Save the team
-    team.save(function (err) {
-        if (err) {
-            deferred.reject('Could not save team');
-        }
-        // Add user to team
-        user.teams.push(team._id);
-        // Save the user
-        user.save(function (err) {
+var initUsers = function (email) {
+    email = email || 'test@test.com';
+    return new Promise(function (resolve, reject) {
+        // Create user
+        user = new User({
+            name: 'Full name',
+            email: email,
+            password: 'password'
+        });
+        // Create a team for this user
+        team = new Team({
+            name: user.name + '\'s team'
+        });
+        // Save the team
+        team.save(function (err) {
             if (err) {
-                deferred.reject('Could not save user');
+                reject('Could not save team');
             }
-            deferred.resolve('Saved user');
+            // Add user to team
+            user.teams.push(team._id);
+            // Save the user
+            user.save(function (err) {
+                if (err) {
+                    reject('Could not save user');
+                }
+                resolve('Saved user');
+            });
         });
     });
-    return deferred.promise;
 };
 
 /**
  * Ensures that only a single user and task exist in the database
  */
-exports.createUserAndTask = function () {
+var createUserAndTask = exports.createUserAndTask = function () {
     return new Promise(function (resolve, reject) {
         removeUsersAndTasks().then(function () {
             /**
@@ -200,34 +200,30 @@ exports.createUserAndTask = function () {
 
 /**
  * Ensures that only a single user and task exist in the database
- *
- * @param done
  */
-exports.createUserAndTeam = function (done) {
-    deferred = q.defer();
-    removeUsersAndTeams().then(function () {
-        /**
-         * Create user and task
-         */
-        initUsers().then(function () {
-            deferred.resolve({
-                user: user,
-                team: team
+exports.createUserAndTeam = function () {
+    return new Promise(function (resolve, reject) {
+        removeUsersAndTeams().then(function () {
+            /**
+             * Create user and task
+             */
+            initUsers()
+            .then(function () {
+                resolve({
+                    user: user,
+                    team: team
+                });
+            })
+            .catch(function (err) {
+                console.log(err);
+                should.not.exist(err);
             });
-            if (typeof done === 'function') {
-                done();
-            }
-        }).fail(function (err) {
-            console.log(err);
-            should.not.exist(err);
         });
     });
-    return deferred.promise;
 };
 
 /**
  * Remove all users and tasks from DB
- * @param done
  */
 var removeUsersAndTasks = exports.removeUsersAndTasks = function () {
     return Promise.all([removeUsers(), removeTasks()])
@@ -237,15 +233,12 @@ var removeUsersAndTasks = exports.removeUsersAndTasks = function () {
  * Cleanup the user and task
  * @param done
  */
-var removeUsersAndTeams = exports.removeUsersAndTeams = function (done) {
-    var deferred = q.defer();
-    q.all(removeUsers(), removeTeams()).then(function () {
-        deferred.resolve();
-        if (typeof done !== 'undefined') {
-            done();
-        }
+var removeUsersAndTeams = exports.removeUsersAndTeams = function () {
+    return new Promise(function (resolve, reject) {
+        return q.all(removeUsers(), removeTeams()).then(function () {
+            resolve();
+        });
     });
-    return deferred.promise;
 };
 
 /**
@@ -309,7 +302,7 @@ exports.checkInvites = function (inviteCount, user, done) {
  * @param email
  * @returns {bluebird}
  */
-exports.sendInvite = function (server, inputUser, email) {
+var sendInvite = exports.sendInvite = function (server, inputUser, email) {
     return new Promise(function (resolve, reject) {
         email = email || 'newguy@test.com';
         server
@@ -328,4 +321,86 @@ exports.sendInvite = function (server, inputUser, email) {
             });
         });
     });
+};
+
+/**
+ * Clear the users collection
+ * @returns {bluebird}
+ */
+exports.clearUsers = function () {
+    return new Promise(function (resolve, reject) {
+        User.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear users collection');
+            }
+        });
+        resolve('tasks cleared');
+    });
+};
+
+/**
+ * Clear the teams collection
+ * @returns {bluebird}
+ */
+exports.clearTeams = function () {
+    return new Promise(function (resolve, reject) {
+        Team.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear teams collection');
+            }
+            resolve('tasks cleared');
+        });
+    });
+};
+
+
+
+/**
+ * Create users, invite, and logout each
+ * @returns {{firstUser: Function, sendInviteAndLogout: Function, otherUser: Function}}
+ */
+exports.createUserAndSendInvite = function (thisServer) {
+    var server = thisServer;
+    return {
+        // Create first user, send invite, logout
+        firstUser: function () {
+            // Create the first user
+            return createUserAndTask().then(function (userTask) {
+                // Log the first user in
+                user = userTask['user'];
+                return loginUser(server, user.email, user.password);
+            })
+            .then(this.sendInviteAndLogout);
+        },
+        // Send invite for this user, then logout
+        sendInviteAndLogout: function (invitingUser) {
+            // Create an invite using the first user
+            return sendInvite(server, invitingUser)
+                // Log the first user out
+            .then(function (thisUser) {
+                return new Promise(function (resolve, reject) {
+                    server
+                    .get('/logout')
+                    .expect(302)
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        resolve(thisUser);
+                    });
+                });
+            })
+        },
+        // Create a second user, send an invite, logout
+        otherUser: function (email) {
+            email = email || 'test2@test.com';
+            // Create a second user
+            return createOtherUser(null, email, true)
+                // Log the second user in
+            .then(function (thisUser) {
+                secondUser = thisUser;
+                return loginUser(server, secondUser.email, secondUser.password);
+            })
+                // Send the invite and log the user out
+            .then(this.sendInviteAndLogout);
+        }
+    };
 };

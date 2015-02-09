@@ -1,7 +1,10 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    Team = mongoose.model('Team'),
+    User = mongoose.model('User'),
+    Promise = require('bluebird');
 /**
  * Verify that a param expecting an Object ID is indeed a valid Object ID
  * @param id
@@ -48,4 +51,122 @@ exports.createTaskHistory = function (task) {
         }
     });
     return oldTask;
+};
+
+/**
+ * Check to see if a team exists by ID
+ * @param teamId
+ * @returns {bluebird}
+ */
+exports.checkTeamExists = function (teamId) {
+    return new Promise(function (resolve, reject) {
+        if (!teamId) {
+            return resolve();
+        }
+        Team.findOne({
+            _id: teamId
+        }, function (err, team) {
+            if (err) {
+                return reject();
+            }
+            // Resolve with team id
+            if (team) {
+                return resolve(teamId);
+            } else {
+                resolve();
+            }
+        });
+    });
+};
+
+/**
+ * Remove the invitation from the inviting user's record once it has been accepted
+ * @param response Response from adding team to record of user being created now
+ * @returns {bluebird}
+ */
+exports.removeAcceptedInviteFromInviter = function (response) {
+    return new Promise(function (resolve, reject) {
+        if (response.addedToTeam) {
+            // Find the user that sent the invite and remove it from their record
+            User.findByInviteCode(response.inviteCode, function (err, invitingUser) {
+                if (err) {
+                    reject(err);
+                }
+                // It'll be on there, just double checking for some reason
+                if (invitingUser.invites.length) {
+                    // Find invite and remove it
+                    invitingUser.invites = invitingUser.invites.map(function (invite) {
+                        if (invite.inviteString.toString() === response.inviteCode.toString()) {
+                            return null;
+                        }
+                        return invite;
+                    }).filter(function (invite) {
+                        return invite;
+                    });
+                    // Save the user after removing the invite
+                    invitingUser.save(function (err) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        return resolve();
+                    });
+                }
+            });
+        } else {
+            resolve();
+        }
+    });
+};
+
+/**
+ * Remove invitations from the user's session after they have responded to it affirmatively
+ * @returns {bluebird}
+ */
+exports.removeInviteFromSession = function (session) {
+    return new Promise(function (resolve, reject) {
+        // Remove invites
+        session.invitedTeams = [];
+        resolve(session);
+    });
+};
+
+/**
+ * Check the registration code on sign up and see if this user needs to be added to any teams
+ * @param regCode
+ */
+exports.checkRegistrationCode = function (regCode) {
+    return new Promise(function (resolve, reject) {
+        // If no reg code, continue
+        if (!regCode) {
+            resolve('No invite');
+        } else {
+            // Find the user that did the inviting
+            User.findByInviteCode(regCode, function (err, user) {
+                if (err) {
+                    return reject('Error finding user by invite');
+                }
+                if (!user) {
+                    return resolve('No matching invite');
+                }
+                // If a user was found by the invite string, find out which team to add this user to
+                user.invites.forEach(function (invite) {
+                    // Add this user to the team for which they were invited
+                    if (invite.inviteString === regCode) {
+                        // If the invite is still valid, proceed
+                        if (invite.expires > new Date()) {
+                            return resolve({
+                                teamId: invite.teamId,
+                                inviteCode: regCode,
+                                status: 'valid'
+                            });
+                        }
+                        return resolve({
+                            status: 'expired'
+                        });
+                    }
+                });
+                resolve('No matching invite');
+            });
+        }
+    });
 };

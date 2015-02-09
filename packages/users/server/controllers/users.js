@@ -47,98 +47,6 @@ exports.signout = function (req, res) {
 };
 
 /**
- * Check the registration code on sign up and see if this user needs to be added to any teams
- * @param regCode
- */
-var checkRegistrationCode = function (regCode) {
-    return new Promise(function (resolve, reject) {
-        // If no reg code, continue
-        if (!regCode) {
-            resolve('No invite');
-        } else {
-            // Find the user that did the inviting
-            User.findByInviteCode(regCode, function (err, user) {
-                if (err) {
-                    return reject('Error finding user by invite');
-                }
-                if (!user) {
-                    return resolve('No matching invite');
-                }
-                // If a user was found by the invite string, find out which team to add this user to
-                user.invites.forEach(function (invite) {
-                    // Add this user to the team for which they were invited
-                    if (invite.inviteString === regCode) {
-                        // If the invite is still valid, proceed
-                        if (invite.expires > new Date()) {
-                            return resolve({
-                                teamId: invite.teamId,
-                                inviteCode: regCode,
-                                status: 'valid'
-                            });
-                        }
-                        return resolve({
-                            status: 'expired'
-                        });
-                    }
-                });
-                resolve('No matching invite');
-            });
-        }
-    });
-};
-
-/**
- * Remove the invitation from the inviting user's record once it has been accepted
- * @param response Response from adding team to record of user being created now
- * @returns {bluebird}
- */
-var removeAcceptedInviteFromInviter = function (response) {
-    return new Promise(function (resolve, reject) {
-        if (response.addedToTeam) {
-            // Find the user that sent the invite and remove it from their record
-            User.findByInviteCode(response.inviteCode, function (err, invitingUser) {
-                if (err) {
-                    reject(err);
-                }
-                // It'll be on there, just double checking for some reason
-                if (invitingUser.invites.length) {
-                    // Find invite and remove it
-                    invitingUser.invites = invitingUser.invites.map(function (invite) {
-                        if (invite.inviteString.toString() === response.inviteCode.toString()) {
-                            return null;
-                        }
-                        return invite;
-                    }).filter(function (invite) {
-                        return invite;
-                    });
-                    // Save the user after removing the invite
-                    invitingUser.save(function (err) {
-                        if (err) {
-                            return reject(err);
-                        }
-                        return resolve();
-                    });
-                }
-            });
-        } else {
-            resolve();
-        }
-    });
-};
-
-/**
- * Remove invitations from the user's session after they have responded to it affirmatively
- * @returns {bluebird}
- */
-var removeInviteFromSession = function () {
-    return new Promise(function (resolve, reject) {
-        // Remove invites
-        session.invitedTeams = [];
-        resolve();
-    });
-};
-
-/**
  * Create user
  */
 exports.createAsync = function (req, res, next) {
@@ -173,7 +81,7 @@ exports.createAsync = function (req, res, next) {
             teamOnSession = req.session.invitedTeams[0].teamId;
         }
         // Check to make sure the team exists
-        checkTeamExists(teamOnSession)
+        serverCtrlHelpers.checkTeamExists(teamOnSession)
         .then(function (teamId) {
             return new Promise(function (resolve, reject) {
                 // Add the user to the team
@@ -192,11 +100,15 @@ exports.createAsync = function (req, res, next) {
             });
         })
         // Remove the accepted invite from the inviting user's record
-        .then(removeAcceptedInviteFromInviter)
+        .then(serverCtrlHelpers.removeAcceptedInviteFromInviter)
         // Remove invites from session
-        .then(removeInviteFromSession)
-        // Save the new user
         .then(function () {
+            return serverCtrlHelpers.removeInviteFromSession(session);
+        })
+        // Save the new user
+        .then(function (thisSession) {
+            // Write the session back for saving
+            session = thisSession;
             user.save(function (err) {
                 if (err) {
                     res.status(400).send(err);
@@ -386,31 +298,6 @@ exports.session = function (req, res) {
 };
 
 /**
- * Check to see if a team exists by ID
- * @param teamId
- * @returns {bluebird}
- */
-var checkTeamExists = function (teamId) {
-    return new Promise(function (resolve, reject) {
-        if (!teamId) {
-            return resolve();
-        }
-        Team.findOne({
-            _id: teamId
-        }, function (err, team) {
-            if (err) {
-                return false;
-            }
-            if (team) {
-                return resolve(teamId);
-            } else {
-                resolve();
-            }
-        });
-    });
-};
-
-/**
  * When a valid object ID is passed in, write it to session (it won't matter if it's an invalid
  * team, since the user won't be added to an invalid team)
  * @param req
@@ -424,7 +311,8 @@ exports.writeInviteToSession = function (req, res) {
     // if this is a valid object ID, see if it's already on the session
     if (serverCtrlHelpers.checkValidUUID(req.body.regCode)) {
         // Check to make sure that this invite string actually exists
-        return checkRegistrationCode(req.body.regCode).then(function (response) {
+        return serverCtrlHelpers.checkRegistrationCode(req.body.regCode)
+        .then(function (response) {
             // Return expired for expired invites
             if (response.status === 'expired') {
                 return res.send({
@@ -433,7 +321,7 @@ exports.writeInviteToSession = function (req, res) {
             }
             // Make sure a valid team was returned before continuing
             if(response.status === 'valid' && serverCtrlHelpers.checkValidObjectId(response.teamId)) {
-                return checkTeamExists(response.teamId).then(function () {
+                return serverCtrlHelpers.checkTeamExists(response.teamId).then(function () {
                     // Save the invited team to session
                     req.session.invitedTeams = [
                         {
@@ -448,7 +336,8 @@ exports.writeInviteToSession = function (req, res) {
                 });
             }
             return res.status(400).send('');
-        }).catch(function (err) {
+        })
+        .catch(function (err) {
             return res.status(400).send(err);
         });
     }

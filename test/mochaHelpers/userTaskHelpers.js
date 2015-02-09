@@ -367,32 +367,44 @@ exports.clearTeams = function () {
 exports.createUserAndSendInvite = function (thisServer) {
     var server = thisServer;
     return {
-        // Create first user, send invite, logout
+        /**
+         * Create first user and log this user in
+         * @returns {*|webdriver.promise.Promise}
+         */
         firstUser: function () {
             // Create the first user
             return createUserAndTask().then(function (userTask) {
                 // Log the first user in
                 user = userTask['user'];
                 return loginUser(server, user.email, user.password);
-            })
-            .then(this.sendInviteAndLogout);
+            });
         },
-        // Send invite for this user, then logout
-        sendInviteAndLogout: function (invitingUser, invitedEmail) {
-            // Create an invite using the first user
+        /**
+         * Send the invite
+         * @param invitingUser
+         * @param invitedEmail
+         * @returns {*}
+         */
+        sendInvite: function (invitingUser, invitedEmail) {
             return sendInvite(server, invitingUser, invitedEmail)
-                // Log the first user out
-            .then(function (thisUser) {
-                return new Promise(function (resolve, reject) {
-                    server
-                    .get('/logout')
-                    .expect(302)
-                    .end(function (err, res) {
-                        should.not.exist(err);
-                        resolve(thisUser);
-                    });
+        },
+        /**
+         * Log the user out
+         * @param thisUser
+         * @returns {bluebird}
+         */
+        logout: function (thisUser) {
+            return new Promise(function (resolve, reject) {
+                server
+                .get('/logout')
+                .expect(302)
+                .end(function (err, res) {
+                    if (err) {
+                        reject(err);
+                    }
+                    resolve(thisUser);
                 });
-            })
+            });
         },
         // Create a second user, send an invite, logout
         otherUser: function (email) {
@@ -403,9 +415,7 @@ exports.createUserAndSendInvite = function (thisServer) {
             .then(function (thisUser) {
                 secondUser = thisUser;
                 return loginUser(server, secondUser.email, secondUser.password);
-            })
-                // Send the invite and log the user out
-            .then(this.sendInviteAndLogout);
+            });
         }
     };
 };

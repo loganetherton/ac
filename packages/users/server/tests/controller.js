@@ -179,10 +179,28 @@ describe('User controller', function () {
         describe('existing invite', function () {
             // Create two users and send an invite from each
             before(function (done) {
-                inviteHandler.firstUser().then(function (thisUser) {
+                inviteHandler.firstUser()
+                .then(function (invitingUser) {
+                    return inviteHandler.sendInvite(invitingUser, 'otherguy@test.com');
+                })
+                .then(function (invitingUser) {
+                    return inviteHandler.sendInvite(invitingUser);
+                })
+                .then(inviteHandler.logout)
+                .then(function (thisUser) {
                     user = thisUser;
                     return inviteHandler.otherUser();
-                }).then(function (thisUser) {
+                })
+                // Send an invite that won't be accepted
+                .then(function (invitingUser) {
+                    return inviteHandler.sendInvite(invitingUser, 'otherguy@test.com');
+                })
+                // Send invite that will be accepted
+                .then(function (invitingUser) {
+                    return inviteHandler.sendInvite(invitingUser);
+                })
+                .then(inviteHandler.logout)
+                .then(function (thisUser) {
                     secondUser = thisUser;
                     done();
                 }).catch(function (err) {
@@ -207,7 +225,7 @@ describe('User controller', function () {
             it('should only save one invite string at a time to session', function (done) {
                 server
                 .post('/writeInviteToSession')
-                .send({regCode: secondUser.invites[0].inviteString})
+                .send({regCode: secondUser.invites[1].inviteString})
                 .expect(200)
                 .end(function (err, res) {
                     should.not.exist(err);
@@ -275,7 +293,8 @@ describe('User controller', function () {
                     _id: secondUser._id
                 }, function (err, thisUser) {
                     should.not.exist(err);
-                    thisUser.invites.should.have.length(0);
+                    thisUser.invites.should.have.length(1);
+                    // Check that the right invite was removed
                     done();
                 })
             });
@@ -298,7 +317,10 @@ describe('User controller', function () {
                     // Clear teams
                     Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
                         // Create first user and send invite
-                        return inviteHandler.firstUser().then(function (thisUser) {
+                        return inviteHandler.firstUser()
+                        .then(inviteHandler.sendInvite)
+                        .then(inviteHandler.logout)
+                        .then(function (thisUser) {
                             user = thisUser;
                         })
                     })
@@ -364,7 +386,10 @@ describe('User controller', function () {
                     // Clear teams
                     Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
                         // Create first user and send invite
-                        return inviteHandler.firstUser().then(function (thisUser) {
+                        return inviteHandler.firstUser()
+                        .then(inviteHandler.sendInvite)
+                        .then(inviteHandler.logout)
+                        .then(function (thisUser) {
                             user = thisUser;
                         });
                     })

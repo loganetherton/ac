@@ -116,19 +116,6 @@ UserSchema.virtual('password').set(function (password) {
 });
 
 /**
- * Create a random invite string
- *
- * @param length
- * @returns {*|Socket|string}
- */
-var createString = function (length) {
-    var possible = 'abcdef0123456789';
-    return Array.apply(null, new Array(length)).map(function () {
-        return possible.charAt(Math.floor(Math.random() * possible.length));
-    }).join('');
-};
-
-/**
  * Invitation pre-save
  */
 InviteSchema.pre('save', function (next) {
@@ -157,24 +144,30 @@ UserSchema.pre('save', function (next) {
 
 /**
  * Statics
+ * @type {{findByEmail: Function, findByInviteCode: Function}}
  */
-// Find user by email
-UserSchema.statics.findByEmail = function (email, cb) {
-    this.findOne({
-        email: email
-    }).exec(cb);
-};
-
-/**
- * Find a user by an invite code
- * @param regCode
- * @param cb
- */
-UserSchema.statics.findByInviteCode = function (regCode, cb) {
-    this.findOne()
-    .where('invites')
-    .elemMatch({inviteString : regCode})
-    .exec(cb);
+UserSchema.statics = {
+    /**
+     * Find user by email
+     * @param email
+     * @param cb
+     */
+    findByEmail: function (email, cb) {
+        this.findOne({
+            email: email
+        }).exec(cb);
+    },
+    /**
+     * Find user by invite code
+     * @param regCode
+     * @param cb
+     */
+    findByInviteCode: function (regCode, cb) {
+        this.findOne()
+        .where('invites')
+        .elemMatch({inviteString : regCode})
+        .exec(cb);
+    }
 };
 
 /**

@@ -5,7 +5,8 @@ var should = require('should'),
     Team = mongoose.model('Team'),
     User = mongoose.model('User'),
     _ = require('lodash'),
-    moment = require('moment');
+    moment = require('moment'),
+    Promise = require('bluebird');
 
 var team, user, task;
 
@@ -19,6 +20,8 @@ var userTaskHelper = require('../../../../../test/mochaHelpers/userTaskHelpers')
 
 // Helper functions for login/sending invites
 var inviteHandler = userTaskHelper.createUserAndSendInvite(server);
+
+var uuid = require('node-uuid');
 
 describe('Team model', function () {
 
@@ -399,81 +402,235 @@ describe('POST /inviteToTeam', function () {
     });
 });
 
-describe.only('GET joinTeamWithInvite/:invite', function () {
-    var mean = require("meanio");
-    before(function (done) {
-        mean.events.on('serverStarted', function () {
-            done();
+/**
+ * Create two users which can be used for testing invites
+ */
+function createUsersForTestingInvites() {
+    return userTaskHelper.createUserAndTeam().then(function (thisUser) {
+        user = thisUser.user;
+        // Create user that will receive the invites
+        return userTaskHelper.createUserAndTeam(false, 'test2@test.com');
+    })
+    .then(function (thisUser) {
+        return new Promise(function (resolve) {
+            secondUser = thisUser.user;
+            resolve();
         });
     });
+}
 
-    // Create a user that will receive the invite
+/**
+ * Create invites from one user to another
+ * @param thisUser
+ * @param thisSecondUser
+ * @returns {*|webdriver.promise.Promise}
+ */
+function createInvites(thisUser, thisSecondUser) {
+    return loginUser(server, thisUser.email, 'password').then(function () {
+        // Send invite
+        return inviteHandler.sendInvite(thisUser, thisSecondUser.email);
+    })
+    // Send another to make sure that we're not making a mistake by manipulating the wrong invite
+    .then(function (invitingUser) {
+        inviteHandler.sendInvite(invitingUser, 'otherguy@test.com');
+    })
+    // Log that user out
+    .then(inviteHandler.logout);
+}
+
+/**
+ * I've completely fucked up promises here, I need to walk through the promise chain and make sure that it's actually
+ * rational
+ */
+describe('GET joinTeamWithInvite/:invite', function () {
+
+    // Create a user that will do the inviting
     before(function (done) {
-        userTaskHelper.createUserAndTeam().then(function (thisUser) {
-            user = thisUser.user;
-            return userTaskHelper.createUserAndTeam(false, 'test2@test.com');
-        }).then(function (thisUser) {
-            secondUser = thisUser.user;
-            done();
+        createUsersForTestingInvites().then(function () {
+            // Log in the first user and send invite to the second user
+            return createInvites(user, secondUser)
+        })
+        // Get reference to the users
+        .then(function () {
+            User.find({}, function (err, users) {
+                user = users[0];
+                secondUser = users[1];
+                done();
+            });
         });
     });
 
     it('should deny requested to unauthenticated users', function (done) {
-        done();
+        server
+        .post('/joinTeamWithInvite/' + user.invites[0].inviteString)
+        .expect(401)
+        .end(function (err, res) {
+            should.not.exist(err);
+            done();
+        });
     });
 
     describe('invite not found', function () {
-        it('should return null if no invite code was sent', function (done) {
-            done();
-        });
-
-        it('should return an error message if an invite invite string was passed in', function (done) {
-            done();
-        });
-
-        it('should return an error message if the invite was not found', function (done) {
-
-        });
-    });
-
-    describe('invite found', function () {
-        // Log in the first user and send invite to the second user
         before(function (done) {
-            loginUser(server, 'test@test.com', 'password').then(function () {
-                // Send invite
-                return inviteHandler.sendInviteAndLogout(user, secondUser.email);
-            }).then(function () {
+            loginUser(server, 'test2@test.com', 'password').then(function () {
                 done();
             });
         });
 
+        it('should return an error message if an invalid invite string was passed in', function (done) {
+            server
+            .post('/joinTeamWithInvite/' + 'NOTAUUID')
+            .expect(400)
+            .end(function (err, res) {
+                should.not.exist(err);
+                res.body.error.should.be.equal('Invalid invite code');
+                done();
+            });
+        });
+
+        it('should return an error message if the invite was not found', function (done) {
+            server
+            .post('/joinTeamWithInvite/' + uuid.v4())
+            .expect(400)
+            .end(function (err, res) {
+                should.not.exist(err);
+                res.body.error.should.be.equal('Invite not found');
+                done();
+            });
+        });
+    });
+
+    describe('invite found', function () {
         it('should have both users created and an invite sent', function (done) {
-            User.find({}, function (err, users) {
+            User.find({})
+            // Specify sort order, as with natural order, the items will become reordered since we wrote
+            // to the inviting user multiple times and records reorder on document growth
+            .sort({_id: 1})
+            .exec(function (err, users) {
                 should.not.exist(err);
                 // Check both users exists
                 users[0].email.should.be.equal('test@test.com');
                 users[1].email.should.be.equal('test2@test.com');
                 // Check invite created
-                users[0].invites.should.have.length(1);
+                users[0].invites.should.have.length(2);
                 users[0].invites[0].invitedEmail.should.be.equal('test2@test.com');
+                users[0].invites[1].invitedEmail.should.be.equal('otherguy@test.com');
             });
             done();
         });
 
         it('should allow the user to join the team to which they were invited', function (done) {
-            done();
+            server
+            .post('/joinTeamWithInvite/' + user.invites[0].inviteString)
+            .expect(200)
+            .end(function (err, res) {
+                should.not.exist(err);
+                res.body.success.should.be.equal(true);
+                done();
+            });
         });
 
-        it('should remove the invite from the inviting users record on accepted', function (done) {
-            done();
+        it('should remove the invite from the inviting users record when it is accepted', function (done) {
+            User.findByEmail('test@test.com', function (err, user) {
+                should.not.exist(err);
+                user.invites.should.have.length(1);
+                // Make sure the right invite was removed
+                user.invites[0].invitedEmail.should.be.equal('otherguy@test.com');
+                done();
+            })
         });
 
-        it('should prevent a user from joining a team multiple times', function (done) {
-            done();
+        describe('prevent joining a team multiple times', function () {
+            // Create a user that will do the inviting
+            before(function (done) {
+                createUsersForTestingInvites().then(function () {
+                    // Log in the first user and send invite to the second user
+                    return createInvites(user, secondUser)
+                })
+                // Get reference to the users
+                .then(function () {
+                    User.find({}, function (err, users) {
+                        user = users[0];
+                        secondUser = users[1];
+                        // Log the invited user in
+                        loginUser(server, 'test2@test.com', 'password').then(function () {
+                            //user.invites.should.have.length(2);
+                            done();
+                        });
+                    });
+                });
+            });
+
+            it('should prevent a user from joining a team multiple times', function (done) {
+                // Add the user to this team
+                secondUser.teams.push(user.teams[0]);
+                secondUser.save(function (err) {
+                    should.not.exist(err);
+                    server
+                    .post('/joinTeamWithInvite/' + user.invites[0].inviteString)
+                    .expect(200)
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        res.body.success.should.be.equal(true);
+                        User.findById(secondUser._id, function (err, thisUser) {
+                            should.not.exist(err);
+                            // Make sure the user is only on two teams
+                            thisUser.teams.should.have.length(2);
+                            done();
+                        });
+                    });
+                });
+            });
         });
 
-        it('should prevent users from accepting expired invites', function (done) {
-            done();
+        describe('prevent accepting expired invites', function () {
+            // Create a user that will do the inviting
+            before(function (done) {
+                createUsersForTestingInvites().then(function () {
+                    // Log in the first user and send invite to the second user
+                    return createInvites(user, secondUser)
+                })
+                    // Get reference to the users
+                .then(function () {
+                    User.find({}, function (err, users) {
+                        user = users[0];
+                        secondUser = users[1];
+                        // Log the invited user in
+                        loginUser(server, 'test2@test.com', 'password').then(function () {
+                            done();
+                        });
+                    });
+                });
+            });
+
+            it('should prevent users from accepting expired invites', function (done) {
+                // Set the user's invite as expired
+                userTaskHelper.setInviteExpired(user)
+                // Try to accept the invite
+                .then(function (thisUser) {
+                    return new Promise(function () {
+                        server
+                        .post('/joinTeamWithInvite/' + thisUser.invites[0].inviteString)
+                        .expect(400)
+                        .end(function (err, res) {
+                            should.not.exist(err);
+                            res.body.success.should.be.equal(false);
+                            res.body.error.should.be.equal('Invite expired');
+                            User.findById(secondUser._id, function (err, secondUser) {
+                                secondUser.teams.should.have.length(1);
+                                // make sure that the invite was removed from the inviting user's record
+                                User.findById(user._id, function (err, thisUser) {
+                                    thisUser.invites.should.have.length(1);
+                                    done();
+                                });
+                            });
+                        });
+                    });
+                }).catch(function (err) {
+                    should.not.exist(err);
+                    done();
+                });
+            });
         });
     });
 });

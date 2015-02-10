@@ -84,7 +84,7 @@ exports.checkTeamExists = function (teamId) {
  * @param response Response from adding team to record of user being created now
  * @returns {bluebird}
  */
-exports.removeAcceptedInviteFromInviter = function (response) {
+var removeAcceptedInviteFromInviter = exports.removeAcceptedInviteFromInviter = function (response) {
     return new Promise(function (resolve, reject) {
         if (response.addedToTeam) {
             // Find the user that sent the invite and remove it from their record
@@ -135,6 +135,7 @@ exports.removeInviteFromSession = function (session) {
  * @param regCode
  */
 exports.checkRegistrationCode = function (regCode) {
+    var noMatch = true;
     return new Promise(function (resolve, reject) {
         // If no reg code, continue
         if (!regCode) {
@@ -145,13 +146,15 @@ exports.checkRegistrationCode = function (regCode) {
                 if (err) {
                     return reject('Error finding user by invite');
                 }
-                if (!user) {
+                // If we didn't find anything that matched, return
+                if (user === null) {
                     return resolve('No matching invite');
                 }
                 // If a user was found by the invite string, find out which team to add this user to
                 user.invites.forEach(function (invite) {
                     // Add this user to the team for which they were invited
                     if (invite.inviteString === regCode) {
+                        noMatch = false;
                         // If the invite is still valid, proceed
                         if (invite.expires > new Date()) {
                             return resolve({
@@ -159,13 +162,22 @@ exports.checkRegistrationCode = function (regCode) {
                                 inviteCode: regCode,
                                 status: 'valid'
                             });
+                        } else {
+                            return removeAcceptedInviteFromInviter({
+                                addedToTeam: true,
+                                inviteCode: regCode
+                            }).then(function () {
+                                return resolve({
+                                    status: 'expired'
+                                });
+                            });
                         }
-                        return resolve({
-                            status: 'expired'
-                        });
                     }
                 });
-                resolve('No matching invite');
+                // No match found
+                if (noMatch) {
+                    resolve('No matching invite');
+                }
             });
         }
     });

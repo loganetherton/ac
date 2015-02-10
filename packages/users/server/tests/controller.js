@@ -18,6 +18,7 @@ var user, secondUser;
 var inviteHandler = userTaskHelper.createUserAndSendInvite(server);
 
 describe('User controller', function () {
+
     describe('POST /register', function () {
         describe('register without registration code', function () {
             beforeEach(function (done) {
@@ -387,38 +388,21 @@ describe('User controller', function () {
                     Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
                         // Create first user and send invite
                         return inviteHandler.firstUser()
-                        .then(inviteHandler.sendInvite)
-                        .then(inviteHandler.logout)
-                        .then(function (thisUser) {
-                            user = thisUser;
-                        });
+                    })
+                    .then(inviteHandler.sendInvite)
+                    .then(inviteHandler.logout)
+                    .then(function (thisUser) {
+                        user = thisUser;
                     })
                     // Update the invite in the DB so that it is expired
                     .then(function () {
-                        return new Promise(function (resolve, reject) {
-                            var date = new Date();
-                            // Expired yesterday
-                            date.setDate(date.getDate() - 1);
-                            user.invites[0].expires = date;
-                            user.save(function (err, thisUser) {
-                                if (err) {
-                                    return reject(err);
-                                }
-                                return resolve();
-                            });
-                        });
+                        return userTaskHelper.setInviteExpired(user);
                     })
                     .then(function () {
                         done();
                     })
                     .catch(function (err) {
                         should.not.exist(err);
-                    })
-                });
-
-                after(function (done) {
-                    Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
-                        done();
                     })
                 });
 
@@ -439,6 +423,13 @@ describe('User controller', function () {
 
                 it('should create a notification for the user that they responded to an expired invite', function (done) {
                     done();
+                });
+
+                it('should remove the expired invite from the inviting users record', function (done) {
+                    User.findById(user._id, function (err, thisUser) {
+                        thisUser.invites.should.have.length(0);
+                        done();
+                    });
                 });
             });
         });

@@ -314,6 +314,85 @@ exports.inviteToTeam = function (req, res) {
     });
 };
 
+/**
+ * Authenticated user join team
+ * @param req
+ * @param res
+ * @returns {*}
+ */
 exports.joinTeamWithInvite = function (req, res) {
-
+    // Keep reference to found invite
+    var thisInvite, expired = false;
+    // Make sure this is a valid invite code
+    if (!serverCtrlHelpers.checkValidUUID(req.params.invite)) {
+        return res.status(400).json({error: 'Invalid invite code'});
+    }
+    // Make sure the invite code actually exists on a user
+    User.findByInviteCode(req.params.invite, function (err, user) {
+        // General error
+        if (err) {
+            return res.status(400).json({error: err});
+        }
+        // No inviting user found
+        if (!user) {
+            return res.status(400).json({error: 'Invite not found'});
+        }
+        // Find the right invite
+        user.invites.forEach(function (invite) {
+            // If the invite was found, proceed
+            if (invite.inviteString === req.params.invite) {
+                // If this is still a valid invite, use it
+                if (invite.expires > new Date()) {
+                    thisInvite = invite;
+                } else {
+                    // Remove invite from inviting user's record
+                    expired = true;
+                }
+            }
+        });
+        // Return error message on expired
+        if (expired) {
+            // Remove the invite from the inviting user's record
+            return serverCtrlHelpers.removeAcceptedInviteFromInviter({
+                addedToTeam: true,
+                inviteCode: req.params.invite
+            }).then(function () {
+                return res.status(400).json({success: false, error: 'Invite expired'});
+            });
+        }
+        // No invite found
+        if (typeof thisInvite === 'undefined') {
+            return res.status(400).json({error: 'Invite not found'});
+        }
+        var addToTeam = true;
+        // Make sure that the user isn't currently on the invited team
+        req.user.teams.forEach(function (team) {
+            if (team.toString() === thisInvite.teamId.toString()) {
+                addToTeam = false;
+            }
+        });
+        // Add the user to the invited team, if needed
+        if (addToTeam) {
+            req.user.teams.push(thisInvite.teamId);
+        }
+        // Save updated user record
+        req.user.save(function (err) {
+            if (err) {
+                return res.status(400).json({error: 'Unable to update current user'});
+            }
+            // Remove the invite from the inviting user's record
+            serverCtrlHelpers.removeAcceptedInviteFromInviter({
+                addedToTeam: true,
+                inviteCode: req.params.invite
+            })
+            // Return success
+            .then(function () {
+                res.json({success: true});
+            })
+            // Handle error
+            .catch(function () {
+                return res.status(400).json({success: false});
+            });
+        });
+    });
 };

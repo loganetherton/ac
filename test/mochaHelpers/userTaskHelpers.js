@@ -204,21 +204,17 @@ var createUserAndTask = exports.createUserAndTask = function () {
 exports.createUserAndTeam = function (clear, email) {
     clear = typeof clear !== 'undefined' ? clear : true;
     email = email || 'test@test.com';
-    return new Promise(function (resolve, reject) {
-        removeUsersAndTeams(clear).then(function () {
-            /**
-             * Create user and task
-             */
-            initUsers(email)
-            .then(function (user) {
+    return removeUsersAndTeams(clear).then(function () {
+        /**
+         * Create user and task
+         */
+        return initUsers(email)
+        .then(function (user) {
+            return new Promise(function (resolve) {
                 resolve({
                     user: user,
                     team: team
                 });
-            })
-            .catch(function (err) {
-                console.log(err);
-                should.not.exist(err);
             });
         });
     });
@@ -358,7 +354,32 @@ exports.clearTeams = function () {
     });
 };
 
-
+/**
+ * Set an invite as expired (testing)
+ * @param user
+ * @returns {bluebird}
+ */
+exports.setInviteExpired = function (user) {
+    return new Promise(function (resolve, reject) {
+        // Get the current user record
+        User.findById(user._id.toString(), function (err, thisUser) {
+            // Error handling
+            if (err) {
+                reject(err);
+            }
+            var date = new Date();
+            // Expired yesterday
+            date.setDate(date.getDate() - 1);
+            thisUser.invites[0].expires = date;
+            thisUser.save(function (err, thisUser) {
+                if (err) {
+                    return reject(err);
+                }
+                return resolve(thisUser);
+            });
+        });
+    });
+};
 
 /**
  * Create users, invite, and logout each

@@ -1,6 +1,6 @@
 <div ng-cloak
      ng-class="{panel:true, 'panel-default':true, 'table-dynamic':true, 'col-lg-6':indexCtrl.rightPaneLarge, 'col-md-4':!indexCtrl.rightPaneLarge}"
-     data-ng-controller="TasklistController as taskListCtrl">
+     data-ng-controller="TasklistController as taskListCtrl" data-ng-hide="taskListCtrl.showRightPane()">
     <!--<section ng-cloak ng-class="{panel:true, 'panel-default':true, 'table-dynamic':true, 'col-lg-6':indexCtrl.rightPaneLarge, 'col-md-4':!indexCtrl.rightPaneLarge}" data-ng-controller="TasklistController as taskListCtrl">-->
     <section class="panel panel-default">
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Tasks</strong></div>

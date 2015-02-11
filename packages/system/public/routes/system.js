@@ -94,7 +94,26 @@ function ($stateProvider, $urlRouterProvider) {
             roles: ['authenticated']
         }
     })
-
+    /**
+     * Timeline
+     */
+    .state('site.timeline', {
+        url: '/timeline',
+        templateUrl: 'overview/views/timeline.html',
+        data: {
+            roles: ['authenticated']
+        }
+    })
+    /**
+     * Team
+     */
+    .state('site.team', {
+        url: '/team',
+        templateUrl: 'teams/views/index.html',
+        data: {
+            roles: ['authenticated']
+        }
+    })
     /**
      * Create mock tasks
      */

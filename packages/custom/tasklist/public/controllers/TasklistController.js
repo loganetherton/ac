@@ -5,9 +5,10 @@ var app = angular.module('mean.tasklist');
 
 // For controllerAs syntax, check out: http://toddmotto.com/digging-into-angulars-controller-as-syntax/
 app.controller('TasklistController',
-['TasklistSocketService', 'TasklistService', 'LogService', '$scope', 'TaskStorageService', 'filterFilter',
- '$rootScope', 'logger', '$filter', function (
-TasklistSocketService, TasklistService, LogService, $scope, TaskStorageService, filterFilter, $rootScope, logger, $filter) {
+['TasklistSocketService', 'TasklistService', 'LogService', '$scope', 'TaskStorageService', 'filterFilter', '$rootScope',
+ 'logger', '$filter', '$state', function (
+TasklistSocketService, TasklistService, LogService, $scope, TaskStorageService, filterFilter, $rootScope, logger,
+$filter, $state) {
 
     var vm = this;
 
@@ -28,6 +29,14 @@ TasklistSocketService, TasklistService, LogService, $scope, TaskStorageService, 
             vm.tasks.unshift(data.data);
         }
     });
+
+    /**
+     * Don't display the right pane tasklist on specific states (for now, just on the timeline)
+     * @returns {boolean}
+     */
+    vm.showRightPane = function () {
+        return ($state.current.name === 'site.timeline');
+    };
 
     //////////////////////////////////////
 

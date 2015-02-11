@@ -1,4 +1,4 @@
-/*global $,Holder:false */
+/*global Holder:false */
 
 'use strict';
 

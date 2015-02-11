@@ -1,4 +1,4 @@
-/*global $,Gauge,Morris:false */
+/*global Gauge,Morris:false */
 (function() {
     'use strict';
     angular.module('app.chart.directives', []).directive('gaugeChart', [

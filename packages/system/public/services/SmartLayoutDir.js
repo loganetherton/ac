@@ -1,5 +1,3 @@
-/*global $, _:false */
-
 'use strict';
 
 var app = angular.module('mean.system');

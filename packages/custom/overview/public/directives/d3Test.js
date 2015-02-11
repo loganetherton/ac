@@ -1,4 +1,4 @@
-/*global d3, $, svgPanZoom:false */
+/*global d3, svgPanZoom:false */
 'use strict';
 
 var app = angular.module('mean.overview');

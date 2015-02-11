@@ -1,4 +1,4 @@
-/*global printStackTrace, $:false */
+/*global printStackTrace:false */
 
 'use strict';
 

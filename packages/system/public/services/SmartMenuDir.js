@@ -1,4 +1,4 @@
-/*global jQuery:false, $:false */
+/*global jQuery:false*/
 'use strict';
 
 var app = angular.module('mean.system');

@@ -1,5 +1,4 @@
 'use strict';
-
 /**
  * Module dependencies.
  */
@@ -11,8 +10,6 @@ var mongoose = require('mongoose'),
     nodemailer = require('nodemailer'),
     templates = require('../template'),
     Team = mongoose.model('Team'),
-    q = require('q'),
-    _ = require('lodash'),
     Promise = require('bluebird');
 
 var serverCtrlHelpers = require('../../../system/server/controllers/helpers');

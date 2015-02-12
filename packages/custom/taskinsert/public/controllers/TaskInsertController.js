@@ -37,7 +37,8 @@ app.controller('TaskInsertController',
      * @returns {*}
      */
     vm.queryTasks = function (query) {
-        return $http.get('/queryTasklist/' + query);
+        var getQuery = $http.get('/queryTasklist/' + query);
+        return getQuery;
     };
 
     /**

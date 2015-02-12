@@ -432,14 +432,17 @@ exports.all = function(req, res) {
  * @param res
  */
 exports.queryList = function(req, res) {
-    console.log('queryList');
     // Make sure a user ID was passed in
     if (!req.params.hasOwnProperty('query')) {
         return res.status(400).send('A query must be passed to /queryList/:query');
     }
     Task.find({
         title: new RegExp(req.params.query, 'i')
-    }).select('title').sort('-created').populate('user', 'name').exec(function(err, tasks) {
+    })
+    .select('title')
+    .sort('-created')
+    .populate('user', 'name')
+    .exec(function(err, tasks) {
         if (err) {
             return res.json(500, {
                 error: 'Cannot list tasks'

@@ -7,12 +7,21 @@ var users = require('../controllers/users'),
 module.exports = function (MeanUser, app, auth, database, passport) {
     // Logout
     app.route('/logout').get(users.signout);
+
     // Get user info
     app.route('/users/me').get(users.me);
+
+    // Search existing users for adding to teams
+    app.route('/users/search/:searchTerm')
+    .all(auth.requiresLogin)
+    .get(users.userSearch);
+
     // Register an account
     app.route('/register').post(users.createAsync);
+
     // Email the user a password reset request
     app.route('/forgot-password').post(users.forgotpassword);
+
     // Allow the user to reset their password
     app.route('/reset/:token').post(users.resetpassword);
 

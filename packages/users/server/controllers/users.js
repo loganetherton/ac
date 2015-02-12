@@ -341,3 +341,13 @@ exports.writeInviteToSession = function (req, res) {
     // Nothing written
     return res.status(400).send('');
 };
+
+/**
+ * Search for existing users to add to team
+ * @param req
+ * @param res
+ * @returns {*}
+ */
+exports.UserSearch = function (req, res) {
+    return res.status(200).json([{val: 'FUCK YOU'}, {val: 'BITCH'}]);
+};

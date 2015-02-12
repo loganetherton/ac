@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('mean.teams', []);
+angular.module('mean.teams', ['siyfion.sfTypeahead']);

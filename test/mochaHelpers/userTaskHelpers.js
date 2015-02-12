@@ -65,9 +65,15 @@ var removeTeams = function () {
 var createOtherUser = exports.createOtherUser = function (email) {
     return new Promise(function (resolve, reject) {
         email = email || 'test2@test.com';
+        // Just a simple way of making the test users' names slightly different
+        var digitForName = email.match(/\d/)[0];
+        var name = 'Full name';
+        if (digitForName) {
+            name = 'Full name' + digitForName;
+        }
         // Create a user
         user = new User({
-            name: 'Full name',
+            name: name,
             email: email,
             password: 'password'
         });
@@ -247,7 +253,7 @@ var removeUsersAndTeams = exports.removeUsersAndTeams = function (clear) {
  * @param length
  * @returns {*|Socket|string}
  */
-var createString = function (length) {
+var createString = exports.createString = function (length) {
     var possible = 'abcdef0123456789';
     return Array.apply(null, Array(length)).map(function () {
         return possible.charAt(Math.floor(Math.random() * possible.length));

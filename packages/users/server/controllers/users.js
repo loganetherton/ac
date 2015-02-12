@@ -348,6 +348,31 @@ exports.writeInviteToSession = function (req, res) {
  * @param res
  * @returns {*}
  */
-exports.UserSearch = function (req, res) {
-    return res.status(200).json([{val: 'FUCK YOU'}, {val: 'BITCH'}]);
+exports.userSearch = function (req, res) {
+    req.assert('searchTerm', 'Query must be between 3 and 100 characters').len(3, 100);
+    var validationErrors = req.validationErrors();
+    // Send back any errors
+    if (validationErrors) {
+        return res.status(400).json(validationErrors);
+    }
+    var regex = new RegExp(req.params.searchTerm, 'i');
+    // Find user based on name regex
+    User
+    // Search by name or email
+    .find({name: regex})
+    .or({email: regex})
+    .sort('_id')
+    // Just return the name
+    .select('name')
+    // Don't include the current user in the result set
+    .ne('name', req.user.name)
+    .ne('email', req.user.email)
+    .exec(function (err, users) {
+        // Stop on error
+        if (err) {
+            throw Error(err.message);
+        }
+        // Return all found users
+        return res.status(200).json(users);
+    });
 };

@@ -537,4 +537,111 @@ describe('User controller', function () {
             });
         });
     });
+
+    describe.only('GET /users/search/:searchTerm', function () {
+        var thirdUser;
+        var mean = require("meanio");
+        before(function (done) {
+            mean.events.on('serverStarted', function () {
+                done();
+            });
+        });
+
+        // Create three users
+        before(function (done) {
+            // Create the first user
+            userTaskHelper.createUserAndTeam().then(function (data) {
+                user = data.user;
+                return userTaskHelper.createOtherUser();
+            })
+            // Create second user
+            .then(function (otherUser) {
+                secondUser = otherUser;
+                return userTaskHelper.createOtherUser('test3@test.com');
+            })
+            // Create third user
+            .then(function (thisUser) {
+                thirdUser = thisUser;
+                done();
+            })
+            // Error handling
+            .catch(function (err) {
+                should.not.exist(err);
+            });
+        });
+
+        describe('unauthenticated', function () {
+            it('should deny requests to unauthenticated users', function (done) {
+                server
+                .get('/users/search/shouldNotWork')
+                .expect(401)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    done();
+                });
+            });
+        });
+
+        describe('authenticated', function () {
+            // Log the first user in
+            before(function (done) {
+                loginUser(server, 'test@test.com', 'password').then(function () {
+                    done();
+                });
+            });
+
+            it('should not return results for queries shorter than 3 characters', function (done) {
+                server
+                .get('/users/search/a')
+                .expect(400)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    res.body[0].param.should.be.equal('searchTerm');
+                    res.body[0].msg.should.be.equal('Query must be between 3 and 100 characters');
+                    done();
+                });
+            });
+
+            it('should not allow queries that are above 100 characters', function (done) {
+                server
+                .get('/users/search/' + userTaskHelper.createString(101))
+                .expect(400)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    res.body[0].param.should.be.equal('searchTerm');
+                    res.body[0].msg.should.be.equal('Query must be between 3 and 100 characters');
+                    done();
+                });
+            });
+
+            it('should not return the current user', function (done) {
+                done();
+            });
+
+            it('should not return users already on this users team', function (done) {
+                done();
+            });
+
+            it('should be able to find users by name', function (done) {
+                server
+                .get('/users/search/full')
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    res.body.should.have.length(2);
+                    res.body[0].name.should.be.equal('Full name2');
+                    res.body[1].name.should.be.equal('Full name3');
+                    done();
+                });
+            });
+
+            it('should be able to find users by email', function (done) {
+                done();
+            });
+
+            it('should return the users name with email concatenated', function (done) {
+                done();
+            });
+        });
+    });
 });

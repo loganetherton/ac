@@ -79,7 +79,9 @@
     "angular-truncate": "*",
     "ng-tags-input": "~2.1.1",
     "d3": "~3.5.2",
-    "svg-pan-zoom": "~3.1.0"
+    "svg-pan-zoom": "~3.1.0",
+    "angular-typeahead": "~0.2.2",
+    "typeahead.js": "~0.10.5"
   },
   "devDependencies": {
     "angular-mocks": "latest",

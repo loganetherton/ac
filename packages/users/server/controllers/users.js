@@ -358,9 +358,9 @@ exports.userSearch = function (req, res) {
     var regex = new RegExp(req.params.searchTerm, 'i');
     // Find user based on name regex
     User
+    .find({})
     // Search by name or email
-    .find({name: regex})
-    .or({email: regex})
+    .or([{email: {$regex: regex}}, {name: {$regex: regex}}])
     .sort('_id')
     // Just return the name
     .select('name')

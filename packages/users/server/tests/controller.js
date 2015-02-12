@@ -614,15 +614,7 @@ describe('User controller', function () {
                 });
             });
 
-            it('should not return the current user', function (done) {
-                done();
-            });
-
-            it('should not return users already on this users team', function (done) {
-                done();
-            });
-
-            it('should be able to find users by name', function (done) {
+            it('should be able to find users by name (and not return the current user)', function (done) {
                 server
                 .get('/users/search/full')
                 .expect(200)
@@ -636,6 +628,18 @@ describe('User controller', function () {
             });
 
             it('should be able to find users by email', function (done) {
+                server
+                .get('/users/search/test2@test.com')
+                .expect(200)
+                .end(function (err, res) {
+                    should.not.exist(err);
+                    res.body.should.have.length(1);
+                    res.body[0].name.should.be.equal('Full name2');
+                    done();
+                });
+            });
+
+            it('should not return users already on this users team', function (done) {
                 done();
             });
 

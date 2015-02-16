@@ -363,15 +363,22 @@ exports.userSearch = function (req, res) {
     .or([{email: {$regex: regex}}, {name: {$regex: regex}}])
     .sort('_id')
     // Just return the name
-    .select('name')
+    .select('name email')
     // Don't include the current user in the result set
     .ne('name', req.user.name)
     .ne('email', req.user.email)
+    // Make sure that the user's returned aren't on this user's team already
+    .nin('teams', req.user.teams)
     .exec(function (err, users) {
         // Stop on error
         if (err) {
             throw Error(err.message);
         }
+        // Return name as name <email>
+        users = users.map(function (user) {
+            user.name = user.name + ' <' + user.email + '>';
+            return user;
+        });
         // Return all found users
         return res.status(200).json(users);
     });

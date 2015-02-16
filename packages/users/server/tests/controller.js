@@ -621,8 +621,8 @@ describe('User controller', function () {
                 .end(function (err, res) {
                     should.not.exist(err);
                     res.body.should.have.length(2);
-                    res.body[0].name.should.be.equal('Full name2');
-                    res.body[1].name.should.be.equal('Full name3');
+                    res.body[0].name.should.be.equal('Full name2 <test2@test.com>');
+                    res.body[1].name.should.be.equal('Full name3 <test3@test.com>');
                     done();
                 });
             });
@@ -634,17 +634,27 @@ describe('User controller', function () {
                 .end(function (err, res) {
                     should.not.exist(err);
                     res.body.should.have.length(1);
-                    res.body[0].name.should.be.equal('Full name2');
+                    res.body[0].name.should.be.equal('Full name2 <test2@test.com>');
                     done();
                 });
             });
 
             it('should not return users already on this users team', function (done) {
-                done();
-            });
-
-            it('should return the users name with email concatenated', function (done) {
-                done();
+                user.teams.push(secondUser.teams[0]);
+                // Add the second user to the first user's team
+                secondUser.teams.push(user.teams[0]);
+                secondUser.save(function (err) {
+                    should.not.exist(err);
+                    // Search for the second user
+                    server
+                    .get('/users/search/test2@test.com')
+                    .expect(200)
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        res.body.should.have.length(0);
+                        done();
+                    });
+                });
             });
         });
     });

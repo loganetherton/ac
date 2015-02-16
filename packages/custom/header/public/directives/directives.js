@@ -1,3 +1,4 @@
+/*global Bloodhound:false */
 'use strict';
 
 var app = angular.module('mean.header');
@@ -68,8 +69,7 @@ app.directive('searchExistingUser', [function () {
                         '<input class="typeahead" type="text" sf-typeahead options="addToTeamCtrl.exampleOptions" ' +
                             'datasets="addToTeamCtrl.existingUsers"' +
                             'ng-model="addToTeamCtrl.selectedUser">' +
-                  '</div>'
-        ,
+                  '</div>',
         replace: true,
         require: '^addToTeam',
         controllerAs: 'addToTeamCtrl',

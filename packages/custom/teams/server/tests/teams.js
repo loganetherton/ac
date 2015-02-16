@@ -21,6 +21,42 @@ var userTaskHelper = require('../../../../../test/mochaHelpers/userTaskHelpers')
 // Helper functions for login/sending invites
 var inviteHandler = userTaskHelper.createUserAndSendInvite(server);
 
+/**
+ * Create two users which can be used for testing invites
+ */
+function createUsersForTestingInvites() {
+    return userTaskHelper.createUserAndTeam().then(function (thisUser) {
+        user = thisUser.user;
+        // Create user that will receive the invites
+        return userTaskHelper.createUserAndTeam(false, 'test2@test.com');
+    })
+    .then(function (thisUser) {
+        return new Promise(function (resolve) {
+            secondUser = thisUser.user;
+            resolve();
+        });
+    });
+}
+
+/**
+ * Create invites from one user to another
+ * @param thisUser
+ * @param thisSecondUser
+ * @returns {*|webdriver.promise.Promise}
+ */
+function createInvites(thisUser, thisSecondUser) {
+    return loginUser(server, thisUser.email, 'password').then(function () {
+        // Send invite
+        return inviteHandler.sendInvite(thisUser, thisSecondUser.email);
+    })
+        // Send another to make sure that we're not making a mistake by manipulating the wrong invite
+    .then(function (invitingUser) {
+        inviteHandler.sendInvite(invitingUser, 'otherguy@test.com');
+    })
+        // Log that user out
+    .then(inviteHandler.logout);
+}
+
 var uuid = require('node-uuid');
 
 describe('Team model', function () {
@@ -403,47 +439,10 @@ describe('POST /inviteToTeam', function () {
 });
 
 /**
- * Create two users which can be used for testing invites
- */
-function createUsersForTestingInvites() {
-    return userTaskHelper.createUserAndTeam().then(function (thisUser) {
-        user = thisUser.user;
-        // Create user that will receive the invites
-        return userTaskHelper.createUserAndTeam(false, 'test2@test.com');
-    })
-    .then(function (thisUser) {
-        return new Promise(function (resolve) {
-            secondUser = thisUser.user;
-            resolve();
-        });
-    });
-}
-
-/**
- * Create invites from one user to another
- * @param thisUser
- * @param thisSecondUser
- * @returns {*|webdriver.promise.Promise}
- */
-function createInvites(thisUser, thisSecondUser) {
-    return loginUser(server, thisUser.email, 'password').then(function () {
-        // Send invite
-        return inviteHandler.sendInvite(thisUser, thisSecondUser.email);
-    })
-    // Send another to make sure that we're not making a mistake by manipulating the wrong invite
-    .then(function (invitingUser) {
-        inviteHandler.sendInvite(invitingUser, 'otherguy@test.com');
-    })
-    // Log that user out
-    .then(inviteHandler.logout);
-}
-
-/**
  * I've completely fucked up promises here, I need to walk through the promise chain and make sure that it's actually
  * rational
  */
 describe('GET joinTeamWithInvite/:invite', function () {
-
     // Create a user that will do the inviting
     before(function (done) {
         createUsersForTestingInvites().then(function () {

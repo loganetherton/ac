@@ -1,4 +1,3 @@
-/*global Bloodhound:false */
 'use strict';
 
 var app = angular.module('mean.teams');

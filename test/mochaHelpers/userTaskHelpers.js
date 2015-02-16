@@ -214,13 +214,13 @@ exports.createUserAndTeam = function (clear, email) {
         /**
          * Create user and task
          */
-        return initUsers(email)
-        .then(function (user) {
-            return new Promise(function (resolve) {
-                resolve({
-                    user: user,
-                    team: team
-                });
+        return initUsers(email);
+    })
+    .then(function (user) {
+        return new Promise(function (resolve) {
+            resolve({
+                user: user,
+                team: team
             });
         });
     });
@@ -238,14 +238,14 @@ var removeUsersAndTasks = exports.removeUsersAndTasks = function () {
  * @param done
  */
 var removeUsersAndTeams = exports.removeUsersAndTeams = function (clear) {
-    return new Promise(function (resolve, reject) {
-        if (!clear) {
+    // If we're not clearing, then return
+    if (!clear) {
+        return new Promise(function (resolve, reject) {
             return resolve();
-        }
-        return q.all(removeUsers(), removeTeams()).then(function () {
-            resolve();
         });
-    });
+    }
+    // Clear users and team
+    return q.all(removeUsers(), removeTeams());
 };
 
 /**

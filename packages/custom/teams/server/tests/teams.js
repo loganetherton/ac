@@ -49,11 +49,11 @@ function createInvites(thisUser, thisSecondUser) {
         // Send invite
         return inviteHandler.sendInvite(thisUser, thisSecondUser.email);
     })
-        // Send another to make sure that we're not making a mistake by manipulating the wrong invite
+    // Send another to make sure that we're not making a mistake by manipulating the wrong invite
     .then(function (invitingUser) {
         inviteHandler.sendInvite(invitingUser, 'otherguy@test.com');
     })
-        // Log that user out
+    // Log that user out
     .then(inviteHandler.logout);
 }
 
@@ -438,10 +438,6 @@ describe('POST /inviteToTeam', function () {
     });
 });
 
-/**
- * I've completely fucked up promises here, I need to walk through the promise chain and make sure that it's actually
- * rational
- */
 describe('GET joinTeamWithInvite/:invite', function () {
     // Create a user that will do the inviting
     before(function (done) {

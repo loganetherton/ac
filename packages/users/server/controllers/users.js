@@ -108,12 +108,12 @@ exports.createAsync = function (req, res, next) {
             session = thisSession;
             user.save(function (err) {
                 if (err) {
-                    res.status(400).send(err);
+                    // @TODO Roll back user creation
+                    return res.status(400).send(err);
                 }
                 // Log the user in
                 req.logIn(user, function (err) {
                     if (err) {
-                        console.log('error logging in');
                         return next(err);
                     }
                     return res.send({

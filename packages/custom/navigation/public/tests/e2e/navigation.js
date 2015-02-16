@@ -38,7 +38,7 @@ describe('navigation menu', function () {
                     elementCount++;
                 });
             }).then(function () {
-                expect(elementCount).toBe(5);
+                expect(elementCount).toBe(6);
             });
         });
 
@@ -68,6 +68,12 @@ describe('navigation menu', function () {
 
         it('should have create tasks as a menu item', function () {
             navigationMenuItems.get(4).getText().then(function (text) {
+                expect(text).toBe('Timeline');
+            });
+        });
+
+        it('should have create tasks as a menu item', function () {
+            navigationMenuItems.get(5).getText().then(function (text) {
                 expect(text).toBe('Create tasks');
             });
         });

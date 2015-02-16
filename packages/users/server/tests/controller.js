@@ -18,7 +18,11 @@ var user, secondUser;
 var inviteHandler = userTaskHelper.createUserAndSendInvite(server);
 
 describe('User controller', function () {
-
+    after(function (done) {
+        Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
+            done();
+        });
+    });
     describe('POST /register', function () {
         describe('register without registration code', function () {
             beforeEach(function (done) {
@@ -41,7 +45,7 @@ describe('User controller', function () {
                 delete user.name;
                 server
                 .post('/register')
-                .send({user: user})
+                .send(user)
                 .expect(400)
                 .end(function (err, res) {
                     should.not.exist(err);
@@ -54,7 +58,7 @@ describe('User controller', function () {
                 delete user.email;
                 server
                 .post('/register')
-                .send({user: user})
+                .send(user)
                 .expect(400)
                 .end(function (err, res) {
                     should.not.exist(err);
@@ -67,7 +71,7 @@ describe('User controller', function () {
                 delete user.password;
                 server
                 .post('/register')
-                .send({user: user})
+                .send(user)
                 .expect(400)
                 .end(function (err, res) {
                     should.not.exist(err);
@@ -80,7 +84,7 @@ describe('User controller', function () {
                 user.password = 'a';
                 server
                 .post('/register')
-                .send({user: user})
+                .send(user)
                 .expect(400)
                 .end(function (err, res) {
                     should.not.exist(err);
@@ -90,7 +94,7 @@ describe('User controller', function () {
                 user.password = 'fejwiofejoigneffwoignewignwoiengoiewngoiwgnewoingwoignewgoinoewingewoignoiwnoiwnwoignewoignewoignewoi';
                 server
                 .post('/register')
-                .send({user: user})
+                .send(user)
                 .expect(400)
                 .end(function (err, res) {
                     should.not.exist(err);
@@ -102,7 +106,7 @@ describe('User controller', function () {
             it('should create a user and a team for that user together', function (done) {
                 server
                 .post('/register')
-                .send({user: user})
+                .send(user)
                 .expect(200)
                 .end(function (err, res) {
                     should.not.exist(err);
@@ -265,7 +269,7 @@ describe('User controller', function () {
                 };
                 server
                 .post('/register')
-                .send({user: user})
+                .send(user)
                 .expect(200)
                 .end(function (err, res) {
                     should.not.exist(err);
@@ -364,7 +368,7 @@ describe('User controller', function () {
                     };
                     server
                     .post('/register')
-                    .send({user: secondUser})
+                    .send(secondUser)
                     .expect(200)
                     .end(function (err, res) {
                         should.not.exist(err);
@@ -538,14 +542,8 @@ describe('User controller', function () {
         });
     });
 
-    describe.only('GET /users/search/:searchTerm', function () {
+    describe('GET /users/search/:searchTerm', function () {
         var thirdUser;
-        var mean = require("meanio");
-        before(function (done) {
-            mean.events.on('serverStarted', function () {
-                done();
-            });
-        });
 
         // Create three users
         before(function (done) {

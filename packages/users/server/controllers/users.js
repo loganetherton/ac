@@ -48,7 +48,7 @@ exports.signout = function (req, res) {
  */
 exports.createAsync = function (req, res, next) {
     // Create user
-    var user = new User(req.body.user);
+    var user = new User(req.body);
     var team = new Team({
         name: user.name + '\'s Team'
     });
@@ -67,14 +67,14 @@ exports.createAsync = function (req, res, next) {
     // Create the team, then add the user to the team
     team.save(function (err) {
         if (err) {
-            return res.status(400).send(errors[0].msg);
+            return res.status(400).send(err.msg);
         }
         // Push this user's team
         user.teams.push(team._id);
         var teamOnSession = '';
         session = req.session;
         // Get the team to which this user was invited
-        if (req.session.hasOwnProperty('invitedTeams')) {
+        if (req.session.hasOwnProperty('invitedTeams') && req.session.invitedTeams.length) {
             teamOnSession = req.session.invitedTeams[0].teamId;
         }
         // Check to make sure the team exists

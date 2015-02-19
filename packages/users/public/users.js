@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('mean.users', []);
+angular.module('mean.users', []);
 
 //app.factory('testHttpInterceptor', function ($q) {
 //    return {

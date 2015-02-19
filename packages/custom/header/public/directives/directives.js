@@ -19,6 +19,7 @@ app.directive('userDropdown', [function () {
  * Drop down for adding users to the team
  */
 app.directive('addToTeam', [function () {
+    var bloodhound;
     return {
         templateUrl: 'header/views/directiveTemplates/addToTeam.html',
         replace: true,
@@ -27,7 +28,7 @@ app.directive('addToTeam', [function () {
             vm.selectedUser = null;
 
             // Instantiate bloodhound
-            var bloodhound = new Bloodhound({
+            bloodhound = new Bloodhound({
                 datumTokenizer: function (d) {
                     return Bloodhound.tokenizers.whitespace(d.name);
                 },
@@ -43,15 +44,12 @@ app.directive('addToTeam', [function () {
                 displayKey: 'name',
                 source: bloodhound.ttAdapter()
             };
-
-            // Typeahead options object
-            vm.exampleOptions = {
-                highlight: true
-            };
         },
         controllerAs: 'addToTeamCtrl',
         link: function (scope, element, attrs, controller) {
+            // Whether searching or sending request
             var search = true;
+            // Determine if the selection is valid to send an invite
             var isValidSelection = function (val) {
                 return _.isObject(val) && _.has(val, '_id') && _.has(val, 'email') && _.has(val, 'name');
             };
@@ -86,9 +84,8 @@ app.directive('addToTeam', [function () {
 app.directive('searchExistingUser', [function () {
     return {
         template: '<div>' +
-                        '<input class="typeahead" type="text" sf-typeahead options="addToTeamCtrl.exampleOptions" ' +
-                            'datasets="addToTeamCtrl.existingUsers"' +
-                            'ng-model="addToTeamCtrl.selectedUser">' +
+                        '<input class="typeahead" type="text" sf-typeahead datasets="addToTeamCtrl.existingUsers"' +
+                            'ng-model="addToTeamCtrl.selectedUser" id="searchUserInput">' +
                   '</div>',
         replace: true,
         require: '^addToTeam',

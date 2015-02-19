@@ -13,9 +13,9 @@ describe('AcSocketService', function () {
     }));
 
     it('should have getSocket, on, and emit functions', function () {
-        expect(acSocketService.getSocket).toBeTruthy();
-        expect(acSocketService.on).toBeTruthy();
-        expect(acSocketService.emit).toBeTruthy();
+        expect(acSocketService.getSocket).toBeDefined();
+        expect(acSocketService.on).toBeDefined();
+        expect(acSocketService.emit).toBeDefined();
     });
 
     it('should call getSocket() to reference the correct socket on all emit() and on() calls', function () {

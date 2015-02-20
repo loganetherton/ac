@@ -1,3 +1,21 @@
+/**
+ * createUserAndTask
+ * createUserAndTeam
+ * createOtherUser
+ * createTask
+ * createUserAndSendInvite
+ * removeTasks
+ * removeUsersAndTasks
+ * removeUsersAndTeams
+ * clearUsers
+ * clearTeams
+ * checkInvites
+ * sendInvite
+ * setInviteExpired
+ * createString
+ * createFakeObjectId
+ */
+
 var should = require('should'),
     mongoose = require('mongoose'),
     User = mongoose.model('User'),
@@ -9,22 +27,6 @@ var should = require('should'),
 var user, secondUser, task, team;
 
 var loginUser = require('../mochaHelpers/loginUser');
-
-/**
- * Clear the tasks collection
- *
- * @returns {Promise.promise|*}
- */
-var removeTasks = exports.removeTasks = function () {
-    return new Promise(function (resolve, reject) {
-        Task.remove({}, function (err) {
-            if (err) {
-                reject('Could not clear tasks collection');
-            }
-            resolve('Tasks collection cleared');
-        });
-    });
-};
 
 /**
  * Clear the users collection
@@ -54,6 +56,58 @@ var removeTeams = function () {
             }
         });
         resolve('teams cleared');
+    });
+};
+
+/**
+ * Clear the users collection and create a test user
+ *
+ * @returns {Promise.promise|*}
+ */
+var initUsers = function (email) {
+    email = email || 'test@test.com';
+    return new Promise(function (resolve, reject) {
+        // Create user
+        user = new User({
+            name: 'Full name',
+            email: email,
+            password: 'password'
+        });
+        // Create a team for this user
+        team = new Team({
+            name: user.name + '\'s team'
+        });
+        // Save the team
+        team.save(function (err) {
+            if (err) {
+                reject('Could not save team');
+            }
+            // Add user to team
+            user.teams.push(team._id);
+            // Save the user
+            user.save(function (err) {
+                if (err) {
+                    reject('Could not save user');
+                }
+                resolve(user);
+            });
+        });
+    });
+};
+
+/**
+ * Clear the tasks collection
+ *
+ * @returns {Promise.promise|*}
+ */
+var removeTasks = exports.removeTasks = function () {
+    return new Promise(function (resolve, reject) {
+        Task.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear tasks collection');
+            }
+            resolve('Tasks collection cleared');
+        });
     });
 };
 
@@ -143,42 +197,6 @@ var createTask = exports.createTask = function (taskCount, thisUser) {
 };
 
 /**
- * Clear the users collection and create a test user
- *
- * @returns {Promise.promise|*}
- */
-var initUsers = function (email) {
-    email = email || 'test@test.com';
-    return new Promise(function (resolve, reject) {
-        // Create user
-        user = new User({
-            name: 'Full name',
-            email: email,
-            password: 'password'
-        });
-        // Create a team for this user
-        team = new Team({
-            name: user.name + '\'s team'
-        });
-        // Save the team
-        team.save(function (err) {
-            if (err) {
-                reject('Could not save team');
-            }
-            // Add user to team
-            user.teams.push(team._id);
-            // Save the user
-            user.save(function (err) {
-                if (err) {
-                    reject('Could not save user');
-                }
-                resolve(user);
-            });
-        });
-    });
-};
-
-/**
  * Ensures that only a single user and task exist in the database
  */
 var createUserAndTask = exports.createUserAndTask = function () {
@@ -206,6 +224,7 @@ var createUserAndTask = exports.createUserAndTask = function () {
 
 /**
  * Ensures that only a single user and task exist in the database
+ * @resolves: {user: user, team: team}
  */
 exports.createUserAndTeam = function (clear, email) {
     clear = typeof clear !== 'undefined' ? clear : true;

@@ -3,11 +3,10 @@ helpers = new global.Helpers();
 
 describe('Get user information in user dropdown', function () {
     var userDropdown;
-    beforeEach(function () {
-        backend = new global.HttpBackend(browser);
-    });
 
     beforeEach(function () {
+        backend = new global.HttpBackend(browser);
+        // Let everything through
         backend.whenGET(/.*/).passThrough();
         backend.whenPOST(/.*/).passThrough();
         // Get the dropdown
@@ -47,4 +46,34 @@ describe('Get user information in user dropdown', function () {
     //it('should show the users profile image', function () {
     //
     //});
+});
+
+describe('addToTeam directive', function () {
+    beforeEach(function () {
+        backend = new global.HttpBackend(browser);
+        // Let everything through
+        backend.whenGET(/.*/).passThrough();
+        // Set to respond with
+        backend.whenPOST(/.*/).passThrough();
+    });
+
+    afterEach(function() {
+        backend.clear();
+    });
+
+    it('should allow the user to login', function () {
+        helpers.loginUser();
+    });
+
+    it('should allow the user to search for other users', function () {
+
+    });
+
+    it('should display a dropdown of users when an existing user is found', function () {
+
+    });
+
+    it('should allow the user to select one specific user', function () {
+
+    });
 });

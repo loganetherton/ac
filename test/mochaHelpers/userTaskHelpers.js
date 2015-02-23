@@ -8,6 +8,7 @@
  * removeUsersAndTasks
  * removeUsersAndTeams
  * clearUsers
+ * clearMessages
  * clearTeams
  * checkInvites
  * sendInvite
@@ -21,6 +22,7 @@ var should = require('should'),
     User = mongoose.model('User'),
     Task = mongoose.model('Task'),
     Team = mongoose.model('Team'),
+    Message = mongoose.model('Message'),
     q = require('q'),
     Promise = require('bluebird');
 
@@ -361,6 +363,21 @@ exports.clearUsers = function () {
             }
         });
         resolve('tasks cleared');
+    });
+};
+
+/**
+ * Clear the messages collection
+ * @returns {bluebird}
+ */
+exports.clearMessages = function () {
+    return new Promise(function (resolve, reject) {
+        Message.remove({}, function (err) {
+            if (err) {
+                reject('Could not clear messages collection');
+            }
+        });
+        resolve('message cleared');
     });
 };
 

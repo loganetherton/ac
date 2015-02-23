@@ -7,13 +7,13 @@ var should = require('should'),
     Promise = require('bluebird'),
     userTaskHelper = require('../../../../test/mochaHelpers/userTaskHelpers');
 
-var user, messageRaw, message;
+var user, messageRaw, message, createdTime, modifiedTime;
 
 describe('Model: Message', function () {
-
     // Clear users and teams
     before(function (done) {
-        Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
+        Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers(),
+                     userTaskHelper.clearMessages()]).then(function () {
             done();
         });
     });
@@ -28,7 +28,8 @@ describe('Model: Message', function () {
 
     // Clear users and teams
     after(function (done) {
-        Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers()]).then(function () {
+        Promise.all([userTaskHelper.clearTeams(), userTaskHelper.clearUsers(),
+                     userTaskHelper.clearMessages()]).then(function () {
             done();
         });
     });
@@ -63,15 +64,49 @@ describe('Model: Message', function () {
     });
 
     it('should placed the created and modified time on insert', function (done) {
-        done();
+        // Valid content
+        messageRaw.content = 'Test content';
+        message = new Message(messageRaw);
+        // No errors
+        message.save(function (err) {
+            should.not.exist(err);
+            createdTime = message.created;
+            modifiedTime = message.modified;
+            // Check that created and modified were set
+            message.created.should.be.lessThan(new Date());
+            message.modified.should.be.lessThan(new Date());
+            done();
+        });
     });
 
     it('should update the modified time on update', function (done) {
-        done();
+        // Get the original timestamps
+        var originalModifiedTime = message.modified.getTime();
+        var originalCreatedTime = message.created.getTime();
+        // Save again to make sure modified is updated
+        message.save(function (err) {
+            should.not.exist(err);
+            // Retrieve updated record
+            Message.findOne({}, function (err, thisMessage) {
+                // Make sure modified time was updated
+                originalModifiedTime.should.be.lessThan(thisMessage.modified.getTime());
+                // ...and created time was not
+                originalCreatedTime.should.be.equal(thisMessage.created.getTime());
+                done();
+            });
+        });
     });
 
-    it('should sanitize unsafe input', function (done) {
-        // sanitizer
-        done();
+    it('should XSS sanitize unsafe input', function (done) {
+        // Contrived XSS
+        message.content = '<pre>Hi, guys!</pre><script>alert("XSS!");</script>';
+        message.save(function (err) {
+            should.not.exist(err);
+            // Get updated record
+            Message.findOne({}, function (err, thisMessage) {
+                thisMessage.content.should.be.equal('<pre>Hi, guys!</pre>');
+                done();
+            });
+        });
     });
 });

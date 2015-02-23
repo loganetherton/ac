@@ -46,6 +46,14 @@ MessageSchema.pre('save', function (next) {
     next();
 });
 
+/**
+ * Sanitize content
+ */
+MessageSchema.pre('save', function (next) {
+    this.content = sanitizer.sanitize(this.content);
+    next();
+});
+
 var Message = mongoose.model('Message', MessageSchema);
 
 // Ensure messages aren't blank (minlength doesn't seem to be working)

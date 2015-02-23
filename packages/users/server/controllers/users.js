@@ -10,6 +10,7 @@ var mongoose = require('mongoose'),
     nodemailer = require('nodemailer'),
     templates = require('../template'),
     Team = mongoose.model('Team'),
+    Message = mongoose.model('Message'),
     Promise = require('bluebird');
 
 var serverCtrlHelpers = require('../../../system/server/controllers/helpers');
@@ -381,5 +382,28 @@ exports.userSearch = function (req, res) {
         });
         // Return all found users
         return res.status(200).json(users);
+    });
+};
+
+/**
+ * Get messages for this user
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.getMessages = function (req, res, next) {
+    // Get messages for this user
+    Message.find({
+        user: req.user._id
+    }, function (err, messages) {
+        if (err) {
+            return next(err);
+        }
+        // If no messages, return that nice message
+        if (!messages.length) {
+            return res.status(200).send('No messages');
+        }
+        // Send messages, if any are found
+        return res.status(200).json(messages);
     });
 };

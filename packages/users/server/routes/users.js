@@ -16,6 +16,11 @@ module.exports = function (MeanUser, app, auth, database, passport) {
     .all(auth.requiresLogin)
     .get(users.userSearch);
 
+    // Get all messages for the current user
+    app.route('/user/getMessages')
+    .all(auth.requiresLogin)
+    .get(users.getMessages);
+
     // Register an account
     app.route('/register').post(users.createAsync);
 

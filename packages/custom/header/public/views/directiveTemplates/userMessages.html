@@ -1,0 +1,29 @@
+<li class="dropdown">
+    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-comment-o"></i>
+        <span class="badge badge-success">{{userMessagesCtrl.messages.length}}</span>
+    </a>
+    <div class="dropdown-menu with-arrow panel panel-default">
+        <div class="panel-heading">
+            <ng-pluralize count="userMessagesCtrl.messages.length"
+                          when="{'0': 'You have no messages', '1': 'You have 1 message', 'other': 'You have {{userMessagesCtrl.messages.length}} messages'}">
+            </ng-pluralize>
+        </div>
+        <ul class="list-group" ng-repeat="message in userMessagesCtrl.messages">
+            <li class="list-group-item">
+                <a href="javascript:;" class="media">
+                        <span class="media-left media-icon">
+                            <span class="round-icon sm bg-info"><i class="fa fa-comment-o"></i></span>
+                        </span>
+                    <div class="media-body">
+                        <span class="block"><b>{{message.user}}</b>: {{message.message}}</span>
+                        <span class="text-muted">3 hours ago</span>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <div class="panel-footer" ng-if="userMessagesCtrl.messages.length">
+            <a href="javascript:;">Show all messages.</a>
+        </div>
+    </div>
+</li>

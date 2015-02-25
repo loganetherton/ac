@@ -95,3 +95,27 @@ app.directive('searchExistingUser', [function () {
         }
     };
 }]);
+
+/**
+ * Retrieve messages for the current user
+ */
+app.directive('userMessages', [function () {
+    return {
+        templateUrl: 'header/views/directiveTemplates/userMessages.html',
+        replace: true,
+        controller: function (GetMessagesService) {
+            var vm = this;
+            // Get messages for this user
+            GetMessagesService.getMessages().then(function (response) {
+                console.log(response);
+                // No messages
+                if (response.data === 'No messages') {
+                    vm.messages = [];
+                } else {
+
+                }
+            });
+        },
+        controllerAs: 'userMessagesCtrl'
+    };
+}]);

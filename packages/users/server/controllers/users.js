@@ -407,3 +407,25 @@ exports.getMessages = function (req, res, next) {
         return res.status(200).json(messages);
     });
 };
+
+/**
+ * Send a message to a user
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.sendMessage = function (req, res, next) {
+    var message;
+    // Make sure user and message included
+    if (!req.body.hasOwnProperty('message') || !req.body.hasOwnProperty('user')) {
+        return res.status(400).send('A user and a message must be specified');
+    }
+    message = new Message(req.body);
+    message.save(function (err) {
+        // Error handling, eventually
+        if (err) {
+            return next(Error(err));
+        }
+        res.status(200).send('Message sent');
+    });
+};

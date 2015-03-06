@@ -1,0 +1,25 @@
+<div class="page">
+    <div class="row">
+        <div class="col-sm-12">
+            <section class="panel panel-default mail-container mail-compose">
+                <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> Compose Mail</strong></div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="mail_to" class="col-xs-2">To:</label>
+                            <div class="col-xs-10">
+                                <input type="text" id="mail_to" class="form-control">
+                            </div>
+                        </div>
+                        <div text-angular ta-toolbar="[['bold', 'italics'], ['undo', 'redo']]"
+                             data-ng-model="messageCtrl.content" class="ui-editor"></div>
+                    </form>
+                    <div class="mail-actions">
+                        <div class="btn btn-sm btn-primary">Send</div>
+                        <div class="btn btn-sm btn-default">Discard</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

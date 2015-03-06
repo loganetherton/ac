@@ -35,7 +35,7 @@ $filter, $state) {
      * @returns {boolean}
      */
     vm.showRightPane = function () {
-        return ($state.current.name === 'site.timeline');
+        return ($state.current.name === 'site.timeline' || $state.current.name === 'site.team');
     };
 
     //////////////////////////////////////

@@ -112,7 +112,7 @@ app.directive('userMessages', [function () {
                 if (response.data === 'No messages') {
                     vm.messages = [];
                 } else {
-
+                    console.log('display messages');
                 }
             });
         },

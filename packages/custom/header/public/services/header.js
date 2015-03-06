@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('mean.header')
+var app = angular.module('mean.header');
 
 app.factory('Header', [
   function() {

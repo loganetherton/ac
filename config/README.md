@@ -6,3 +6,7 @@ Testing out ordered lists
 3. Item 3
   * Subitem 2
     * Sub-subitem 1
+    
+* List 1
+* List 2
+* List 3

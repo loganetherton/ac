@@ -92,7 +92,7 @@ _Note: If you are using PhpStorm as your IDE, you can select `Update Project` fr
     git stash apply
     ```
 
-8. Generally, you will not encounter any conflicts when unstashing changes. If you do, please refer to _Resolving Conflicts_ below. You are now safe to commit changes, push to the remote repository, etc.
+8. Generally, you will not encounter any conflicts when unstashing changes. If you do, please refer to _Resolving Conflicts_ below. If there are no conflicts, you are now safe to continue work as normal.
 
 If this process seems overwhelming, don't worry - it's actually much easier than it sounds! If you need help, please don't hesitate to ask one of the developers in the _V2 Team_ room.
 
@@ -163,19 +163,18 @@ For each conflicting file, you can follow the procedure described below to resol
     1.There can be more then one block of conflict code in a file. Use the same rules for each one.
 3. Search for unmerged files again using one of the methods described above. If you have followed the directions correctly, all conflicts should be removed. At this point, no files contain `<<<<<<<<`, `========` or `>>>>>>>`. 
 4. You can now restage any files which have been unstaged by running:
-```bash
-git add .
-```
+    ```bash
+    git add .
+    ```
 5. After you are done resolving conflicts in all files, you should do one of the following:
   1. If the conflict appeared while running `git rebase`, continue with the rebase process by running:
-
-        git rebase --continue
-
+    ```bash
+    git rebase --continue
+    ```
   2. If you got a conflict while running `git stash apply`, you should now unstage all of the previously conflicting files. This will reset the file status and will allow you to continue working on any uncommited code you had before starting the update process. You can unstage files by running:
-
-```bash
-git reset
-```
+    ```bash
+    git reset
+    ```
 
 ### Notes
 When pulling code from the remote repository, it is generally a good idea to run the following sequence of commands. 

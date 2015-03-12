@@ -55,13 +55,11 @@ _Note: If you are using PhpStorm as your IDE, you can select `Update Project` fr
     git reset
     ```
 
-3. From the console (make sure you are in the correct folder before continuing) use the following command:
+3. A [stash](http://git-scm.com/book/en/v1/Git-Tools-Stashing) will temporarily save all of your local changes without committing them. From the console (make sure you are in the correct folder before continuing) use the following command:
 
     ```bash
     git stash
     ```
-
-A [stash](http://git-scm.com/book/en/v1/Git-Tools-Stashing) will temporarily save all of your local changes without committing them.
 
 4. Ensure that you do not have any uncommitted or unstashed changes by entering:
 

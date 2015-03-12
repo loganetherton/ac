@@ -49,18 +49,17 @@ _Note: If you are using PhpStorm as your IDE, you can select `Update Project` fr
 **Details**
 
 1. Commit as much code as you can, as noted in the _Committing Code_ section.
-
 2. [Unstage](http://git-scm.com/docs/git-add) all staged files by running:
- 
-```bash
-git reset
-```
+
+    ```bash
+    git reset
+    ```
 
 3. From the console (make sure you are in the correct folder before continuing) use the following command:
 
-```bash
-git stash
-```
+    ```bash
+    git stash
+    ```
 
 A [stash](http://git-scm.com/book/en/v1/Git-Tools-Stashing) will temporarily save all of your local changes without committing them.
 

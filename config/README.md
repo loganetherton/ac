@@ -92,9 +92,7 @@ _Note: If you are using PhpStorm as your IDE, you can select `Update Project` fr
     git stash apply
     ```
 
-Generally, you will not encounter any conflicts during this process. If you do, please refer to _Resolving Conflicts_ below.
-
-8. You are now safe to commit changes, push to the remote repository, etc.
+8. Generally, you will not encounter any conflicts when unstashing changes. If you do, please refer to _Resolving Conflicts_ below. You are now safe to commit changes, push to the remote repository, etc.
 
 If this process seems overwhelming, don't worry - it's actually much easier than it sounds! If you need help, please don't hesitate to ask one of the developers in the _V2 Team_ room.
 

@@ -79,13 +79,12 @@ _Note: If you are using PhpStorm as your IDE, you can select `Update Project` fr
     git rebase origin/login_debug
     ```
 
+    Generally, you will not encounter any conflicts during this process. If you do, please refer to _Resolving Conflicts_ below.
     A rebase happens in three steps:
     
     1. All local commits that have not yet been pushed are stashed.
     2. Changes from the remote repository are applied to your local copy of the codebase.
     3. Your uncommitted local changes are then applied on top of the code that was just retrieved from the repository.
-
-    Generally, you will not encounter any conflicts during this process. If you do, please refer to _Resolving Conflicts_ below.
 
 7. Once all remote changes have been applied to your local copy, you can retrieve your local changes which were previous stashed by entering:
 

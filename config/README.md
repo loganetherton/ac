@@ -163,15 +163,20 @@ For each conflicting file, you can follow the procedure described below to resol
     1.There can be more then one block of conflict code in a file. Use the same rules for each one.
 3. Search for unmerged files again using one of the methods described above. If you have followed the directions correctly, all conflicts should be removed. At this point, no files contain `<<<<<<<<`, `========` or `>>>>>>>`. 
 4. You can now restage any files which have been unstaged by running:
+
     ```bash
     git add .
     ```
+    
 5. After you are done resolving conflicts in all files, you should do one of the following:
   1. If the conflict appeared while running `git rebase`, continue with the rebase process by running:
+  
     ```bash
     git rebase --continue
     ```
+    
   2. If you got a conflict while running `git stash apply`, you should now unstage all of the previously conflicting files. This will reset the file status and will allow you to continue working on any uncommited code you had before starting the update process. You can unstage files by running:
+  
     ```bash
     git reset
     ```

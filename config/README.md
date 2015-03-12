@@ -65,23 +65,23 @@ A [stash](http://git-scm.com/book/en/v1/Git-Tools-Stashing) will temporarily sav
 
 4. Ensure that you do not have any uncommitted or unstashed changes by entering:
 
-```bash
-git diff
-```
+    ```bash
+    git diff
+    ```
 
 Any unstashed changed to staged files will be shown in the output.
 
 5. You are now safe to retrieve content from the remote repository by entering:
 
-```bash
-git fetch origin
-```
+    ```bash
+    git fetch origin
+    ```
 
 6. Once you have all changes from the remote repository, you are going to apply your local commits that have not been pushed yet to the front of the commits you just pulled from the remote repository. This will help create a coherent story for anyone browsing the Git log. This is done via `rebase`, as opposed to `merge`, by entering:
 
-```bash
-git rebase origin/login_debug
-```
+    ```bash
+    git rebase origin/login_debug
+    ```
 
 A rebase happens in three steps:
 1. All local commits that have not yet been pushed are stashed.
@@ -92,9 +92,9 @@ Generally, you will not encounter any conflicts during this process. If you do, 
 
 7. Once all remote changes have been applied to your local copy, you can retrieve your local changes which were previous stashed by entering:
 
-```bash
-git stash apply
-```
+    ```bash
+    git stash apply
+    ```
 
 Generally, you will not encounter any conflicts during this process. If you do, please refer to _Resolving Conflicts_ below.
 

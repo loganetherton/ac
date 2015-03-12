@@ -196,3 +196,5 @@ From the frontend/ directory, run the following:
 bower install && npm install
 ```
 This will update all bower dependencies, to keep the package management in sync.
+
+WHWHWHHRWHRHWHRHW

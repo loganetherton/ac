@@ -175,7 +175,7 @@ For each conflicting file, you can follow the procedure described below to resol
 git add .
 ```
 
-4. After you are done resolving conflicts in all files, you should do one of the following:
+5. After you are done resolving conflicts in all files, you should do one of the following:
   1. If the conflict appeared while running `git rebase`, continue with the rebase process by running:
 
         git rebase --continue

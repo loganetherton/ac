@@ -67,9 +67,7 @@ _Note: If you are using PhpStorm as your IDE, you can select `Update Project` fr
     git diff
     ```
 
-Any unstashed changed to staged files will be shown in the output.
-
-5. You are now safe to retrieve content from the remote repository by entering:
+5. Any unstashed changed to staged files will be shown in the output. You are now safe to retrieve content from the remote repository by entering:
 
     ```bash
     git fetch origin

@@ -1,126 +1,203 @@
-### User Types
-This document describes the different user types available on the Appraisal Scope platform.
+### Git Workflow
 
-#### Super Admin
-The _Super Admin_ is a special user having full administrative access to the Appraisal Scope platform. Only one Super Admin account can be created per sub. The Super Admin account is also used by Appraisal Scope developers and management for diagnostic purposes. The Super Admin account is invisible to the sub.
+This document details the workflow that developers should follow in regards to pulling and committing changes to the codebase.
 
-##### How Are Super Admin Accounts Created?
-The Super Admin account can only be created during the sub's account setup phase.
+#### Software
 
-##### v1 Sample Access
-Access can be found in [User Type Access](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
+This explanation uses Git Bash, a Git GUI that comes standard with the official Git SCM package. Git Bash refers to the version of Git that works with the [Bourne Again Shell](http://en.wikipedia.org/wiki/Bash_%28Unix_shell%29). You can download Git Bash [here](http://git-scm.com/downloads).
 
-#### Admin/Staff
-The Appraisal Scope platform is primarily designed to accommodate the workflow of [AMC](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/Glossary.md)s and lenders. Internally, we refer to Appraisal Scope Subscribers as [subs](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/Glossary.md). Staff members of these subs will be given _Admin/Staff_ access.
+#### Version Control Strategy
 
-##### How Are Admin/Staff Accounts Created?
-- Login to [Super Admin account](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
-- Click on the `STAFF` tab, `Staff` sub-tab.
-- Under the `Create New Admin` section, new admin/staff accounts can be created. [Screenshot](http://screencast.com/t/1qGxitew).
+A high-level explanation of the version control strategy most small teams follow can be found [here](http://stackoverflow.com/a/2429011/2216056).
 
-##### v1 Sample Access 
-Access can be found in [User Type Access](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).   
+#### Cloning and Branching
 
-#### Client
-_Clients_ are typically banks or lenders who submit new appraisals to subs. Subs will then complete the appraisals and submit appraisal reports back to the clients.
-  
-##### How Are Client Accounts Created?
-The Client View is typically used by sub users created under client companies. The client company itself will not usually sign in to the client view.
+To create a local development copy of the Appraisal Scope platform, you must [clone](http://git-scm.com/docs/git-clone) both the [front-end](https://github.com/ascope/front-end) and [back-end](https://github.com/ascope/back-end) Appraisal Scope repositories.
 
-There are three methods for creating a client company in the Appraisal Scope platform:
+Create a directory to hold the source code of both the front-end and back-end code. Change to this directory, and type the following commands in Git Bash:
 
-1. Using the `CLIENT SIGN UP` tab on the Appraisal Scope login screen.
-2. By creating a new company using the Admin/Staff View.
-  * Log in to the [Admin/Staff View](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
-  * Go to the `USERS` tab, `CLIENT` sub-tab.
-  * Select `NEW COMPANY`. [Screenshot](http://screencast.com/t/yIWrumxacWt1).
-3. By importing client companies using the Admin View.
-  * Log in to the [Admin/Staff View](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
-  * Go to the `SETTINGS` tab, `Import Client` sub-tab.
-  * Upload a CSV document with the following columns:
-    * Company Name
-    * Contact First Name
-    * Contact Last Name
-    * Email
-    * Address
-    * City
-    * State
-    * Zip Code
-    * Phone
+    git clone git@github.com:ascope/front-end.git
+    git clone git@github.com:ascope/back-end.git
 
-##### How Are Sub Users Under a Client Company Created?
-There are three methods for creating a sub user in the Appraisal Scope platform:
+Currently, the `development` branch is considered to be [stable](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/Glossary.md), even though it is not ready for [production](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/Glossary.md). All development should be done on separate development branches, for which the users should submit [pull requests](https://help.github.com/articles/using-pull-requests/) to submit the code for consideration in the development branch. Once the `development` branch is considered to be ready for production, it will be merged with the `master` branch.
 
-1. By sending a signup link from within the Admin/Staff view.
-  * Log in to the [Admin/Staff View](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
-  * Go to the `USERS` tab, `CLIENT` sub-tab.
-  * Search for an existing company from within the search panel on the left portion of the screen.
-  * Select a company from within the results container immediately beneath the search box.
-  * Click `Email Signup Link` in the profile that displays on the right portion of the screen.
-  * Enter up to four separate email addresses, and then click `Send`. [Screenshot](http://screencast.com/t/R90ooRE71vi)
-2. By adding a user from an existing company from within the Admin/Staff view.
-  * Log in to the [Admin/Staff View](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
-  * Go to the `USERS` tab, `CLIENT` sub-tab.
-  * Search for an existing company from within the search panel on the left portion of the screen.
-  * Select a company from within the results container immediately beneath the search box.
-  * Click `Add Users` from within the profile that displays on the right portion of the screen.
-  * Follow the instructions on the screen.
-3. By importing client sub users from within the Admin View.
-  * Log in to the [Admin/Staff View](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
-  * Go to the `SETTINGS` tab, `Import Users` sub-tab.
-  * Upload a CSV document with the following columns:
-    * Company Name
-    * First Name
-    * Last Name
-    * Username
-    * Password
-    * Email
-    * User Type
+To check out the `development` branch, enter the following command:
+
+```bash
+git checkout -b development origin/development
+```
+    
+This same command can be used to create new branches for development of a specific feature or bug. For example, if a developer were addressing login problems, and wanted to checkout a new branch called `login_debug`, they could run:
+
+```bash
+git checkout -b login_debug
+```
+
+#### Updating Your Local Copy
+
+As other developers push to the remote repository, your local copy of the codebase will quickly become outdated. Keeping your local copy up to date can be a painless process if a few simple steps are followed. In most cases, simply running the following will bring your local copy up to date. Assuming you are still on the `login_debug` branch, enter the following:
+
+```bash
+git stash
+git fetch origin
+git rebase origin/login_debug
+git stash pop
+```
+
+_Note: If you are using PhpStorm as your IDE, you can select `Update Project` from the `VCS` menu, and select `Rebase` under `Update Type` and `Stash` under `Clean working tree before update`. This will follow the steps described above._
+
+**Details**
+
+1. Commit as much code as you can, as noted in the _Committing Code_ section.
+
+2. [Unstage](http://git-scm.com/docs/git-add) all staged files by running:
  
-##### v1 Sample Access
-Access can be found in [User Type Access](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
+```bash
+git reset
+```
 
-#### Manager & Appraiser
-This role is basically assigned to people who are created as both appraisers and managers under appraisal companies. They can take/track orders from subs for themselves as well as for the appraisers working in the same appraiser company.
+3. From the console (make sure you are in the correct folder before continuing) use the following command:
 
-##### How can a Manager & Appraiser account be created?
-1. Login to Admin View.  
-2. Go to `USERS > APPRAISER` tab and select some client company from search panel on the left.   
-3. Click on the appraisal company from the search container to open that appraiser's profile, then click on the `ADD USER` tab.   
-4. From the appraiser listing for the company seen under the `ADD USER` tab, you can use the Appraiser Manager checkbox to make the given appraiser a manager, too. [Screenshot](http://screencast.com/t/Zn63XTwf4ZHw).   
+```bash
+git stash
+```
 
-##### v1 Sample Access
-Access can be found in [User Type Access](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
+A [stash](http://git-scm.com/book/en/v1/Git-Tools-Stashing) will temporarily save all of your local changes without committing them.
 
-#### Company Manager
+4. Ensure that you do not have any uncommitted or unstashed changes by entering:
 
-If an individual is working specifically as a manager in an appraisal company, then he is created as a manager only under that appraisal company. This type of user can accept/track orders for any other appraiser working in the same appraisal company, but cannot accept work for themselves.
+```bash
+git diff
+```
 
-##### How can a Company Manager account be created?
-1. Login to Admin View.  
-2. Go to the `USERS > APPRAISER` tab and select a client company from the search panel on the left.
-3. Click on the appraisal company from the search container to open the appraiser's profile, then click on the `ADD USER` tab.  
-4. Now use `ADD MANAGER` section under `ADD USER` page to add new manager under this appraiser company. [Screenshot](http://screencast.com/t/lNYdb7BElKf).    
+Any unstashed changed to staged files will be shown in the output.
 
-##### v1 Sample Access
-Access can be found in [User Type Access](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
+5. You are now safe to retrieve content from the remote repository by entering:
 
-#### Appraiser
+```bash
+git fetch origin
+```
 
-Appraisers are the people who do the property appraisals assigned to them by subs and generate appraisal reports to send back to the subs, who in turn will forward to the Client (who originally submitted appraisal to subs).
+6. Once you have all changes from the remote repository, you are going to apply your local commits that have not been pushed yet to the front of the commits you just pulled from the remote repository. This will help create a coherent story for anyone browsing the Git log. This is done via `rebase`, as opposed to `merge`, by entering:
 
-Appraisers can work as independent appraisers, as well as under appraiser companies.
+```bash
+git rebase origin/login_debug
+```
 
-##### How can an Appraiser account be created?
-There is an ASC database of certified appraisers already available on the [government website](https://www.asc.gov) from which the ASC (Appraisal Subcommittee) database is periodically imported to Appraisal Scope. 
+A rebase happens in three steps:
+1. All local commits that have not yet been pushed are stashed.
+2. Changes from the remote repository are applied to your local copy of the codebase.
+3. Your uncommitted local changes are then applied on top of the code that was just retrieved from the repository.
 
-Only appraisers available in ASC can register on the Appraisal Scope Platform using the `APPRAISER REGISTRATION` tab on the Appraisal Scope authentication page.   
+Generally, you will not encounter any conflicts during this process. If you do, please refer to _Resolving Conflicts_ below.
 
-To add an appraiser under an appraiser company:  
-1. Login to the Admin View.     
-2. Go to `USERS > APPRAISER`, then select a client company from the left search panel.
-3. Click on the appraiser company from the search container to open the appraiser's profile. Click on the `ADD USER` tab.   
-4. Use the `ADD APPRAISER` section under the `ADD USER` page to add a new appraiser under the selected appraisal company. [Screenshot](http://screencast.com/t/5lJXdwUL7p).   
+7. Once all remote changes have been applied to your local copy, you can retrieve your local changes which were previous stashed by entering:
 
-##### v1 Sample Access
-Access can be found in [User Type Access](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/User%20Type%20Access.md).
+```bash
+git stash apply
+```
+
+Generally, you will not encounter any conflicts during this process. If you do, please refer to _Resolving Conflicts_ below.
+
+8. You are now safe to commit changes, push to the remote repository, etc.
+
+If this process seems overwhelming, don't worry - it's actually much easier than it sounds! If you need help, please don't hesitate to ask one of the developers in the _V2 Team_ room.
+
+#### Committing Code
+
+A successful git strategy will include a few key ingredients:
+  
+1. Commit your code often! Do not necessarily wait until the code is "perfect" to commit it. Committing early and often is the key to developing a working log of your development cycle.
+2. Make sure that the code is working. The fact is that no code is perfect. Bugs exist. It's a fact of development. But the goal here it is minimize bugs entering any stable branch. But do not let the fear of undiscovered bugs prevent you from making progress. Sanity check your code for errors. When working on the front-end, check that your code did not create any new JsHint errors. Run all tests to make sure that they still all pass.
+3. Write tests for your code! If exists tests stop working because of your code, fix your code, not the tests (unless the tests truly are what is broken). Information on front-end tests can be found [here](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Back-end/Running%20tests%20and%20building.md). Information on back-end tests can be found [here](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Front-end/Running%20tests%20and%20building.md).
+4. Don't commit any local configuration changes that are specific to your working environment. Remember that code that you commit will be applied for everyone.
+5. Don't commit commented out code. Rely on the [Git log](http://git-scm.com/docs/git-log) to review code history.
+
+#### Commit Messages
+
+Commit messages are an extremely important part of the Git workflow, as it provides one of the most useful records of the development cycle the code has undergone. Descriptive commit messages provide an extremely easy way to search for code changes. An explanation of searching through commit messages can be found [here](http://stackoverflow.com/questions/3826748/git-how-to-search-for-through-commit-messages-using-command-line).
+
+Commit messages for the Appraisal Scope platform should be prefixed with the [Pivotal Tracker](https://www.pivotaltracker.com) story number that the commit pertains to, followed by a short description of the changes. These two items should be written on the same line. Leave one empty line beneath the story number, and underneath that, write an extended explanation of changes. For example:
+
+    #12345678 Git Workflow documentation updates
+    
+    This should (hopefully) finally solve any Git issues we are having these days.
+    No more lost commits!
+
+#### Pushing Changes to the Remote Repository
+
+Before pushing changes to the remote repository, ensure that your local development version is up to date by following the instructions above.
+
+Once your local copy has been updated, commit your changes. You are now ready to push your code to the repository. Assuming you are still on the `login_debug` branch, you would enter the following command:
+
+```bash
+git push origin login_debug
+```
+
+If the remote branch `login_debug` does not yet exist, this will create it. Once your branch is pushed to the remote repository, you can then initiate a pull request.
+
+**Do not ever force a push using the `-f` flag! If your `push` fails, you must fix the problems in your local branch. Pushing with `-f` overwrites the remote copy of the repository, which could have disastrous effects.**
+
+#### Pull Requests
+
+
+
+#### Resolving conflicts
+
+Should you ever enter conflicts when pulling code from the remote repository, you can resolve them using the process described below.
+
+**Finding Files With Conflicts (Command Line)**
+
+To view files with conflicts using the command line, enter:
+
+```bash
+git diff --name-only --diff-filter=U
+```
+
+**Finding Files With Conflicts (GUI)**
+
+Open the Git GUI and press the "rescan" button. In the unstage section in the top left, there will be a list of files with conflicts. 
+
+**Resolving Conflicts**
+
+For each conflicting file, you can follow the procedure described below to resolve conflicts:
+
+1. Open the conflicting file.
+2. Find the block of code between `<<<<<<<` and `>>>>>>`. These symbols are used to indicate git conflicts. Any piece of code between `<<<<<<<` and `========` is conflicting code that was pulled from the remote repository. Any piece of code between `=======` and `>>>>>>>>` is conflicting code from your local changes. You can resolve the conflict one of three ways:
+  1. If you understand the code in question, edit the file to restore the correct code. Leave only the code that you want in your copy of the file.
+  2. If you don't understand the code, ask the last developer who changed that bit of code for help. Once you understand the code, edit it so that only the desired code appears in the file.
+  3. If you are unable to determine the correct code to leave in the file, **remove your local changes** (the second part), leaving only the first part.
+    1.There can be more then one block of conflict code in a file. Use the same rules for each one.
+3. Search for unmerged files again using one of the methods described above. If you have followed the directions correctly, all conflicts should be removed. At this point, no files contain `<<<<<<<<`, `========` or `>>>>>>>`. 
+4. You can now restage any files which have been unstaged by running:
+
+```bash
+git add .
+```
+
+4. After you are done resolving conflicts in all files, you should do one of the following:
+  1. If the conflict appeared while running `git rebase`, continue with the rebase process by running:
+
+        git rebase --continue
+
+  2. If you got a conflict while running `git stash apply`, you should now unstage all of the previously conflicting files. This will reset the file status and will allow you to continue working on any uncommited code you had before starting the update process. You can unstage files by running:
+
+```bash
+git reset
+```
+
+### Notes
+When pulling code from the remote repository, it is generally a good idea to run the following sequence of commands. 
+
+From the backend/ directory of the Appraisal Scope project, run:
+
+```
+composer dump-autoload -o && php artisan dump-autoload
+```
+This will recreate the autoload files for both Composer and Laravel.
+
+From the frontend/ directory, run the following:
+```
+bower install && npm install
+```
+This will update all bower dependencies, to keep the package management in sync.

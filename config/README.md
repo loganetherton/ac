@@ -113,33 +113,33 @@ homestead init
 `Homestead.yaml` will now be available at `C:\Users\<username>\.homestead`. Open this file in a text editor, and replace its content with the following:
 
 ```yaml
-    ---
-    ip: "192.168.10.10"
-    memory: 2048
-    cpus: 1
-    
-    authorize: ~/.ssh/id_rsa.pub
-    
-    keys:
-        - ~/.ssh/id_rsa
-    
-    folders:
-        - map: E:/Code
-          to: /home/vagrant/Code
-    
-    sites:
-        - map: homestead.app
-          to: /home/vagrant/Code/Laravel/public
-        - map: clientx.dev-api.appraisalscope.local
-          to: /home/vagrant/Code/ascopev2/backend/public
-    
-    databases:
-        - homestead
-        - appraisalscope
-    
-    variables:
-        - key: APP_ENV
-          value: local
+---
+ip: "192.168.10.10"
+memory: 2048
+cpus: 1
+
+authorize: ~/.ssh/id_rsa.pub
+
+keys:
+    - ~/.ssh/id_rsa
+
+folders:
+    - map: E:/Code
+      to: /home/vagrant/Code
+
+sites:
+    - map: homestead.app
+      to: /home/vagrant/Code/Laravel/public
+    - map: clientx.dev-api.appraisalscope.local
+      to: /home/vagrant/Code/ascopev2/backend/public
+
+databases:
+    - homestead
+    - appraisalscope
+
+variables:
+    - key: APP_ENV
+      value: local
 ```
 
 Adjust the path to your local copy of the Appraisal Scope code in the configuration above, if necessary.

@@ -1,200 +1,244 @@
-### Git Workflow
+### Setting Up a Windows Environment
 
-This document details the workflow that developers should follow in regards to pulling and committing changes to the codebase.
+This document describes the required steps to install the system on Windows.
 
-#### Software
+#### 1. Install VirtualBox
 
-This explanation uses Git Bash, a Git GUI that comes standard with the official Git SCM package. Git Bash refers to the version of Git that works with the [Bourne Again Shell](http://en.wikipedia.org/wiki/Bash_%28Unix_shell%29). You can download Git Bash [here](http://git-scm.com/downloads).
+Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Accept the default settings and grant all requested permissions.
 
-#### Version Control Strategy
+#### 2. Install Vagrant
 
-A high-level explanation of the version control strategy most small teams follow can be found [here](http://stackoverflow.com/a/2429011/2216056).
+Download and install [Vagrant](https://www.vagrantup.com/downloads.html). Accept the default settings and grant all requested permissions. You'll be asked to restart your PC when the installation is done. 
 
-#### Cloning and Branching
+#### 3. Install Git
 
-To create a local development copy of the Appraisal Scope platform, you must [clone](http://git-scm.com/docs/git-clone) both the [front-end](https://github.com/ascope/front-end) and [back-end](https://github.com/ascope/back-end) Appraisal Scope repositories.
+Download and install [Git](http://git-scm.com/downloads). Accept the default settings. You now have an application called Git Bash which you may want to pin to your taskbar for quick access. It will be used often for version control.
 
-Create a directory to hold the source code of both the front-end and back-end code. Change to this directory, and type the following commands in Git Bash:
+#### 4. Install PHP
 
-    git clone git@github.com:ascope/front-end.git
-    git clone git@github.com:ascope/back-end.git
+Download [PHP 5.6](http://windows.php.net/download/) (VC11 x64 Thread Safe, Zip format) and extract the compressed file into `C:\php56`.
 
-Currently, the `development` branch is considered to be [stable](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/Glossary.md), even though it is not ready for [production](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Overview/Glossary.md). All development should be done on separate development branches, for which the users should submit [pull requests](https://help.github.com/articles/using-pull-requests/) to submit the code for consideration in the development branch. Once the `development` branch is considered to be ready for production, it will be merged with the `master` branch.
+##### Adding PHP to Path
+1. Bring up the Run window (`Win+R`), type `sysdm.cpl`, and click OK. The `System Properties` window will be displayed.
+2. Click the `Advanced` tab and click the `Environment Variables...` button.
+3. Under `System Variables`, double click `Path`.
+4. At the end of `Variable value`, append `;C:\php56` and click OK.
+5. Click OK on the `System Variables` window to save your changes.
 
-To check out the `development` branch, enter the following command:
+Start (or restart) Git Bash, and type `php -v`. If you see the version information displayed, then you have successfully installed PHP.
 
-```bash
-git checkout -b development origin/development
-```
-    
-This same command can be used to create new branches for development of a specific feature or bug. For example, if a developer were addressing login problems, and wanted to checkout a new branch called `login_debug`, they could run:
+##### Install Composer
 
-```bash
-git checkout -b login_debug
-```
+PHP Composer is needed to initialize Laravel's Homestead. Download the [Composer Windows installer](https://getcomposer.org/doc/00-intro.md#installation-windows). However, if you try to run the installer, you'll get an error indicating that the OpenSSL extension is missing.
 
-#### Updating Your Local Copy
+###### Enable OpenSSL
+1. Copy `C:\php56\php.ini-development` to `C:\php56\php.ini`.
+2. Open the `php.ini` in a text editor and change the line that reads `;extension=php_openssl.dll` to `extension=ext\php_openssl.dll`
 
-As other developers push to the remote repository, your local copy of the codebase will quickly become outdated. Keeping your local copy up to date can be a painless process if a few simple steps are followed. In most cases, simply running the following will bring your local copy up to date. Assuming you are still on the `login_debug` branch, enter the following:
+You can now run the Composer installer. Accept all default settings, then restart Git Bash.
 
-```bash
-git stash
-git fetch origin
-git rebase origin/login_debug
-git stash pop
-```
+#### 5. Install Node
 
-_Note: If you are using PhpStorm as your IDE, you can select `Update Project` from the `VCS` menu, and select `Rebase` under `Update Type` and `Stash` under `Clean working tree before update`. This will follow the steps described above._
+Download and install [Node.js](http://nodejs.org/download/). Accept all default settings and grant any requested permissions.
 
-**Details**
+#### 6. Install Ruby
 
-1. Commit as much code as you can, as noted in the _Committing Code_ section.
-2. [Unstage](http://git-scm.com/docs/git-add) all staged files by running:
+Install the latest version of Ruby using [RubyInstaller](http://rubyinstaller.org/downloads/). Check each of the three checkboxes on the second step, and continue with the installation process. Restart Git Bash after completing the installation.
 
-    ```bash
-    git reset
-    ```
+##### Install Compass
 
-3. A [stash](http://git-scm.com/book/en/v1/Git-Tools-Stashing) will temporarily save all of your local changes without committing them. From the console (make sure you are in the correct folder before continuing) use the following command:
+Compass, which is available via [RubyGems](https://rubygems.org/), Ruby's package manager, must also be installed. However, running the installation command will return an error indicating that the certificate verification has failed. To [fix the problem](https://gist.github.com/luislavena/f064211759ee0f806c88), download the [new pem file](https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/AddTrustExternalCARoot-2048.pem) and place it in `C:\Ruby21\lib\ruby\2.1.0\rubygems\ssl_certs`.
 
-    ```bash
-    git stash
-    ```
-
-4. Ensure that you do not have any uncommitted or unstashed changes by entering:
-
-    ```bash
-    git diff
-    ```
-
-5. Any unstashed changed to staged files will be shown in the output. You are now safe to retrieve content from the remote repository by entering:
-
-    ```bash
-    git fetch origin
-    ```
-
-6. Once you have all changes from the remote repository, you are going to apply your local commits that have not been pushed yet to the front of the commits you just pulled from the remote repository. This will help create a coherent story for anyone browsing the Git log. This is done via `rebase`, as opposed to `merge`, by entering:
-
-    ```bash
-    git rebase origin/login_debug
-    ```
-
-    Generally, you will not encounter any conflicts during this process. If you do, please refer to _Resolving Conflicts_ below.
-    A rebase happens in three steps:
-    
-    1. All local commits that have not yet been pushed are stashed.
-    2. Changes from the remote repository are applied to your local copy of the codebase.
-    3. Your uncommitted local changes are then applied on top of the code that was just retrieved from the repository.
-
-7. Once all remote changes have been applied to your local copy, you can retrieve your local changes which were previous stashed by entering:
-
-    ```bash
-    git stash apply
-    ```
-
-8. Generally, you will not encounter any conflicts when unstashing changes. If you do, please refer to _Resolving Conflicts_ below. If there are no conflicts, you are now safe to continue work as normal.
-
-If this process seems overwhelming, don't worry - it's actually much easier than it sounds! If you need help, please don't hesitate to ask one of the developers in the _V2 Team_ room.
-
-#### Committing Code
-
-A successful git strategy will include a few key ingredients:
-  
-1. Commit your code often! Do not necessarily wait until the code is "perfect" to commit it. Committing early and often is the key to developing a working log of your development cycle.
-2. Make sure that the code is working. The fact is that no code is perfect. Bugs exist. It's a fact of development. But the goal here it is minimize bugs entering any stable branch. But do not let the fear of undiscovered bugs prevent you from making progress. Sanity check your code for errors. When working on the front-end, check that your code did not create any new JsHint errors. Run all tests to make sure that they still all pass.
-3. Write tests for your code! If exists tests stop working because of your code, fix your code, not the tests (unless the tests truly are what is broken). Information on front-end tests can be found [here](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Back-end/Running%20tests%20and%20building.md). Information on back-end tests can be found [here](https://github.com/ascope/manuals/blob/master/Developer's%20Guide/Guidelines/Front-end/Running%20tests%20and%20building.md).
-4. Don't commit any local configuration changes that are specific to your working environment. Remember that code that you commit will be applied for everyone.
-5. Don't commit commented out code. Rely on the [Git log](http://git-scm.com/docs/git-log) to review code history.
-
-#### Commit Messages
-
-Commit messages are an extremely important part of the Git workflow, as it provides one of the most useful records of the development cycle the code has undergone. Descriptive commit messages provide an extremely easy way to search for code changes. An explanation of searching through commit messages can be found [here](http://stackoverflow.com/questions/3826748/git-how-to-search-for-through-commit-messages-using-command-line).
-
-Commit messages for the Appraisal Scope platform should be prefixed with the [Pivotal Tracker](https://www.pivotaltracker.com) story number that the commit pertains to, followed by a short description of the changes. These two items should be written on the same line. Leave one empty line beneath the story number, and underneath that, write an extended explanation of changes. For example:
-
-    #12345678 Git Workflow documentation updates
-    
-    This should (hopefully) finally solve any Git issues we are having these days.
-    No more lost commits!
-
-#### Pushing Changes to the Remote Repository
-
-Before pushing changes to the remote repository, ensure that your local development version is up to date by following the instructions above.
-
-Once your local copy has been updated, commit your changes. You are now ready to push your code to the repository. Assuming you are still on the `login_debug` branch, you would enter the following command:
+You can now install compass by running the following commands:
 
 ```bash
-git push origin login_debug
+gem update --system
+gem install compass
 ```
 
-If the remote branch `login_debug` does not yet exist, this will create it. Once your branch is pushed to the remote repository, you can then initiate a pull request.
+#### 7. Clone the codebase
 
-**Do not ever force a push using the `-f` flag! If your `push` fails, you must fix the problems in your local branch. Pushing with `-f` overwrites the remote copy of the repository, which could have disastrous effects.**
+Open Git Bash and navigate to the location where you want to store the code. The rest of this guide assumes that the code is stored at `E:\Code`.
 
-#### Pull Requests
-
-
-
-#### Resolving conflicts
-
-Should you ever enter conflicts when pulling code from the remote repository, you can resolve them using the process described below.
-
-**Finding Files With Conflicts (Command Line)**
-
-To view files with conflicts using the command line, enter:
-
-```bash
-git diff --name-only --diff-filter=U
+```
+cd E:\Code
+git clone https://github.com/ascope/back-end.git
+git clone https://github.com/ascope/front-end.git
 ```
 
-**Finding Files With Conflicts (GUI)**
+You will be prompted to provide your GitHub username and password. After cloning has finished, the code will be available in `E:\Code\back-end` and `E:\Code\front-end`. 
 
-Open the Git GUI and press the "rescan" button. In the unstage section in the top left, there will be a list of files with conflicts. 
+#### 8. Setup Your SSH Key
 
-**Resolving Conflicts**
+Open Git Bash and run:
 
-For each conflicting file, you can follow the procedure described below to resolve conflicts:
+```
+ssh-keygen -t rsa -C "you@homestead"
+```
 
-1. Open the conflicting file.
-2. Find the block of code between `<<<<<<<` and `>>>>>>`. These symbols are used to indicate git conflicts. Any piece of code between `<<<<<<<` and `========` is conflicting code that was pulled from the remote repository. Any piece of code between `=======` and `>>>>>>>>` is conflicting code from your local changes. You can resolve the conflict one of three ways:
-  1. If you understand the code in question, edit the file to restore the correct code. Leave only the code that you want in your copy of the file.
-  2. If you don't understand the code, ask the last developer who changed that bit of code for help. Once you understand the code, edit it so that only the desired code appears in the file.
-  3. If you are unable to determine the correct code to leave in the file, **remove your local changes** (the second part), leaving only the first part.
-    1.There can be more then one block of conflict code in a file. Use the same rules for each one.
-3. Search for unmerged files again using one of the methods described above. If you have followed the directions correctly, all conflicts should be removed. At this point, no files contain `<<<<<<<<`, `========` or `>>>>>>>`. 
-4. You can now restage any files which have been unstaged by running:
+Accept the default location and do not specify a password for the key.
 
-    ```bash
-    git add .
-    ```
+#### 9. Install Homestead
+
+##### 1. Download and add the Laravel Vagrant Box
+
+Open Git Bash and paste:
+
+```
+vagrant box add laravel/homestead
+```
+
+##### 2. Install the Homestead CLI Tool
+
+Once the Homestead box has been added to your Vagrant installation, the Homestead CLI tool can be installed using Composer. The following command will install the tool globally:
+
+```
+composer global require "laravel/homestead=~2.0"
+```
+
+##### 3. Adding Homestead to Path
+
+Add `;~/AppData/Roaming/Composer/vendor/laravel/homestead` to the system path. This will allow the Homestead executable to be found when you run the `homestead` command in the terminal. Restart Git Bash once it has been added to the path.
+
+_Note: Please refer to "Adding PHP to Path" for specific instructions on adding to the system path._
+
+#### 10. Initialize Homestead
+
+Create the Homestead.yaml configuration file by running the following:
+
+```
+homestead init
+```
+
+`Homestead.yaml` will now be available at `C:\Users\<username>\.homestead`. Open this file in a text editor, and replace its content with the following:
+
+```yaml
+    ---
+    ip: "192.168.10.10"
+    memory: 2048
+    cpus: 1
     
-5. After you are done resolving conflicts in all files, you should do one of the following:
-  1. If the conflict appeared while running `git rebase`, continue with the rebase process by running:
-  
-    ```bash
-    git rebase --continue
-    ```
+    authorize: ~/.ssh/id_rsa.pub
     
-  2. If you got a conflict while running `git stash apply`, you should now unstage all of the previously conflicting files. This will reset the file status and will allow you to continue working on any uncommited code you had before starting the update process. You can unstage files by running:
-  
-    ```bash
-    git reset
-    ```
-
-### Notes
-When pulling code from the remote repository, it is generally a good idea to run the following sequence of commands. 
-
-From the backend/ directory of the Appraisal Scope project, run:
-
+    keys:
+        - ~/.ssh/id_rsa
+    
+    folders:
+        - map: E:/Code
+          to: /home/vagrant/Code
+    
+    sites:
+        - map: homestead.app
+          to: /home/vagrant/Code/Laravel/public
+        - map: clientx.dev-api.appraisalscope.local
+          to: /home/vagrant/Code/ascopev2/backend/public
+    
+    databases:
+        - homestead
+        - appraisalscope
+    
+    variables:
+        - key: APP_ENV
+          value: local
 ```
-composer dump-autoload -o && php artisan dump-autoload
-```
-This will recreate the autoload files for both Composer and Laravel.
 
-From the frontend/ directory, run the following:
-```
-bower install && npm install
-```
-This will update all bower dependencies, to keep the package management in sync.
+Adjust the path to your local copy of the Appraisal Scope code in the configuration above, if necessary.
 
-WHWHWHHRWHRHWHRHW
+Normally at this point, you should be able to type `homestead ssh` inside your terminal to access the virtual box. Sadly, due to a [bug in Homestead 2.0.8](https://github.com/laravel/homestead/commit/167135bbac3966be7ac05446c7da0d8bee50c34e), you need to manually make the following changes (otherwise running `homestead ssh` will return an error message stating that vagrant is not a recognized command):
+
+File: `C:\Users\username\AppData\Roaming\Composer\vendor\laravel\homestead\src\UpCommand.php`
+
+Change:
+`$process = new Process($command, realpath(__DIR__.'/../'), $_ENV, null, null);`  
+To:  
+`$process = new Process($command, realpath(__DIR__.'/../'), null, null, null);`
+
+File: `C:\Users\username\AppData\Roaming\Composer\vendor\laravel\homestead\src\SshCommand.php`
+
+Change:
+`passthru('VAGRANT_DOTFILE_PATH="~/.homestead/.vagrant" vagrant ssh');`  
+To:  
+`passthru('vagrant ssh');` 
+
+This will only fix the two commands that we need. You can run now run `homestead up` then `homestead ssh` to access the box (the first up run will take a little longer.)
+
+#### 11. Using PuTTY
+
+For some reason, Git Bash stops accepting new input after a few seconds of inactivity when connected to the virtual box. If you're not facing this issue on your machine, you can keep using Git Bash, otherwise follow the steps below to connect using PuTTY SSH Client.
+
+##### 1. Download PuTTY
+
+[Download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) the latest version of PuTTY (putty.exe). You may place the executable anywhere on your computer. It's a good idea to pin to the taskbar as you'll frequently use it.
+
+##### 2. Convert SSH key
+
+The SSH key we generated earlier must be converted to PuTTY Private Key format in order to be used by PuTTY. This can be done using [PuTTYgen](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) (puttygen.exe).
+
+1. Open PuTTYgen and from the main menu, select _Conversions -> Import key_.
+2. Select the private key located at `C:\Users\username\.ssh\id_rsa`
+3. Click Save private key. Do not enter a passphrase and save the file at `C:\Users\username\.ssh\putty.ppk`
+
+##### 3. Connecting via PuTTY
+
+1. Launch PuTTY executable you download earlier.
+2. In _Host Name (or IP address)_ field enter _192.168.10.10_
+3. From _Colours_ under _Category_ check _Use System colours_ if you prefer white background with black text.
+4. From _Connection -> SSH -> Auth_, specify putty.ppk for _Private key file for authentication_ input.
+5. Go back to the first screen (first tree option; _Session_), type Homestead in _Saved Sessions_ input and click save.
+6. You can now connect to the machine by double clicking _Homestead_ under _Saved Sessions_. When prompt to provide the user name, type _vagrant_.
+
+#### 12. Local domains
+
+The _hosts file_ must be modified in order to emulate real customer URLs.
+
+1. Right click on _Notepad_ and click _Run as administrator_.
+2. Open the hosts file located at `C:\Windows\System32\drivers\etc\hosts` using the open instance of Notepad.
+3. Append the following to the end of the file:
+```
+127.0.0.1      clientx.appraisalscope.local
+192.168.10.10  clientx.dev-api.appraisalscope.local
+192.168.10.10  homestead.app
+```
+
+#### 13. Database connection and data import
+
+To connect to your MySQL database server from your main machine via Navicat, you should connect to localhost and port 33060. The username and password for both databases is homestead / secret.
+
+You'll also need to import the development database once you're connected.
+
+#### 14. Install packages
+
+##### 1. Front-end packages
+
+1. Append the following to your Path: `;C:\Users\username\AppData\Roaming\npm;C:\Program Files\nodejs\;` and relaunch Git Bash.
+2. Paste the commands provided in [Preparing a new development environment](https://github.com/ascope/ascopev2/wiki/Preparing-a-new-development-environment#front-end) guide.
+
+Note how we are installing the front-end requirements outside of Homestead. This is needed because the front-end application interact with the browser (automatic refresh, testing, etc.)
+
+You can now install the front-end packages as specified in [Initializing a local development environment](https://github.com/ascope/ascopev2/wiki/Initializing-a-local-development-environment#initializing-the-front-end-app) guide under _Initializing the front-end app_.
+
+##### 2. Back-end packages
+
+Follow [Initializing the backend-end app](https://github.com/ascope/ascopev2/wiki/Initializing-a-local-development-environment#initializing-the-backend-end-app) steps. These commands must be executed from inside Homestead.
+
+#### 15. Launching the system
+
+See [Firing up development environment](https://github.com/ascope/ascopev2/wiki/Firing-up-development-environment) guide.
+
+#### Troubleshooting
+
+> I am getting _The program can’t start because MSVCR110.dll is missing from your computer. try reinstalling the program to fix this problem._
+
+You need to install [Visual C++ Redistributable](http://www.microsoft.com/en-us/download/details.aspx?id=30679).
+
+> I made some adjustments on Homestead.yaml configuration file, how can I reflect my changes on the virtual machine?
+
+Run the following commands from Git Bash:
+```
+cd "C:\Users\username\AppData\Roaming\Composer\vendor\laravel\homestead"
+vagrant provision
+```
+
+#### External Resources
+
+- [Installing Laravel on Windows - Treehouse video tutorial](https://www.youtube.com/watch?v=p0veZd9mtGc)
